@@ -6,8 +6,8 @@ import global_variables as GMvar
 
 class Object:
 
-    def __init__(self, coords=(0, 0), image=None, drawn=True, surface=GMvar.mainScreenBuffer):
-        """ coords: (x, y) = object initial coordinates.
+    def __init__(self, coords=[0, 0], image=None, drawn=True, surface=GMvar.mainScreenBuffer):
+        """ coords: [x, y] = object initial coordinates.
             image: pygame.Image = object's image, if exists.
             drawn: bool = whether object's image is drawn onto the surface or not. If image == none, then False
             surface: pygame.Surface = surface for image to be drawn onto """
@@ -26,14 +26,23 @@ class Object:
         
         self.direction = 0  # Object direction
 
-        self.surface = surface  # Surface to be drawn on, default is mainScreenBuffer
+        self.surface = surface  # Surface to be drawn on, default is GMvar.mainScreenBuffer
 
     def update(self):
         
         for i in range(len(self.speed)):
             if self.speed[i] != 0:
-                self.coords += self.speed * GMvar.deltaTime     # Consistent movement with deltatiming
+                self.coords[i] += self.speed[i] * GMvar.deltaTime     # Consistent movement with deltatiming
 
         # If drawn == true, then draw to designated surface
         if self.drawn:
             self.surface.blit(self.image, self.coords)
+
+class Car(Object):
+
+    def __init__(self, coords=[0,0], image=None, surface=GMvar.mainScreenBuffer):
+        super().__init__(coords=coords, image=image, drawn=True, surface=surface)
+
+    def update(self):
+        self.speed = [64, 0]
+        super().update()
