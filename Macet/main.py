@@ -1,6 +1,7 @@
 import pygame.display
 import pygame
 import time
+import json
 
 # Custom imports
 import game_functions as GMfun
@@ -8,10 +9,17 @@ import room_manager as GMroom
 import event_queue as GMque
 import global_variables as GMvar
 
+# Load settings.json and apply custom configs to game
+with open("settings.json", "r", encoding="utf-8") as file:
+    jsonFile = json.loads( file.read() )
+
+    GMvar.resolution = jsonFile["resolution"]
+    
+
 # Inits
 pygame.init()
 pygame.display.set_caption("Sim Macet")
-pygame.display.set_mode((800, 600))
+GMvar.mainScreenBuffer = pygame.display.set_mode(GMvar.resolution)  # Set resolution from settings.json
 
 # Main Loop
 while True:
