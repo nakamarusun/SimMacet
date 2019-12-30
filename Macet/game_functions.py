@@ -3,7 +3,7 @@
 import time
 import event_queue as GMque
 
-
+# Timer for timing in game
 class Timer:
     def __init__(self, endTime: float):
         # This is in miliseconds
