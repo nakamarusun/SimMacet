@@ -32,3 +32,6 @@ while True:
 
     # FPS Calculator
     GMfun.displayFps(startTime)
+
+    # Delta Timing
+    GMvar.deltaTime = GMfun.deltaTiming()

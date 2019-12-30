@@ -15,8 +15,11 @@ class Object:
         self.image = image  # Image if exists
         self.drawn = drawn if image != None else False             # Draw self every frame if true
         
-        self.x = coords[0]  # X coords
-        self.y = coords[1]  # Y coords
+        self.coords = coords
+
+        # The following speeds have been altered according to their delta timings
+        # WARNING: Speed is defined as pixels traveled per second.
+        self.speed = [0, 0]
 
         self.width = self.image.get_rect()[2] if image != None else 0   # Image width
         self.height = self.image.get_rect()[3] if image != None else 0  # Image height
@@ -27,6 +30,10 @@ class Object:
 
     def update(self):
         
+        for i in range(len(self.speed)):
+            if self.speed[i] != 0:
+                self.coords += self.speed * GMvar.deltaTime     # Consistent movement with deltatiming
+
         # If drawn == true, then draw to designated surface
         if self.drawn:
-            self.surface.blit(self.image, (self.x, self.y))
+            self.surface.blit(self.image, self.coords)

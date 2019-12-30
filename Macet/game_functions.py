@@ -16,6 +16,11 @@ class Timer:
         else:
             return False
 
+# Delta timing
+def deltaTiming(startTime: float) -> float:
+    """ Returns time took to finish a frame """
+    return time.time() - startTime
+
 # Debugs
 def displayFps(startTime: float):
     try:
