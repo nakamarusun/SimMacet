@@ -1,5 +1,7 @@
 """ Manager for objects, controls scripts for every class """
 
+import math
+
 import sound_manager as GMsnd
 import game_functions as GMfun
 import global_variables as GMvar
@@ -20,6 +22,7 @@ class Object:
         # The following speeds have been altered according to their delta timings
         # WARNING: Speed is defined as pixels traveled per second.
         self.speed = [0, 0]
+        self.dirSpeed = 0   # If not 0, dirSpeed is translated to speed based on the direction
 
         self.width = self.image.get_rect()[2] if image != None else 0   # Image width
         self.height = self.image.get_rect()[3] if image != None else 0  # Image height
@@ -30,6 +33,12 @@ class Object:
 
     def update(self):
         
+        # Sin is multiplied by -1 so that it will go up
+        if self.dirSpeed != 0:
+            radian = self.direction * math.pi/180
+            self.speed[0] = math.cos( radian ) * self.dirSpeed
+            self.speed[1] = -math.sin( radian ) * self.dirSpeed
+
         for i in range(len(self.speed)):
             if self.speed[i] != 0:
                 self.coords[i] += self.speed[i] * GMvar.deltaTime     # Consistent movement with deltatiming
