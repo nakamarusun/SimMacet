@@ -6,13 +6,21 @@ import sound_manager as GMsnd
 import game_functions as GMfun
 import global_variables as GMvar
 
+class Sprite:
+
+    def __init__(self, image, origin=[0, 0], direction=0):
+        self.image = image
+        self.direction = direction
+        self.origin = origin
+        self.size = [self.image.get_rect()[2], self.image.get_rect()[3]]
+
 class Object:
 
-    def __init__(self, coords=[0, 0], image=None, drawn=True, surface=GMvar.mainScreenBuffer):
+    def __init__(self, coords=None, image=None, drawn=True, surface=None):
         """ coords: [x, y] = object initial coordinates.
-            image: pygame.Image = object's image, if exists.
-            drawn: bool = whether object's image is drawn onto the surface or not. If image == none, then False
-            surface: pygame.Surface = surface for image to be drawn onto """
+        image: pygame.Image = object's image, if exists.
+        drawn: bool = whether object's image is drawn onto the surface or not. If image == none, then False
+        surface: pygame.Surface = surface for image to be drawn onto """
 
         self.image = image  # Image if exists
         self.drawn = drawn if image != None else False             # Draw self every frame if true
@@ -33,19 +41,20 @@ class Object:
 
     def update(self):
         
-        # Sin is multiplied by -1 so that it will go up
-        if self.dirSpeed != 0:
-            radian = self.direction * math.pi/180
-            self.speed[0] = math.cos( radian ) * self.dirSpeed
-            self.speed[1] = -math.sin( radian ) * self.dirSpeed
+        if self.hasVariable:
+            # Sin is multiplied by -1 so that it will go up
+            if self.dirSpeed != 0:
+                radian = self.direction * math.pi/180
+                self.speed[0] = math.cos( radian ) * self.dirSpeed
+                self.speed[1] = -math.sin( radian ) * self.dirSpeed
 
-        for i in range(len(self.speed)):
-            if self.speed[i] != 0:
-                self.coords[i] += self.speed[i] * GMvar.deltaTime     # Consistent movement with deltatiming
+            for i in range(len(self.speed)):
+                if self.speed[i] != 0:
+                    self.coords[i] += self.speed[i] * GMvar.deltaTime     # Consistent movement with deltatiming
 
-        # If drawn == true, then draw to designated surface
-        if self.drawn:
-            self.surface.blit(self.image, self.coords)
+            # If drawn == true, then draw to designated surface
+            if self.drawn:
+                self.surface.blit(self.image, self.coords)
 
 class Car(Object):
 
@@ -55,3 +64,14 @@ class Car(Object):
     def update(self):
         self.speed = [64, 0]
         super().update()
+
+class RoadCreator(Object):
+
+    def __init__(self):
+        super().__init__(coords=None, image=None, drawn=None, surface=None)
+
+        # Init all roads
+
+
+    def update(self):
+        pass

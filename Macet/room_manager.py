@@ -14,3 +14,6 @@ class Room:
     def updateRoom(self):
         for objects in self.objectsList:
             objects.update()
+
+
+gameRoom = Room()

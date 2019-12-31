@@ -24,7 +24,7 @@ def deltaTiming(startTime: float) -> float:
 # Debugs
 def displayFps(startTime: float):
     try:
-        FPS = 1/(time.time() - startTime)
+        FPS = round(1/(time.time() - startTime))
     except:
-        FPS = "TOO HIGH"
+        FPS = ">1000"
     print(FPS)
