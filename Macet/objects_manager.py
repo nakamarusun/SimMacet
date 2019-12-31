@@ -20,7 +20,7 @@ class Object:
         self.coords = coords
 
         # The following speeds have been altered according to their delta timings
-        # WARNING: Speed is defined as pixels traveled per second.
+        # WARNING: Speed is defined as pixels traveled per second. ##############
         self.speed = [0, 0]
         self.dirSpeed = 0   # If not 0, dirSpeed is translated to speed based on the direction
 
