@@ -10,22 +10,30 @@ import global_variables as GMvar
 from objects_manager import Object
 import game_functions as GMfun
 
-class MainCamera:
+class MainCameraSurface:
+    # This is the surface in which every object that needs to be movable
 
     objectsQueue = []
 
-    mainSurface = pygame.surface(GMvar.resolution)
+    mainSurface = pygame.Surface(GMvar.resolution)
     cameraCoords = [0, 0]
 
     def update():
-        pass
 
-    
+        for objects in MainCameraSurface.objectsQueue:
+            objects.update()
+            newSurfCoords = [ a - b for a, b in zip(objects.coords, MainCameraSurface.cameraCoords) ]
+            MainCameraSurface.mainSurface.blit(objects.image, newSurfCoords)
+        
+        GMvar.mainScreenBuffer.blit(MainCameraSurface.mainSurface, (0, 0) )
+        MainCameraSurface.cameraCoords[0] -= 2
+
 
 class Car(Object):
 
-    def __init__(self, coords=[0,0], image=None, surface=GMvar.mainScreenBuffer):
+    def __init__(self, coords=[0,0], image=None, drawn=True, surface=GMvar.mainScreenBuffer):
         super().__init__(coords=coords, image=image, drawn=True, surface=surface)
+        MainCameraSurface.objectsQueue.append(self)
 
     def update(self):
         self.speed = [0, 0]

@@ -26,7 +26,6 @@ pygame.init()
 pygame.display.set_caption("Sim Macet")
 
 GMvar.curRoom = GMroom.MainRoom
-GMvar.curRoom.addObjectToQueue( rooms.main_room.Car([64, 64], pygame.image.load("images/sprites/CarExample.png"), GMvar.mainScreenBuffer) )
 
 # Main Loop
 while True:
