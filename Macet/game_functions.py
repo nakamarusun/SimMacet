@@ -2,6 +2,18 @@
 
 import time
 import event_queue as GMque
+import pygame.transform
+import pygame
+
+# Rotation anchor
+def rotationAnchor(image, angle: float, anchor: list):
+    # Anchor is the rotation point. (0, 0) is top left, while (1, 1) is bottom right.
+
+    center = [ a*b for a,b in zip(image.get_size(), anchor) ]
+    rotated_image = pygame.transform.rotate(image, angle)
+    new_rect = rotated_image.get_rect(center = center)
+
+    return rotated_image, new_rect
 
 # Timer for timing in game
 class Timer:
