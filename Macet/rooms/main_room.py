@@ -10,6 +10,18 @@ import global_variables as GMvar
 from objects_manager import Object
 import game_functions as GMfun
 
+class MainCamera:
+
+    objectsQueue = []
+
+    mainSurface = pygame.surface(GMvar.resolution)
+    cameraCoords = [0, 0]
+
+    def update():
+        pass
+
+    
+
 class Car(Object):
 
     def __init__(self, coords=[0,0], image=None, surface=GMvar.mainScreenBuffer):
@@ -20,11 +32,6 @@ class Car(Object):
         super().update()
 
 class RoadCreator(Object):
-
-    def __init__(self):
-        pass
-
-        # Init all roads
     
     def update(self):
         pass
