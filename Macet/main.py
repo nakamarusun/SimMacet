@@ -1,5 +1,6 @@
 import pygame.display
 import pygame.image
+import pygame.mouse
 import pygame
 import time
 import json
@@ -18,13 +19,14 @@ import game_functions as GMfun
 import room_manager as GMroom
 import event_queue as GMque
 import objects_manager as GMobj
+import rooms.main_room
 
 # Inits
 pygame.init()
 pygame.display.set_caption("Sim Macet")
 
-GMvar.curRoom = GMroom.Room()
-GMvar.curRoom.addObjectToQueue( GMobj.Car([64, 64], pygame.image.load("images/sprites/CarExample.png"), GMvar.mainScreenBuffer) )
+GMvar.curRoom = GMroom.MainRoom
+GMvar.curRoom.addObjectToQueue( rooms.main_room.Car([64, 64], pygame.image.load("images/sprites/CarExample.png"), GMvar.mainScreenBuffer) )
 
 # Main Loop
 while True:
@@ -38,11 +40,15 @@ while True:
     # Load all events to GMque.currentEvents list
     GMque.loadEvents()
 
+    # Update and get mouse pos
+    GMvar.update()
+    GMvar.latestMouse = pygame.mouse.get_pos()
+
     # Update each object in current room
     GMvar.curRoom.updateRoom()
 
     # FPS Calculator
-    GMfun.displayFps(startTime)
+    # GMfun.displayFps(startTime)
 
     # Update display
     pygame.display.flip()

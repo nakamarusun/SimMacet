@@ -17,3 +17,7 @@ class Room:
         for objects in self.objectsList:
             objects.update()
 
+import rooms.main_room as MainRoomObjects
+
+MainRoom = Room()
+MainRoom.addObjectToQueue( MainRoomObjects.bottomGui )
