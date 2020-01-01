@@ -1,6 +1,7 @@
 import pygame.surface
 import pygame.image
 import pygame.draw
+import pygame.transform
 
 import sys
 sys.path.append('..')
@@ -30,6 +31,7 @@ class RoadCreator(Object):
 class bottomGui:
 
     slider = pygame.image.load("images/sprites/Slider.png")
+    sliderDirection = 0
     sliderRect = slider.get_rect()
 
     guiHeight = 75
@@ -51,7 +53,6 @@ class bottomGui:
             if GMvar.latestMouse[0] > (sliderX) and GMvar.latestMouse[0] < (sliderX + bottomGui.sliderRect[2]):
                 if GMvar.latestMouse[1] > bottomGui.guiHeightChange and GMvar.latestMouse[1] < (bottomGui.guiHeightChange + bottomGui.sliderRect[3]):
                     bottomGui.guiOpen = not bottomGui.guiOpen
-                    bottomGui.openSpeed = bottomGui.initOpenSpeed
 
         if bottomGui.guiOpen:
             if bottomGui.guiHeightChange > (GMvar.resolution[1] - bottomGui.guiHeight - bottomGui.sliderHeight):
@@ -59,9 +60,15 @@ class bottomGui:
                 bottomGui.guiHeightChange -= bottomGui.openSpeed * GMvar.deltaTime
         else:
             if bottomGui.guiHeightChange < (GMvar.resolution[1] - bottomGui.sliderHeight):
-                bottomGui.openSpeed += bottomGui.increment * GMvar.deltaTime
+                bottomGui.openSpeed -= bottomGui.increment * GMvar.deltaTime
                 bottomGui.guiHeightChange += bottomGui.openSpeed * GMvar.deltaTime
 
-        bottomGui.surfGui.blit(bottomGui.slider, (sliderX, 0))
+        bottomGui.sliderDirection = 180 if bottomGui.guiOpen == True else 0
+
+        bottomGui.surfGui.set_alpha(0)
+        bottomGui.surfGui.fill((0, 0, 0))
+        bottomGui.surfGui.set_alpha(255)
+
+        bottomGui.surfGui.blit( pygame.transform.rotate(bottomGui.slider, bottomGui.sliderDirection), (sliderX, 0))
         pygame.draw.rect(bottomGui.surfGui, (100, 100, 100), (0, bottomGui.sliderHeight, GMvar.resolution[0], bottomGui.guiHeight))
         GMvar.mainScreenBuffer.blit(bottomGui.surfGui, (0, bottomGui.guiHeightChange ))
