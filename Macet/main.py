@@ -40,8 +40,10 @@ while True:
     GMque.loadEvents()
 
     # Update and get mouse pos
-    GMvar.update()
     GMvar.latestMouse = pygame.mouse.get_pos()
+    GMvar.mouseDelta = pygame.mouse.get_rel()
+    GMvar.mouseState = pygame.mouse.get_pressed()
+    GMvar.update()
 
     # Update each object in current room
     GMvar.curRoom.updateRoom()

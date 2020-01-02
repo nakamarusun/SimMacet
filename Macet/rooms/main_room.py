@@ -20,15 +20,20 @@ class MainCameraSurface:
 
     def update():
         # If mouse is clicked and dragged
-        
+        if GMvar.mouseState[0]:
+            MainCameraSurface.cameraCoords = [ a - b for a, b in zip(MainCameraSurface.cameraCoords, GMvar.mouseDelta) ]
+
+        # Clear surface
+        MainCameraSurface.mainSurface.set_alpha(0)
+        MainCameraSurface.mainSurface.fill((0, 0, 0))
+        MainCameraSurface.mainSurface.set_alpha(255)
 
         for objects in MainCameraSurface.objectsQueue:
             objects.update()
             newSurfCoords = [ a - b for a, b in zip(objects.coords, MainCameraSurface.cameraCoords) ]
             MainCameraSurface.mainSurface.blit(objects.image, newSurfCoords)
-        
+
         GMvar.mainScreenBuffer.blit(MainCameraSurface.mainSurface, (0, 0) )
-        MainCameraSurface.cameraCoords[0] -= 2
 
 
 class Car(Object):
