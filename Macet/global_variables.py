@@ -11,12 +11,14 @@ deltaTime: float = 0
 latestMouse = [0, 0]
 mouseState = [False, False, False]  # left, middle, right respective to their index
 mouseStateSingle = [False, False, False]    # Same as mouseState but, only for one frame
+latestMouseLeft = [0, 0]
 __mouseHandled = False
 
 def update():
     global mouseState
     global __mouseHandled
     global mouseStateSingle
+    global latestMouseLeft
     mouseState = [False, False, False]
     mouseStateSingle = [False, False, False]
 
@@ -29,3 +31,6 @@ def update():
             if not __mouseHandled:
                 mouseStateSingle[event.button - 1] = True
             __mouseHandled = True
+
+    if mouseStateSingle[0]:
+        latestMouseLeft = latestMouse * 1

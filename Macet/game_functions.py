@@ -4,6 +4,10 @@ import time
 import event_queue as GMque
 import pygame.transform
 import pygame
+import global_variables as GMvar
+
+#######################################################################################
+# General game object functions
 
 # Rotation anchor
 def rotationAnchor(image, angle: float, anchor: list):
@@ -27,6 +31,16 @@ class Timer:
             del self
         else:
             return False
+
+def mouseClickedArea(mouseButton: int, left: float, right: float, top: float, bottom: float):
+    if GMvar.mouseStateSingle[mouseButton]:
+        if GMvar.latestMouse[0] > left and GMvar.latestMouse[0] < right:
+            if GMvar.latestMouse[1] > top and GMvar.latestMouse[1] < bottom:
+                return True
+    return False
+
+########################################################################################
+# Specialized functions
 
 # Delta timing
 def deltaTiming(startTime: float) -> float:

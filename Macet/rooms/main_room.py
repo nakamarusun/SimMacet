@@ -19,6 +19,8 @@ class MainCameraSurface:
     cameraCoords = [0, 0]
 
     def update():
+        # If mouse is clicked and dragged
+        
 
         for objects in MainCameraSurface.objectsQueue:
             objects.update()
