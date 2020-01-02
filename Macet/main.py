@@ -34,7 +34,7 @@ while True:
     startTime = time.time()
 
     # Reset background to black
-    GMvar.mainScreenBuffer.fill( (0, 0, 0) )
+    GMvar.mainScreenBuffer.fill( (255, 255, 255) )
 
     # Load all events to GMque.currentEvents list
     GMque.loadEvents()

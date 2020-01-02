@@ -24,9 +24,7 @@ class MainCameraSurface:
             MainCameraSurface.cameraCoords = [ a - b for a, b in zip(MainCameraSurface.cameraCoords, GMvar.mouseDelta) ]
 
         # Clear surface
-        MainCameraSurface.mainSurface.set_alpha(0)
-        MainCameraSurface.mainSurface.fill((0, 0, 0))
-        MainCameraSurface.mainSurface.set_alpha(255)
+        MainCameraSurface.mainSurface.fill((255, 255, 255, 0))
 
         for objects in MainCameraSurface.objectsQueue:
             objects.update()
@@ -68,7 +66,8 @@ class bottomGui:
     openSpeed = 50 # Initial speed to open the GUI
     increment = 500 # Speed acceleration
 
-    surfGui = pygame.Surface((GMvar.resolution[0], guiHeight + sliderHeight)) # an isolated Surface in which to draw the GUI
+    surfGui = pygame.Surface((GMvar.resolution[0], guiHeight + sliderHeight),pygame.SRCALPHA) # an isolated Surface in which to draw the GUI
+    surfGui = surfGui.convert_alpha()
     
     def update(): # pylint: disable=fixme, no-method-argument
 
@@ -97,13 +96,11 @@ class bottomGui:
                 bottomGui.sliderDirection -= 360 * GMvar.deltaTime
 
         # Clear surface
-        bottomGui.surfGui.set_alpha(0)
-        bottomGui.surfGui.fill((0, 0, 0))
-        bottomGui.surfGui.set_alpha(255)
+        bottomGui.surfGui.fill((0, 0, 0, 0))
 
         slider, rect = GMfun.rotationAnchor(bottomGui.slider, bottomGui.sliderDirection, (0.5, 0.5)) # Get rotation
 
         # Draw and blit to main screen buffer
-        bottomGui.surfGui.blit( slider, [ a + b for a, b in zip((rect.x, rect.y), (bottomGui.sliderX, bottomGui.sliderYOffset))  ] )
+        bottomGui.surfGui.blit( slider, [ a + b for a, b in zip((rect.x, rect.y), (bottomGui.sliderX, bottomGui.sliderYOffset)) ] )
         pygame.draw.rect(bottomGui.surfGui, (100, 100, 100), (0, bottomGui.sliderHeight, GMvar.resolution[0], bottomGui.guiHeight))
         GMvar.mainScreenBuffer.blit(bottomGui.surfGui, (0, bottomGui.guiHeightChange ))
