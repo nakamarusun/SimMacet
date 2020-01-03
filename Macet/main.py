@@ -49,7 +49,7 @@ while True:
     GMvar.curRoom.updateRoom()
 
     # FPS Calculator
-    # GMfun.displayFps(startTime)
+    GMfun.displayFps(startTime)
 
     # Update display
     pygame.display.flip()

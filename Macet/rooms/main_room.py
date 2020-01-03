@@ -10,6 +10,11 @@ import global_variables as GMvar
 from objects_manager import Object
 import game_functions as GMfun
 
+class GridDrawer:
+
+    def update():
+        pass
+
 class MainCameraSurface:
     # This is the surface in which every object that needs to be movable
 
@@ -95,6 +100,8 @@ class bottomGui:
             if bottomGui.sliderDirection > 0:
                 bottomGui.sliderDirection -= 360 * GMvar.deltaTime
 
+        bottomGui.sliderDirection = round(bottomGui.sliderDirection)
+
         # Clear surface
         bottomGui.surfGui.fill((0, 0, 0, 0))
 
@@ -102,5 +109,5 @@ class bottomGui:
 
         # Draw and blit to main screen buffer
         bottomGui.surfGui.blit( slider, [ a + b for a, b in zip((rect.x, rect.y), (bottomGui.sliderX, bottomGui.sliderYOffset)) ] )
-        pygame.draw.rect(bottomGui.surfGui, (100, 100, 100), (0, bottomGui.sliderHeight, GMvar.resolution[0], bottomGui.guiHeight))
-        GMvar.mainScreenBuffer.blit(bottomGui.surfGui, (0, bottomGui.guiHeightChange ))
+        pygame.draw.rect(bottomGui.surfGui, (100, 100, 100), (0, bottomGui.sliderHeight, GMvar.resolution[0], bottomGui.guiHeight + 1)) # Plus 1 to fix the weird 1 pixel
+        GMvar.mainScreenBuffer.blit(bottomGui.surfGui, (0, bottomGui.guiHeightChange + 1 ))

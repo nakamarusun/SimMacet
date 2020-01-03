@@ -35,21 +35,5 @@ def update():
         else:
             __mouseHandled = False
 
-    # for event in GMque.currentEvents:
-    #     if event.type == pygame.MOUSEBUTTONUP:
-    #         __mouseHandled = False
-
-    #     if event.type == pygame.MOUSEBUTTONDOWN:
-    #         mouseState[event.button - 1] = True
-    #         if not __mouseHandled:
-    #             mouseStateSingle[event.button - 1] = True
-    #         __mouseHandled = True
-    # #####################
-    # for i in range(len(mouseState)):
-    #     if mouseState[i] == 1:
-    #         mouseState[i] = True
-    #         mouseStateSingle[i] = True
-    #         __mouseHandled = True
-
     if mouseStateSingle[0]:
         latestMouseLeft = latestMouse * 1
