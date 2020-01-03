@@ -36,13 +36,14 @@ class MainCameraSurface:
             MainCameraSurface.cameraCoords = [ a - b for a, b in zip(MainCameraSurface.cameraCoords, GMvar.mouseDelta) ]  # Substract cameracoords by delta mouse movements
 
         # Draw grid by considering camera movements. Size is constant and the grid is drawn directly on the main buffer.
+        # THIS GRID DRAW IS VERY LAGGY PLEASE FIX BAWS
         gridOffset = [ (MainCameraSurface.cameraCoords[i] % MainCameraSurface.cellSize[i]) for i in range(len(MainCameraSurface.cellSize)) ]    # Grid offset based on the camera coordinates
-        newCoords = [0, 0]  # Coordinates for individual grids
-        for i in range(MainCameraSurface.gridSize[0]):
-            newCoords[0] = i * MainCameraSurface.cellSize[0] - gridOffset[0] # Change x coordinates
-            for j in range(MainCameraSurface.gridSize[1]):
-                newCoords[1] = j * MainCameraSurface.cellSize[1] - gridOffset[1] # Change y coordinates
-                pygame.draw.rect( GMvar.mainScreenBuffer, (235, 235, 235), (newCoords, MainCameraSurface.cellSize), 1 ) # Draw square
+        for x in range(2):
+            for i in range(MainCameraSurface.gridSize[x]):
+                pointPosition = i * MainCameraSurface.cellSize[x] - gridOffset[x]
+                startLine = (pointPosition, 0) if x == 0 else (0, pointPosition)
+                endLine = (pointPosition, GMvar.resolution[::-1][x]) if x == 0 else (GMvar.resolution[::-1][x], pointPosition)
+                pygame.draw.line( GMvar.mainScreenBuffer, (220, 220, 220), startLine, endLine, 2) # Draw line
 
         # Clear surface
         MainCameraSurface.mainSurface.fill((0, 0, 0, 0))
@@ -74,7 +75,7 @@ class RoadCreator:
 class bottomGui:
 
     # image for the slider
-    slider = pygame.image.load("images/sprites/Slider.png")
+    slider = pygame.image.load("images/sprites/Slider.png").convert_alpha()
     sliderDirection = 0 # Slider's image direction
     sliderRect = slider.get_rect() # Slider rect
 
