@@ -36,11 +36,10 @@ class MainCameraSurface:
             MainCameraSurface.cameraCoords = [ a - b for a, b in zip(MainCameraSurface.cameraCoords, GMvar.mouseDelta) ]  # Substract cameracoords by delta mouse movements
 
         # Draw grid by considering camera movements. Size is constant and the grid is drawn directly on the main buffer.
-        # THIS GRID DRAW IS VERY LAGGY PLEASE FIX BAWS
         gridOffset = [ (MainCameraSurface.cameraCoords[i] % MainCameraSurface.cellSize[i]) for i in range(len(MainCameraSurface.cellSize)) ]    # Grid offset based on the camera coordinates
         for x in range(2):
             for i in range(MainCameraSurface.gridSize[x]):
-                pointPosition = i * MainCameraSurface.cellSize[x] - gridOffset[x]
+                pointPosition = i * MainCameraSurface.cellSize[x] - gridOffset[x] # Every node point to draw the line.
                 startLine = (pointPosition, 0) if x == 0 else (0, pointPosition)
                 endLine = (pointPosition, GMvar.resolution[::-1][x]) if x == 0 else (GMvar.resolution[::-1][x], pointPosition)
                 pygame.draw.line( GMvar.mainScreenBuffer, (220, 220, 220), startLine, endLine, 2) # Draw line
