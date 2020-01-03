@@ -10,26 +10,36 @@ import global_variables as GMvar
 from objects_manager import Object
 import game_functions as GMfun
 
-class GridDrawer:
-
-    def update():
-        pass
-
 class MainCameraSurface:
     # This is the surface in which every object that needs to be movable
 
     objectsQueue = []
 
-    mainSurface = pygame.Surface(GMvar.resolution)
+    mainSurface = pygame.Surface(GMvar.resolution, pygame.SRCALPHA)
     cameraCoords = [0, 0]
+
+    cellSize = (32, 32)
+    # for gridSize can't use list comprehension, will throw an error because of class
+    gridSize = [0, 0]
+    gridSize[0] = GMvar.resolution[0] // cellSize[0] + 1
+    gridSize[1] = GMvar.resolution[1] // cellSize[1] + 2
 
     def update():
         # If mouse is clicked and dragged
         if GMvar.mouseState[0]:
             MainCameraSurface.cameraCoords = [ a - b for a, b in zip(MainCameraSurface.cameraCoords, GMvar.mouseDelta) ]
 
+        # Draw grid
+        gridOffset = [ (MainCameraSurface.cameraCoords[i] % MainCameraSurface.cellSize[i]) for i in range(len(MainCameraSurface.cellSize)) ]
+        newCoords = [0, 0]
+        for i in range(MainCameraSurface.gridSize[0]):
+            newCoords[0] = i * MainCameraSurface.cellSize[0] - gridOffset[0]
+            for j in range(MainCameraSurface.gridSize[1]):
+                newCoords[1] = j * MainCameraSurface.cellSize[1] - gridOffset[1]
+                pygame.draw.rect( GMvar.mainScreenBuffer, (230, 230, 230), (newCoords, MainCameraSurface.cellSize), 1 )
+
         # Clear surface
-        MainCameraSurface.mainSurface.fill((255, 255, 255, 0))
+        MainCameraSurface.mainSurface.fill((0, 0, 0, 0))
 
         for objects in MainCameraSurface.objectsQueue:
             objects.update()
@@ -38,6 +48,12 @@ class MainCameraSurface:
 
         GMvar.mainScreenBuffer.blit(MainCameraSurface.mainSurface, (0, 0) )
 
+class GridDrawer:
+
+    coords = [0, 0]
+
+    def update():
+        pass
 
 class Car(Object):
 
