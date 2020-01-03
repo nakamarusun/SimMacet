@@ -33,7 +33,7 @@ while True:
     # Get time at the start of the frame
     startTime = time.time()
 
-    # Reset background to black
+    # Clear screen buffer
     GMvar.mainScreenBuffer.fill( (255, 255, 255) )
 
     # Load all events to GMque.currentEvents list

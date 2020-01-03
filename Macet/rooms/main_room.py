@@ -58,7 +58,7 @@ class GridDrawer:
 class Car(Object):
 
     def __init__(self, coords=[0,0], image=None, drawn=True, surface=GMvar.mainScreenBuffer):
-        super().__init__(coords=coords, image=image, drawn=True, surface=surface)
+        super().__init__(coords=coords, image=image, drawn=drawn, surface=surface)
         MainCameraSurface.objectsQueue.append(self)
 
     def update(self):

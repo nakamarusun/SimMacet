@@ -45,5 +45,5 @@ class Object:
                 self.coords[i] += self.speed[i] * GMvar.deltaTime     # Consistent movement with deltatiming
 
         # If drawn == true, then draw to designated surface
-        if self.drawn:
+        if self.drawn == True:
             self.surface.blit(self.image, self.coords)
