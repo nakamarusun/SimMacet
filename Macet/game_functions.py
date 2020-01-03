@@ -50,7 +50,7 @@ def deltaTiming(startTime: float) -> float:
 # Debugs
 def displayFps(startTime: float):
     try:
-        FPS = round(1/(time.time() - startTime))
+        FPS = str(round(1/(time.time() - startTime)))
     except:
         FPS = ">1000"
-    print(FPS)
+    GMvar.mainScreenBuffer.blit(GMvar.defFont.render(("FPS: " + FPS), True, (0, 0, 0) ), (5, 5))

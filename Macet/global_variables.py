@@ -1,12 +1,17 @@
 """ Variables """
 
 import pygame.display
+import pygame.font
 import event_queue as GMque
 import pygame
+
+# Inits
+pygame.font.init()
 
 resolution = [800, 600] # Default resolution is 800 x 600
 mainScreenBuffer = None
 curRoom = None
+defFont = pygame.font.Font(pygame.font.get_default_font(), 14)
 
 deltaTime: float = 0
 
