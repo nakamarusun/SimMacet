@@ -13,40 +13,42 @@ import game_functions as GMfun
 class MainCameraSurface:
     # This is the surface in which every object that needs to be movable
 
-    objectsQueue = []
+    objectsQueue = []   # Objects to be loaded in the camera
 
-    mainSurface = pygame.Surface(GMvar.resolution, pygame.SRCALPHA)
-    cameraCoords = [0, 0]
+    mainSurface = pygame.Surface(GMvar.resolution, pygame.SRCALPHA)     # Main surface of the camera, need to have transparency enabled
+    cameraCoords = [0, 0]   # Current coordinates of the camera
 
-    cellSize = (32, 32)
+    cellSize = (32, 32) # Grid cell size for the game
+
     # for gridSize can't use list comprehension, will throw an error because of class
-    gridSize = [0, 0]
+    gridSize = [0, 0] # Cell total for width and height
     gridSize[0] = GMvar.resolution[0] // cellSize[0] + 1
     gridSize[1] = GMvar.resolution[1] // cellSize[1] + 2
 
     def update():
         # If mouse is clicked and dragged
         if GMvar.mouseState[0]:
-            MainCameraSurface.cameraCoords = [ a - b for a, b in zip(MainCameraSurface.cameraCoords, GMvar.mouseDelta) ]
+            MainCameraSurface.cameraCoords = [ a - b for a, b in zip(MainCameraSurface.cameraCoords, GMvar.mouseDelta) ]  # Substract cameracoords by delta mouse movements
 
-        # Draw grid
-        gridOffset = [ (MainCameraSurface.cameraCoords[i] % MainCameraSurface.cellSize[i]) for i in range(len(MainCameraSurface.cellSize)) ]
-        newCoords = [0, 0]
+        # Draw grid by considering camera movements. Size is constant and the grid is drawn directly on the main buffer.
+        gridOffset = [ (MainCameraSurface.cameraCoords[i] % MainCameraSurface.cellSize[i]) for i in range(len(MainCameraSurface.cellSize)) ]    # Grid offset based on the camera coordinates
+        newCoords = [0, 0]  # Coordinates for individual grids
         for i in range(MainCameraSurface.gridSize[0]):
-            newCoords[0] = i * MainCameraSurface.cellSize[0] - gridOffset[0]
+            newCoords[0] = i * MainCameraSurface.cellSize[0] - gridOffset[0] # Change x coordinates
             for j in range(MainCameraSurface.gridSize[1]):
-                newCoords[1] = j * MainCameraSurface.cellSize[1] - gridOffset[1]
-                pygame.draw.rect( GMvar.mainScreenBuffer, (235, 235, 235), (newCoords, MainCameraSurface.cellSize), 1 )
+                newCoords[1] = j * MainCameraSurface.cellSize[1] - gridOffset[1] # Change y coordinates
+                pygame.draw.rect( GMvar.mainScreenBuffer, (235, 235, 235), (newCoords, MainCameraSurface.cellSize), 1 ) # Draw square
 
         # Clear surface
         MainCameraSurface.mainSurface.fill((0, 0, 0, 0))
 
+        # For every object in the camera queue, do their respective update event, and put them in their new coordinates
         for objects in MainCameraSurface.objectsQueue:
             objects.update()
-            newSurfCoords = [ a - b for a, b in zip(objects.coords, MainCameraSurface.cameraCoords) ]
-            MainCameraSurface.mainSurface.blit(objects.image, newSurfCoords)
+            newSurfCoords = [ a - b for a, b in zip(objects.coords, MainCameraSurface.cameraCoords) ] # Calculate new object coordinates based on camera coords
+            MainCameraSurface.mainSurface.blit(objects.image, newSurfCoords) # Blit objects to camera surface
 
-        GMvar.mainScreenBuffer.blit(MainCameraSurface.mainSurface, (0, 0) )
+        GMvar.mainScreenBuffer.blit(MainCameraSurface.mainSurface, (0, 0) ) # Blit to main buffer
 
 class Car(Object):
 
@@ -105,7 +107,7 @@ class bottomGui:
                 bottomGui.openSpeed -= bottomGui.increment * GMvar.deltaTime
                 bottomGui.guiHeightChange += bottomGui.openSpeed * GMvar.deltaTime
             else:
-                # Reset everything
+                # Reset everything so the numbers are not weird
                 bottomGui.openSpeed = 50
                 bottomGui.guiHeightChange = GMvar.resolution[1] - bottomGui.sliderHeight
             if bottomGui.sliderDirection > 0:
@@ -121,6 +123,6 @@ class bottomGui:
         slider, rect = GMfun.rotationAnchor(bottomGui.slider, bottomGui.sliderDirection, (0.5, 0.5)) # Get rotation
 
         # Draw and blit to main screen buffer
-        bottomGui.surfGui.blit( slider, [ a + b for a, b in zip((rect.x, rect.y), (bottomGui.sliderX, bottomGui.sliderYOffset)) ] )
+        bottomGui.surfGui.blit( slider, [ a + b for a, b in zip((rect.x, rect.y), (bottomGui.sliderX, bottomGui.sliderYOffset)) ] )     # Blit slider button to surface
         pygame.draw.rect(bottomGui.surfGui, (100, 100, 100), (0, bottomGui.sliderHeight, GMvar.resolution[0], bottomGui.guiHeight + 1)) # Plus 1 to fix the weird 1 pixel
-        GMvar.mainScreenBuffer.blit(bottomGui.surfGui, (0, bottomGui.guiHeightChange + 1 ))
+        GMvar.mainScreenBuffer.blit(bottomGui.surfGui, (0, bottomGui.guiHeightChange + 1 )) # Finally, draw everything to main buffer
