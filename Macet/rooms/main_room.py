@@ -8,6 +8,7 @@ sys.path.append('..')
 
 import global_variables as GMvar
 from objects_manager import Object
+from objects.street_nodes import StreetNodes
 import game_functions as GMfun
 
 class MainCameraSurface:
@@ -25,7 +26,11 @@ class MainCameraSurface:
     gridSize[0] = GMvar.resolution[0] // cellSize[0] + 1
     gridSize[1] = GMvar.resolution[1] // cellSize[1] + 2
 
+    def getRealMouseCoords() -> list:
+        return [ a + b for a, b in zip(MainCameraSurface.cameraCoords, GMvar.latestMouse) ]
+
     def update():
+
         # If mouse is clicked and dragged
         if GMvar.mouseState[0]:
             MainCameraSurface.cameraCoords = [ a - b for a, b in zip(MainCameraSurface.cameraCoords, GMvar.mouseDelta) ]  # Substract cameracoords by delta mouse movements
@@ -60,9 +65,10 @@ class Car(Object):
         self.speed = [10, 0]
         super().update()
 
-class RoadCreator(Object):
+class RoadCreator:
     
-    def update(self):
+
+    def update():
         pass
 
 class bottomGui:
