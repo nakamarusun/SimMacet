@@ -36,7 +36,7 @@ class MainCameraSurface:
             newCoords[0] = i * MainCameraSurface.cellSize[0] - gridOffset[0]
             for j in range(MainCameraSurface.gridSize[1]):
                 newCoords[1] = j * MainCameraSurface.cellSize[1] - gridOffset[1]
-                pygame.draw.rect( GMvar.mainScreenBuffer, (230, 230, 230), (newCoords, MainCameraSurface.cellSize), 1 )
+                pygame.draw.rect( GMvar.mainScreenBuffer, (235, 235, 235), (newCoords, MainCameraSurface.cellSize), 1 )
 
         # Clear surface
         MainCameraSurface.mainSurface.fill((0, 0, 0, 0))
@@ -48,13 +48,6 @@ class MainCameraSurface:
 
         GMvar.mainScreenBuffer.blit(MainCameraSurface.mainSurface, (0, 0) )
 
-class GridDrawer:
-
-    coords = [0, 0]
-
-    def update():
-        pass
-
 class Car(Object):
 
     def __init__(self, coords=[0,0], image=None, drawn=True, surface=GMvar.mainScreenBuffer):
@@ -62,7 +55,7 @@ class Car(Object):
         MainCameraSurface.objectsQueue.append(self)
 
     def update(self):
-        self.speed = [0, 0]
+        self.speed = [10, 0]
         super().update()
 
 class RoadCreator(Object):
@@ -104,7 +97,9 @@ class bottomGui:
                 bottomGui.openSpeed += bottomGui.increment * GMvar.deltaTime
                 bottomGui.guiHeightChange -= bottomGui.openSpeed * GMvar.deltaTime
             if bottomGui.sliderDirection < 180:
-                bottomGui.sliderDirection += 360 * GMvar.deltaTime
+                bottomGui.sliderDirection += 450 * GMvar.deltaTime
+            else:
+                bottomGui.sliderDirection = 180
         else:
             if bottomGui.guiHeightChange < (GMvar.resolution[1] - bottomGui.sliderHeight):
                 bottomGui.openSpeed -= bottomGui.increment * GMvar.deltaTime
@@ -114,7 +109,9 @@ class bottomGui:
                 bottomGui.openSpeed = 50
                 bottomGui.guiHeightChange = GMvar.resolution[1] - bottomGui.sliderHeight
             if bottomGui.sliderDirection > 0:
-                bottomGui.sliderDirection -= 360 * GMvar.deltaTime
+                bottomGui.sliderDirection -= 450 * GMvar.deltaTime
+            else:
+                bottomGui.sliderDirection = 0
 
         bottomGui.sliderDirection = round(bottomGui.sliderDirection)
 
