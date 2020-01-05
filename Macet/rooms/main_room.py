@@ -27,10 +27,27 @@ class MainCameraSurface:
     gridSize[0] = GMvar.resolution[0] // cellSize[0] + 1
     gridSize[1] = GMvar.resolution[1] // cellSize[1] + 2
 
+    returnCamera = False # If true, return camera to [0, 0]
+    returnCameraMultiplier = 1
+    oldHomeCamCoords = [0, 0]
+
     def getRealMouseCoords() -> list:
         return [ a + b for a, b in zip(MainCameraSurface.cameraCoords, GMvar.latestMouse) ]
 
+    def homeCamera(second = int):
+        MainCameraSurface.returnCameraMultiplier -= GMvar.deltaTime * 1/second
+        MainCameraSurface.cameraCoords = [ GMfun.cosInterpolation( i, MainCameraSurface.returnCameraMultiplier ) for i in MainCameraSurface.oldHomeCamCoords ]
+        if MainCameraSurface.returnCameraMultiplier < 0:
+            MainCameraSurface.returnCamera = False
+
     def update():
+
+        # If return camera, the move the camera back to home using cos interpolation
+        if MainCameraSurface.returnCamera:
+            MainCameraSurface.homeCamera(1)
+        else:
+            MainCameraSurface.oldHomeCamCoords = MainCameraSurface.cameraCoords
+            MainCameraSurface.returnCameraMultiplier = 1
 
         # If mouse is clicked and dragged
         if GMvar.mouseState[2]:
@@ -101,7 +118,7 @@ class bottomGui:
     def update(): # pylint: disable=fixme, no-method-argument
 
         if bottomGui.reCenter.checkState():
-            MainCameraSurface.cameraCoords = [0, 0]
+            MainCameraSurface.returnCamera = True
 
         # If mouse is clicked on the button then open/close gui
         if GMvar.mouseStateSingle[0]:
