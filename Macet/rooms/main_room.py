@@ -42,7 +42,7 @@ class MainCameraSurface:
                 pointPosition = i * MainCameraSurface.cellSize[x] - gridOffset[x] # Every node point to draw the line.
                 startLine = (pointPosition, 0) if x == 0 else (0, pointPosition)
                 endLine = (pointPosition, GMvar.resolution[::-1][x]) if x == 0 else (GMvar.resolution[::-1][x], pointPosition)
-                pygame.draw.line( GMvar.mainScreenBuffer, (220, 220, 220), startLine, endLine, 2) # Draw line
+                pygame.draw.line( GMvar.mainScreenBuffer, (240, 240, 240), startLine, endLine, 2) # Draw line
 
         # Clear surface
         MainCameraSurface.mainSurface.fill((0, 0, 0, 0))
@@ -67,6 +67,7 @@ class Car(Object):
 
 class RoadCreator:
     
+    roadNodes = []
 
     def update():
         pass
@@ -74,11 +75,11 @@ class RoadCreator:
 class bottomGui:
 
     # image for the slider
-    slider = pygame.image.load("images/sprites/Slider.png").convert_alpha()
+    slider = pygame.image.load("images/sprites/GuiButtons/Slider.png").convert_alpha()
     sliderDirection = 0 # Slider's image direction
     sliderRect = slider.get_rect() # Slider rect
 
-    guiHeight = 75 # The height of the rectangle part of the gui
+    guiHeight = 120 # The height of the rectangle part of the gui
     sliderHeight = sliderRect[3] + 50 # The height of the slider's image plus some breathing room
     guiOpen = False # State whether gui is open or nah
     guiHeightChange = GMvar.resolution[1] - sliderHeight # Current gui's position on the screen.
@@ -130,5 +131,5 @@ class bottomGui:
 
         # Draw and blit to main screen buffer
         bottomGui.surfGui.blit( slider, [ a + b for a, b in zip((rect.x, rect.y), (bottomGui.sliderX, bottomGui.sliderYOffset)) ] )     # Blit slider button to surface
-        pygame.draw.rect(bottomGui.surfGui, (100, 100, 100), (0, bottomGui.sliderHeight, GMvar.resolution[0], bottomGui.guiHeight + 1)) # Plus 1 to fix the weird 1 pixel
+        pygame.draw.rect(bottomGui.surfGui, (44, 66, 81), (0, bottomGui.sliderHeight, GMvar.resolution[0], bottomGui.guiHeight + 2)) # Plus 1 to fix the weird 1 pixel
         GMvar.mainScreenBuffer.blit(bottomGui.surfGui, (0, bottomGui.guiHeightChange + 1 )) # Finally, draw everything to main buffer
