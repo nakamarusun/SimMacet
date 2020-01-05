@@ -20,7 +20,7 @@ class MainCameraSurface:
     mainSurface = pygame.Surface(GMvar.resolution, pygame.SRCALPHA)     # Main surface of the camera, need to have transparency enabled
     cameraCoords = [0, 0]   # Current coordinates of the camera
 
-    cellSize = (32, 32) # Grid cell size for the game
+    cellSize = (16, 16) # Grid cell size for the game
 
     # for gridSize can't use list comprehension, will throw an error because of class
     gridSize = [0, 0] # Cell total for width and height
@@ -34,7 +34,7 @@ class MainCameraSurface:
     def getRealMouseCoords() -> list:
         return [ a + b for a, b in zip(MainCameraSurface.cameraCoords, GMvar.latestMouse) ]
 
-    def homeCamera(second = int):
+    def homeCamera(second: int):
         MainCameraSurface.returnCameraMultiplier -= GMvar.deltaTime * 1/second
         MainCameraSurface.cameraCoords = [ GMfun.cosInterpolation( i, MainCameraSurface.returnCameraMultiplier ) for i in MainCameraSurface.oldHomeCamCoords ]
         if MainCameraSurface.returnCameraMultiplier < 0:
@@ -60,7 +60,7 @@ class MainCameraSurface:
                 pointPosition = i * MainCameraSurface.cellSize[x] - gridOffset[x] # Every node point to draw the line.
                 startLine = (pointPosition, 0) if x == 0 else (0, pointPosition)
                 endLine = (pointPosition, GMvar.resolution[::-1][x]) if x == 0 else (GMvar.resolution[::-1][x], pointPosition)
-                pygame.draw.line( GMvar.mainScreenBuffer, (240, 240, 240), startLine, endLine, 2) # Draw line
+                pygame.draw.line( GMvar.mainScreenBuffer, (230, 230, 230), startLine, endLine) # Draw line
 
         # Clear surface
         MainCameraSurface.mainSurface.fill((0, 0, 0, 0))
@@ -83,7 +83,7 @@ class Car(Object):
         self.speed = [10, 0]
         super().update()
 
-class RoadCreator:
+class Canvas:
     
     roadNodes = []
 
