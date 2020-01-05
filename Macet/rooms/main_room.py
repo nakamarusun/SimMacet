@@ -11,6 +11,7 @@ from objects_manager import Object
 from objects.street_nodes import StreetNodes
 import game_functions as GMfun
 import objects.button as Button
+import mouse_design
 
 class MainCameraSurface:
     # This is the surface in which every object that needs to be movable
@@ -122,6 +123,9 @@ class bottomGui:
     def update(): # pylint: disable=fixme, no-method-argument
 
         # CLICK BUTTON CHECK EVENTS HERE
+        if bottomGui.buttonTopLeft.checkState():
+            mouse_design.setMouse(mouse_design.mouseRoad)
+
         if bottomGui.reCenter.checkState():
             MainCameraSurface.returnCamera = True
 
