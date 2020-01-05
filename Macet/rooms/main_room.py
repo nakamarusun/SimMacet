@@ -114,13 +114,14 @@ class bottomGui:
     reCenter = Button.Button(surfGui, (GMvar.resolution[0]/2 - 55, sliderHeight - 35), "images/sprites/GuiButtons/Recenter.png", "images/sprites/GuiButtons/RecenterTog.png", (0, 0, 111, 111))
     buttonTopLeft = Button.Button(surfGui, (GMvar.resolution[0]/2 - 156, sliderHeight ), "images/sprites/GuiButtons/TopLeft.png", "images/sprites/GuiButtons/TopLeftTog.png", (0, 10, 91, 48))
     buttonTopRight = Button.Button(surfGui, (GMvar.resolution[0]/2 - 156, sliderHeight ), "images/sprites/GuiButtons/TopRight.png", "images/sprites/GuiButtons/TopRightTog.png", (221, 10, 91, 48))
-    buttonBotLeft = Button.Button(surfGui, (GMvar.resolution[0]/2 - 156, sliderHeight ), "images/sprites/GuiButtons/BotLeft.png", "images/sprites/GuiButtons/BotLeftTog.png", (0, 64, 124, 48))
-    buttonBotRight = Button.Button(surfGui, (GMvar.resolution[0]/2 - 156, sliderHeight ), "images/sprites/GuiButtons/BotRight.png", "images/sprites/GuiButtons/BotRightTog.png", (188, 64, 124, 48))
+    buttonBotLeft = Button.ToggleButton(surfGui, (GMvar.resolution[0]/2 - 156, sliderHeight ), "images/sprites/GuiButtons/BotLeft.png", "images/sprites/GuiButtons/BotLeftTog.png", (0, 64, 124, 48))
+    buttonBotRight = Button.ToggleButton(surfGui, (GMvar.resolution[0]/2 - 156, sliderHeight ), "images/sprites/GuiButtons/BotRight.png", "images/sprites/GuiButtons/BotRightTog.png", (188, 64, 124, 48))
 
     Buttons = [reCenter, buttonTopLeft, buttonTopRight, buttonBotLeft, buttonBotRight]
     
     def update(): # pylint: disable=fixme, no-method-argument
 
+        # CLICK BUTTON CHECK EVENTS HERE
         if bottomGui.reCenter.checkState():
             MainCameraSurface.returnCamera = True
 
@@ -168,7 +169,17 @@ class bottomGui:
 
         # Draw buttons to surface
         # Update buttons
+        toggled = False
         for button in bottomGui.Buttons:
             button.update(0, bottomGui.guiHeightChange)
+            try:
+                if toggled and button.clicked:
+                    button.clicked = False
+                if button.clicked == True:
+                    toggled = True
+            except:
+                pass
+
+        # TOGGLE BUTTON CHECK EVENTS HERE
 
         GMvar.mainScreenBuffer.blit(bottomGui.surfGui, (0, bottomGui.guiHeightChange + 1)) # Finally, draw everything to main buffer
