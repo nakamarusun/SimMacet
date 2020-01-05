@@ -39,6 +39,13 @@ def mouseClickedArea(mouseButton: int, left: float, right: float, top: float, bo
                 return True
     return False
 
+def mouseHoldArea(mouseButton: int, left: float, right: float, top: float, bottom: float):
+    if GMvar.mouseState[mouseButton]:
+        if GMvar.latestMouse[0] > left and GMvar.latestMouse[0] < right:
+            if GMvar.latestMouse[1] > top and GMvar.latestMouse[1] < bottom:
+                return True
+    return False
+
 ########################################################################################
 # Specialized functions
 

@@ -1,6 +1,7 @@
 import pygame.image
 import pygame.surface
 import game_functions as GMfun
+import global_variables as GMvar
 
 class Button:
 
@@ -15,7 +16,7 @@ class Button:
         self.surface = surface
 
     def update(self, xoffset=0, yoffset=0):
-        if GMfun.mouseClickedArea(0, self.rect[0]+xoffset, self.rect[2]+xoffset, self.rect[1]+yoffset, self.rect[3]+yoffset):
+        if GMfun.mouseHoldArea(0, self.rect[0]+xoffset, self.rect[2]+xoffset, self.rect[1]+yoffset, self.rect[3]+yoffset):
             self.image = self.clickedState
         else:
             self.image = self.idleState
@@ -23,6 +24,7 @@ class Button:
         self.surface.blit(self.image, self.coords)
 
     def checkState(self) -> bool:
-        if self.image == self.idleState:
-            return False
-        return True
+        # This is magic
+        if self.image == self.clickedState and GMvar.mouseState[0] == False:
+            return True
+        return False
