@@ -33,7 +33,7 @@ class MainCameraSurface:
     def update():
 
         # If mouse is clicked and dragged
-        if GMvar.mouseState[0]:
+        if GMvar.mouseState[2]:
             MainCameraSurface.cameraCoords = [ a - b for a, b in zip(MainCameraSurface.cameraCoords, GMvar.mouseDelta) ]  # Substract cameracoords by delta mouse movements
 
         # Draw grid by considering camera movements. Size is constant and the grid is drawn directly on the main buffer.
@@ -114,6 +114,8 @@ class bottomGui:
             if bottomGui.guiHeightChange > (GMvar.resolution[1] - bottomGui.guiHeight - bottomGui.sliderHeight):
                 bottomGui.openSpeed += bottomGui.increment * GMvar.deltaTime
                 bottomGui.guiHeightChange -= bottomGui.openSpeed * GMvar.deltaTime
+            else:
+                bottomGui.guiHeightChange = GMvar.resolution[1] - bottomGui.guiHeight - bottomGui.sliderHeight
             if bottomGui.sliderDirection < 180:
                 bottomGui.sliderDirection += 450 * GMvar.deltaTime
             else:

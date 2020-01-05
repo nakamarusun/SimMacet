@@ -5,6 +5,7 @@ import event_queue as GMque
 import pygame.transform
 import pygame
 import global_variables as GMvar
+import math
 
 #######################################################################################
 # General game object functions
@@ -18,6 +19,9 @@ def rotationAnchor(image, angle: float, anchor: list):
     new_rect = rotated_image.get_rect(center = center)
 
     return rotated_image, new_rect
+
+def cosInterpolation(value: float, mutiplier: float) -> float:
+    return (1 - ( 0.5 + ( math.cos( mutiplier*math.pi )/2 ) ) ) * value
 
 # Timer for timing in game
 class Timer:
