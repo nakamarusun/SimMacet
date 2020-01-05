@@ -10,6 +10,7 @@ import global_variables as GMvar
 from objects_manager import Object
 from objects.street_nodes import StreetNodes
 import game_functions as GMfun
+import objects.button as Button
 
 class MainCameraSurface:
     # This is the surface in which every object that needs to be movable
@@ -89,10 +90,17 @@ class bottomGui:
     openSpeed = 50 # Initial speed to open the GUI
     increment = 500 # Speed acceleration
 
-    surfGui = pygame.Surface((GMvar.resolution[0], guiHeight + sliderHeight),pygame.SRCALPHA) # an isolated Surface in which to draw the GUI
-    surfGui = surfGui.convert_alpha()
+    surfGui = pygame.Surface((GMvar.resolution[0], guiHeight + sliderHeight),pygame.SRCALPHA).convert_alpha() # an isolated Surface in which to draw the GUI
+
+    # Buttons
+    reCenter = Button.Button(surfGui, (0, 0), "images/sprites/GuiButtons/Recenter.png", "images/sprites/GuiButtons/RecenterTog.png", (0, 0, 111, 111))
+
+    Buttons = [reCenter]
     
     def update(): # pylint: disable=fixme, no-method-argument
+
+        if bottomGui.reCenter.checkState():
+            print("yes")
 
         # If mouse is clicked on the button then open/close gui
         if GMvar.mouseStateSingle[0]:
@@ -129,7 +137,14 @@ class bottomGui:
 
         slider, rect = GMfun.rotationAnchor(bottomGui.slider, bottomGui.sliderDirection, (0.5, 0.5)) # Get rotation
 
+
         # Draw and blit to main screen buffer
         bottomGui.surfGui.blit( slider, [ a + b for a, b in zip((rect.x, rect.y), (bottomGui.sliderX, bottomGui.sliderYOffset)) ] )     # Blit slider button to surface
-        pygame.draw.rect(bottomGui.surfGui, (44, 66, 81), (0, bottomGui.sliderHeight, GMvar.resolution[0], bottomGui.guiHeight + 2)) # Plus 1 to fix the weird 1 pixel
+        pygame.draw.rect(bottomGui.surfGui, (44, 66, 81), (0, bottomGui.sliderHeight, GMvar.resolution[0], bottomGui.guiHeight + 5)) # Plus 1 to fix the weird 1 pixel
+
+        # Draw buttons to surface
+        # Update buttons
+        for button in bottomGui.Buttons:
+            button.update(0, bottomGui.guiHeightChange)
+
         GMvar.mainScreenBuffer.blit(bottomGui.surfGui, (0, bottomGui.guiHeightChange + 1 )) # Finally, draw everything to main buffer
