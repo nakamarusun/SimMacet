@@ -123,9 +123,6 @@ class bottomGui:
     def update(): # pylint: disable=fixme, no-method-argument
 
         # CLICK BUTTON CHECK EVENTS HERE
-        if bottomGui.buttonTopLeft.checkState():
-            mouse_design.setMouse(mouse_design.mouseRoad)
-
         if bottomGui.reCenter.checkState():
             MainCameraSurface.returnCamera = True
 
@@ -185,5 +182,11 @@ class bottomGui:
                 pass
 
         # TOGGLE BUTTON CHECK EVENTS HERE
+        if bottomGui.buttonBotRight.checkState():
+            if mouse_design.currentMouse != mouse_design.mouseRoad:
+                mouse_design.setMouse(mouse_design.mouseRoad)
+        else:
+            if mouse_design.currentMouse != "Default":
+                mouse_design.setDefaultMouse()
 
         GMvar.mainScreenBuffer.blit(bottomGui.surfGui, (0, bottomGui.guiHeightChange + 1)) # Finally, draw everything to main buffer
