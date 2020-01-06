@@ -6,11 +6,13 @@ import pygame.math
 
 class StreetNodes:
 
-    def __init__(self, coords: list, connectedNodes: list, backNodes: list):
+    def __init__(self, coords: list, connectedNodes: list, backNodes: list, nodeType: int):
         self.coords = coords
         self.backNodes = backNodes
+        self.connectedNodes = {}
         for nodes in connectedNodes:
             # self.connectedNodes: {nodeObject: vector}
             self.connectedNodes[nodes] = pygame.math.Vector2([ nodes.coords[i] - self.coords[i] for i in range(2) ]) # This is the vector from self to all connected notes
+        self.nodeType = nodeType
 
     # We would want to project the self node vector onto the chosen road node.

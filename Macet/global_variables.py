@@ -13,6 +13,7 @@ resolution = [800, 600] # Default resolution is 800 x 600
 mainScreenBuffer = None
 curRoom = None
 defFont = pygame.font.Font(pygame.font.get_default_font(), 14)
+defFont12 = pygame.font.Font(pygame.font.get_default_font(), 12)
 
 credit = pygame.font.Font(pygame.font.get_default_font(), 10).render("© {} Nakamarusun.".format(str(datetime.date.today().year)), True, (0, 0, 0))
 

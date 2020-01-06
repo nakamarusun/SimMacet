@@ -2,6 +2,7 @@ import pygame.surface
 import pygame.image
 import pygame.draw
 import pygame.transform
+import pygame.math
 
 import sys
 sys.path.append('..')
@@ -11,6 +12,7 @@ from objects_manager import Object
 from objects.street_nodes import StreetNodes
 import game_functions as GMfun
 import objects.button as Button
+import event_queue as EVque
 import mouse_design
 
 class MainCameraSurfaceBlitter:
@@ -40,6 +42,10 @@ class MainCameraSurface:
 
     def getRealMouseCoords() -> list:
         return [ a + b for a, b in zip(MainCameraSurface.cameraCoords, GMvar.latestMouse) ]
+
+    def drawToMainCameraSurface(coords: list, objectToDraw):
+        newSurfCoords = [ a - b for a, b in zip(coords, MainCameraSurface.cameraCoords) ] # Calculate new object coordinates based on camera coords
+        MainCameraSurface.mainSurface.blit(objectToDraw, newSurfCoords) # Blit objects to camera surface
 
     def homeCamera(second: int):
         MainCameraSurface.returnCameraMultiplier -= GMvar.deltaTime * 1/second
@@ -90,19 +96,48 @@ class Car(Object):
 
 class Canvas:
     
+    addRoad = GMvar.defFont12.render("Press ESCAPE to discard and exit new road mode, LEFT CLICK to add road, and RIGHT CLICK to confirm addition", True, (0, 0, 0))
+
     editRoad = False
 
-    roadNodes = []
+    roadNodes: StreetNodes = []
+    tempRoadNodes: StreetNodes = []
+
+    # Mouse coordinates when snapped to grid.
+    mouseCoords = [0, 0]
 
     def highlightGrid(cellWidth, cellHeight):
-        size = [ a * b for a, b in zip([cellWidth, cellHeight], MainCameraSurface.cellSize) ]
-        coords = [ ( (GMvar.latestMouse[i] - (GMvar.latestMouse[i] % MainCameraSurface.cellSize[i]) ) - MainCameraSurface.gridOffset[i] )  for i in range(len(GMvar.latestMouse)) ]
-        
-        pygame.draw.rect(MainCameraSurface.mainSurface, (0, 150, 0, 120), (*coords, *size) )
+        # Highlight grid based on the data gathered from MainCameraSurface
+        size = [ a * b for a, b in zip([cellWidth, cellHeight], MainCameraSurface.cellSize) ] #Size of the grid times the cellWidth and cellHeight
+        pygame.draw.rect(MainCameraSurface.mainSurface, (0, 150, 0, 120), (*Canvas.mouseCoords, *size) )
 
     def update():
+
         if Canvas.editRoad:
+            # Update mouse coords when snapped to grid
+            Canvas.mouseCoords = [ ( (GMvar.latestMouse[i] - (GMvar.latestMouse[i] % MainCameraSurface.cellSize[i]) ) - MainCameraSurface.gridOffset[i] )  for i in range(2) ]
             Canvas.highlightGrid(1, 1)
+            GMvar.mainScreenBuffer.blit(Canvas.addRoad, (9, bottomGui.guiHeightChange - 20) )
+
+        for event in EVque.currentEvents:
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_ESCAPE:
+                    bottomGui.buttonBotRight.clicked = False
+                    del Canvas.tempRoadNodes[:]
+        
+        if GMvar.mouseStateSingle[0]:
+            # If mouse is clicked on the canvas,
+            newMouseCoords = [ ( (MainCameraSurface.getRealMouseCoords()[i] - (MainCameraSurface.getRealMouseCoords()[i] % MainCameraSurface.cellSize[i]) ) - MainCameraSurface.gridOffset[i] )  for i in range(2) ] # New mouse coords adjusted with the camera
+            newNode = StreetNodes(newMouseCoords, [], Canvas.tempRoadNodes[-1] if len(Canvas.tempRoadNodes) > 0 else [], 0 ) # Create new object StreetNodes with current snapped mouse coordinates, empty front nodes, with back nodes from the last added.
+            if len(Canvas.tempRoadNodes) > 0:
+                Canvas.tempRoadNodes[-1].connectedNodes[newNode] = pygame.math.Vector2( [ newNode.coords[i] - Canvas.tempRoadNodes[-1].coords[i] for i in range(2) ] ) # Add newNode to front node of the previous StreetNode
+            
+            Canvas.tempRoadNodes.append( newNode ) # Add newNode to current roadNodes list
+
+        for node in Canvas.tempRoadNodes:
+            for connectedNodes in node.connectedNodes.keys():
+                pygame.draw.line(MainCameraSurface.mainSurface, (50, 50, 50), [ a - b for a, b in zip(node.coords, MainCameraSurface.cameraCoords) ], [ a - b for a, b in zip(connectedNodes.coords, MainCameraSurface.cameraCoords) ], 16)
+
 
 class bottomGui:
 
