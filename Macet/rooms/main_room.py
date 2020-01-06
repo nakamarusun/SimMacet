@@ -13,6 +13,10 @@ import game_functions as GMfun
 import objects.button as Button
 import mouse_design
 
+class MainCameraSurfaceBlitter:
+    def update():
+        GMvar.mainScreenBuffer.blit(MainCameraSurface.mainSurface, (0, 0) ) # Blit to main buffer
+
 class MainCameraSurface:
     # This is the surface in which every object that needs to be movable
 
@@ -27,6 +31,8 @@ class MainCameraSurface:
     gridSize = [0, 0] # Cell total for width and height
     gridSize[0] = GMvar.resolution[0] // cellSize[0] + 1
     gridSize[1] = GMvar.resolution[1] // cellSize[1] + 2
+
+    gridOffset = [0, 0]
 
     returnCamera = False # If true, return camera to [0, 0]
     returnCameraMultiplier = 1
@@ -55,10 +61,10 @@ class MainCameraSurface:
             MainCameraSurface.cameraCoords = [ a - b for a, b in zip(MainCameraSurface.cameraCoords, GMvar.mouseDelta) ]  # Substract cameracoords by delta mouse movements
 
         # Draw grid by considering camera movements. Size is constant and the grid is drawn directly on the main buffer.
-        gridOffset = [ (MainCameraSurface.cameraCoords[i] % MainCameraSurface.cellSize[i]) for i in range(len(MainCameraSurface.cellSize)) ]    # Grid offset based on the camera coordinates
+        MainCameraSurface.gridOffset = [ (MainCameraSurface.cameraCoords[i] % MainCameraSurface.cellSize[i]) for i in range(len(MainCameraSurface.cellSize)) ]    # Grid offset based on the camera coordinates
         for x in range(2):
             for i in range(MainCameraSurface.gridSize[x]):
-                pointPosition = i * MainCameraSurface.cellSize[x] - gridOffset[x] # Every node point to draw the line.
+                pointPosition = i * MainCameraSurface.cellSize[x] - MainCameraSurface.gridOffset[x] # Every node point to draw the line.
                 startLine = (pointPosition, 0) if x == 0 else (0, pointPosition)
                 endLine = (pointPosition, GMvar.resolution[::-1][x]) if x == 0 else (GMvar.resolution[::-1][x], pointPosition)
                 pygame.draw.line( GMvar.mainScreenBuffer, (230, 230, 230), startLine, endLine) # Draw line
@@ -72,8 +78,6 @@ class MainCameraSurface:
             newSurfCoords = [ a - b for a, b in zip(objects.coords, MainCameraSurface.cameraCoords) ] # Calculate new object coordinates based on camera coords
             MainCameraSurface.mainSurface.blit(objects.image, newSurfCoords) # Blit objects to camera surface
 
-        GMvar.mainScreenBuffer.blit(MainCameraSurface.mainSurface, (0, 0) ) # Blit to main buffer
-
 class Car(Object):
 
     def __init__(self, coords=[0,0], image=None, drawn=True, surface=GMvar.mainScreenBuffer):
@@ -86,10 +90,19 @@ class Car(Object):
 
 class Canvas:
     
+    editRoad = False
+
     roadNodes = []
 
+    def highlightGrid(cellWidth, cellHeight):
+        size = [ a * b for a, b in zip([cellWidth, cellHeight], MainCameraSurface.cellSize) ]
+        coords = [ ( (GMvar.latestMouse[i] - (GMvar.latestMouse[i] % MainCameraSurface.cellSize[i]) ) - MainCameraSurface.gridOffset[i] )  for i in range(len(GMvar.latestMouse)) ]
+        
+        pygame.draw.rect(MainCameraSurface.mainSurface, (0, 150, 0, 120), (*coords, *size) )
+
     def update():
-        pass
+        if Canvas.editRoad:
+            Canvas.highlightGrid(1, 1)
 
 class bottomGui:
 
@@ -182,10 +195,13 @@ class bottomGui:
                 pass
 
         # TOGGLE BUTTON CHECK EVENTS HERE
+        # New Road
         if bottomGui.buttonBotRight.checkState():
+            Canvas.editRoad = True
             if mouse_design.currentMouse != mouse_design.mouseRoad:
                 mouse_design.setMouse(mouse_design.mouseRoad)
         else:
+            Canvas.editRoad = False
             if mouse_design.currentMouse != "Default":
                 mouse_design.setDefaultMouse()
 

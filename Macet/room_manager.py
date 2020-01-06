@@ -24,4 +24,7 @@ MainRoom = Room()
 MainRoomObjects.MainCameraSurface.objectsQueue.append( MainRoomObjects.Car([64, 64], pygame.image.load("images/sprites/CarExample.png").convert_alpha(), False, GMvar.mainScreenBuffer) )
 MainRoomObjects.MainCameraSurface.objectsQueue.append( MainRoomObjects.Car([-100, -100], pygame.image.load("images/sprites/CarExample.png").convert_alpha(), False, GMvar.mainScreenBuffer) )
 MainRoom.addObjectToQueue( MainRoomObjects.MainCameraSurface )
+MainRoom.addObjectToQueue( MainRoomObjects.Canvas )
+
+MainRoom.addObjectToQueue( MainRoomObjects.MainCameraSurfaceBlitter )
 MainRoom.addObjectToQueue( MainRoomObjects.bottomGui )
