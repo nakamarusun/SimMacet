@@ -111,6 +111,11 @@ class Canvas:
         size = [ a * b for a, b in zip([cellWidth, cellHeight], MainCameraSurface.cellSize) ] #Size of the grid times the cellWidth and cellHeight
         pygame.draw.rect(MainCameraSurface.mainSurface, (0, 150, 0, 120), (*Canvas.mouseCoords, *size) )
 
+    def drawRoads(fromList: list, color: list):
+        for node in fromList:
+            for connectedNodes in node.connectedNodes.keys():
+                pygame.draw.line(MainCameraSurface.mainSurface, color, [ a - b for a, b in zip(node.coords, MainCameraSurface.cameraCoords) ], [ a - b for a, b in zip(connectedNodes.coords, MainCameraSurface.cameraCoords) ], 16)
+
     def update():
 
         if Canvas.editRoad:
@@ -119,24 +124,33 @@ class Canvas:
             Canvas.highlightGrid(1, 1)
             GMvar.mainScreenBuffer.blit(Canvas.addRoad, (9, bottomGui.guiHeightChange - 20) )
 
-        for event in EVque.currentEvents:
-            if event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_ESCAPE:
-                    bottomGui.buttonBotRight.clicked = False
-                    del Canvas.tempRoadNodes[:]
+            for event in EVque.currentEvents:
+                if event.type == pygame.KEYDOWN:
+                    if event.key == pygame.K_ESCAPE:
+                        bottomGui.buttonBotRight.clicked = False
+                        del Canvas.tempRoadNodes[:]
         
-        if GMvar.mouseStateSingle[0]:
-            # If mouse is clicked on the canvas,
-            newMouseCoords = [ ( (MainCameraSurface.getRealMouseCoords()[i] - (MainCameraSurface.getRealMouseCoords()[i] % MainCameraSurface.cellSize[i]) ) - MainCameraSurface.gridOffset[i] )  for i in range(2) ] # New mouse coords adjusted with the camera
-            newNode = StreetNodes(newMouseCoords, [], Canvas.tempRoadNodes[-1] if len(Canvas.tempRoadNodes) > 0 else [], 0 ) # Create new object StreetNodes with current snapped mouse coordinates, empty front nodes, with back nodes from the last added.
-            if len(Canvas.tempRoadNodes) > 0:
-                Canvas.tempRoadNodes[-1].connectedNodes[newNode] = pygame.math.Vector2( [ newNode.coords[i] - Canvas.tempRoadNodes[-1].coords[i] for i in range(2) ] ) # Add newNode to front node of the previous StreetNode
-            
-            Canvas.tempRoadNodes.append( newNode ) # Add newNode to current roadNodes list
+            # Draw temporary roads when left clicked
+            if GMvar.mouseStateSingle[0] and GMvar.latestMouse[1] < bottomGui.guiHeightChange:
+                # If mouse is clicked on the canvas,
+                newMouseCoords = [ ( (MainCameraSurface.getRealMouseCoords()[i] - (MainCameraSurface.getRealMouseCoords()[i] % MainCameraSurface.cellSize[i]) ) - MainCameraSurface.gridOffset[i] )  for i in range(2) ] # New mouse coords adjusted with the camera
+                newNode = StreetNodes(newMouseCoords, [], Canvas.tempRoadNodes[-1] if len(Canvas.tempRoadNodes) > 0 else [], 0 ) # Create new object StreetNodes with current snapped mouse coordinates, empty front nodes, with back nodes from the last added.
+                if len(Canvas.tempRoadNodes) > 0:
+                    Canvas.tempRoadNodes[-1].connectedNodes[newNode] = pygame.math.Vector2( [ newNode.coords[i] - Canvas.tempRoadNodes[-1].coords[i] for i in range(2) ] ) # Add newNode to front node of the previous StreetNode
+                
+                Canvas.tempRoadNodes.append( newNode ) # Add newNode to current roadNodes list
 
-        for node in Canvas.tempRoadNodes:
-            for connectedNodes in node.connectedNodes.keys():
-                pygame.draw.line(MainCameraSurface.mainSurface, (50, 50, 50), [ a - b for a, b in zip(node.coords, MainCameraSurface.cameraCoords) ], [ a - b for a, b in zip(connectedNodes.coords, MainCameraSurface.cameraCoords) ], 16)
+            # When right clicked, save current temp roads to road nodes
+            if GMvar.mouseStateSingle[2]:
+                Canvas.roadNodes += Canvas.tempRoadNodes
+                del Canvas.tempRoadNodes[:]
+
+            # Draw road estimation
+            if len(Canvas.tempRoadNodes) > 0:
+                pygame.draw.line(MainCameraSurface.mainSurface, (50, 150, 50), [ a - b for a, b in zip(Canvas.tempRoadNodes[-1].coords, MainCameraSurface.cameraCoords) ], [ a - b for a, b in zip(Canvas.mouseCoords, MainCameraSurface.cameraCoords) ], 16)
+
+        Canvas.drawRoads(Canvas.tempRoadNodes, (50, 150, 50))
+        Canvas.drawRoads(Canvas.roadNodes, (50, 50, 50))
 
 
 class bottomGui:
