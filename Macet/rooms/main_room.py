@@ -120,7 +120,8 @@ class Canvas:
 
         if Canvas.editRoad:
             # Update mouse coords when snapped to grid
-            Canvas.mouseCoords = [ ( (GMvar.latestMouse[i] - (GMvar.latestMouse[i] % MainCameraSurface.cellSize[i]) ) - MainCameraSurface.gridOffset[i] )  for i in range(2) ]
+            Canvas.mouseCoords = [ (GMvar.latestMouse[i] - ( ( GMvar.latestMouse[i] + MainCameraSurface.gridOffset[i] ) % MainCameraSurface.cellSize[i] ) )  for i in range(2) ]
+            print(GMvar.latestMouse)
             Canvas.highlightGrid(1, 1) # Grid highlight size
             GMvar.mainScreenBuffer.blit(Canvas.addRoad, (9, bottomGui.guiHeightChange - 20) ) # Instructions
 
@@ -133,7 +134,7 @@ class Canvas:
             # Draw temporary roads when left clicked
             if GMvar.mouseStateSingle[0] and GMvar.latestMouse[1] < bottomGui.guiHeightChange:
                 # If mouse is clicked on the canvas,
-                newMouseCoords = [ ( (MainCameraSurface.getRealMouseCoords()[i] - (MainCameraSurface.getRealMouseCoords()[i] % MainCameraSurface.cellSize[i]) ) - MainCameraSurface.gridOffset[i] + MainCameraSurface.cellSize[i]/2)  for i in range(2) ] # New mouse coords adjusted with the camera
+                newMouseCoords = [ MainCameraSurface.getRealMouseCoords()[i] - ( (MainCameraSurface.getRealMouseCoords()[i] % MainCameraSurface.cellSize[i]) ) for i in range(2) ] # New mouse coords adjusted with the camera #  + MainCameraSurface.cellSize[i]/2 IS JANKY
                 newNode = StreetNodes(newMouseCoords, [], Canvas.tempRoadNodes[-1] if len(Canvas.tempRoadNodes) > 0 else [], 0 ) # Create new object StreetNodes with current snapped mouse coordinates, empty front nodes, with back nodes from the last added.
                 if len(Canvas.tempRoadNodes) > 0:
                     Canvas.tempRoadNodes[-1].connectedNodes[newNode] = pygame.math.Vector2( [ newNode.coords[i] - Canvas.tempRoadNodes[-1].coords[i] for i in range(2) ] ) # Add newNode to front node of the previous StreetNode
@@ -147,7 +148,7 @@ class Canvas:
 
             # Draw road estimation
             if len(Canvas.tempRoadNodes) > 0:
-                pygame.draw.line(MainCameraSurface.mainSurface, (50, 150, 50), [ a - b for a, b in zip(Canvas.tempRoadNodes[-1].coords, MainCameraSurface.cameraCoords) ], [ a - b + 8 for a, b in zip(Canvas.mouseCoords, MainCameraSurface.cameraCoords) ], 16)
+                pygame.draw.line(MainCameraSurface.mainSurface, (50, 150, 50), [ a - b for a, b in zip(Canvas.tempRoadNodes[-1].coords, MainCameraSurface.cameraCoords) ], Canvas.mouseCoords, 16) # + 8 IS JANKY
 
         Canvas.drawRoads(Canvas.tempRoadNodes, (50, 150, 50))
         Canvas.drawRoads(Canvas.roadNodes, (50, 50, 50))
