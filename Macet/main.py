@@ -19,11 +19,10 @@ import game_functions as GMfun
 import room_manager as GMroom
 import event_queue as GMque
 import objects_manager as GMobj
-import rooms.main_room
 
 # Inits
 pygame.init()
-pygame.display.set_caption("Sim Macet")
+pygame.display.set_caption("Macet !")
 
 GMvar.curRoom = GMroom.MainRoom
 

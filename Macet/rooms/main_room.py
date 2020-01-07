@@ -121,7 +121,6 @@ class Canvas:
         if Canvas.editRoad:
             # Update mouse coords when snapped to grid
             Canvas.mouseCoords = [ (GMvar.latestMouse[i] - ( ( GMvar.latestMouse[i] + MainCameraSurface.gridOffset[i] ) % MainCameraSurface.cellSize[i] ) )  for i in range(2) ]
-            print(GMvar.latestMouse)
             Canvas.highlightGrid(1, 1) # Grid highlight size
             GMvar.mainScreenBuffer.blit(Canvas.addRoad, (9, bottomGui.guiHeightChange - 20) ) # Instructions
 

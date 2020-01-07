@@ -25,6 +25,8 @@ mouseStateSingle = [False, False, False]    # Same as mouseState but, only for o
 latestMouseLeft = [0, 0]
 mouseDelta = [0, 0]
 
+keyboardPressedStates = []
+
 __mouseHandled = False
 
 def update():
@@ -32,6 +34,7 @@ def update():
     global __mouseHandled
     global mouseStateSingle
     global latestMouseLeft
+    global keyboardPressedStates
 
     mouseStateSingle = [False, False, False]    # Same as mouseState but, only for one frame    
 
@@ -46,3 +49,8 @@ def update():
 
     if mouseStateSingle[0]:
         latestMouseLeft = latestMouse * 1
+
+    del keyboardPressedStates[:]
+    for event in GMque.currentEvents:
+        if event.type == pygame.KEYDOWN:
+            keyboardPressedStates.append(event)
