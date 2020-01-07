@@ -4,6 +4,7 @@ import pygame.draw
 import pygame.transform
 import pygame.math
 
+import math
 import sys
 sys.path.append('..')
 
@@ -96,12 +97,14 @@ class Car(Object):
 
 class Canvas:
     
-    addRoad = GMvar.defFont12.render("Press ESCAPE to discard and exit new road mode, LEFT CLICK to add road, and RIGHT CLICK to confirm addition", True, (0, 0, 0))
+    addRoad = GMvar.defFont12.render("Press ESCAPE to discard and exit new road mode, LEFT CLICK to add road, and ENTER to confirm addition", True, (0, 0, 0))
 
     editRoad = False
 
     roadNodes: StreetNodes = []
     tempRoadNodes: StreetNodes = []
+
+    temporaryLength: float = 0
 
     # Mouse coordinates when snapped to grid.
     mouseCoords = [0, 0]
@@ -129,9 +132,21 @@ class Canvas:
                     if event.key == pygame.K_ESCAPE:
                         bottomGui.buttonBotRight.clicked = False
                         del Canvas.tempRoadNodes[:]
-        
+
+            length = 0
+            # Draw road estimation
+            if len(Canvas.tempRoadNodes) > 0:
+                startLine = [ a - b for a, b in zip(Canvas.tempRoadNodes[-1].coords, MainCameraSurface.cameraCoords) ]
+                endLine = Canvas.mouseCoords
+                length = math.sqrt( sum([ (b - a) ** 2 for a, b in zip(startLine, endLine) ]) ) * 1.875 # Road length in meters
+                pygame.draw.line(MainCameraSurface.mainSurface, (50, 150, 50), startLine, endLine, 16) # + 8 IS JANKY
+                GMvar.mainScreenBuffer.blit( GMvar.defFont12.render("Length = {}m".format(str(round(length, 3))), True, (0, 0, 0) ), (GMvar.latestMouse[0] + 20, GMvar.latestMouse[1]) ) # Draw road estimation description
+                GMvar.mainScreenBuffer.blit( GMvar.defFont12.render("Total length = {}m".format(str(round(Canvas.temporaryLength, 3))), True, (0, 0, 0) ), (GMvar.latestMouse[0] + 20, GMvar.latestMouse[1] + 10) ) # Draw road estimation description
+
             # Draw temporary roads when left clicked
             if GMvar.mouseStateSingle[0] and GMvar.latestMouse[1] < bottomGui.guiHeightChange:
+                # Add length to total length
+                Canvas.temporaryLength += length
                 # If mouse is clicked on the canvas,
                 newMouseCoords = [ MainCameraSurface.getRealMouseCoords()[i] - ( (MainCameraSurface.getRealMouseCoords()[i] % MainCameraSurface.cellSize[i]) ) for i in range(2) ] # New mouse coords adjusted with the camera #  + MainCameraSurface.cellSize[i]/2 IS JANKY
                 newNode = StreetNodes(newMouseCoords, [], Canvas.tempRoadNodes[-1] if len(Canvas.tempRoadNodes) > 0 else [], 0 ) # Create new object StreetNodes with current snapped mouse coordinates, empty front nodes, with back nodes from the last added.
@@ -140,14 +155,13 @@ class Canvas:
                 
                 Canvas.tempRoadNodes.append( newNode ) # Add newNode to current roadNodes list
 
-            # When right clicked, save current temp roads to road nodes
-            if GMvar.mouseStateSingle[2]:
+            # When Enter clicked, save current temp roads to road nodes
+            if pygame.K_RETURN in GMvar.keyboardPressedStates:
                 Canvas.roadNodes += Canvas.tempRoadNodes
                 del Canvas.tempRoadNodes[:]
 
-            # Draw road estimation
-            if len(Canvas.tempRoadNodes) > 0:
-                pygame.draw.line(MainCameraSurface.mainSurface, (50, 150, 50), [ a - b for a, b in zip(Canvas.tempRoadNodes[-1].coords, MainCameraSurface.cameraCoords) ], Canvas.mouseCoords, 16) # + 8 IS JANKY
+        else:
+            Canvas.temporaryLength = 0
 
         Canvas.drawRoads(Canvas.tempRoadNodes, (50, 150, 50))
         Canvas.drawRoads(Canvas.roadNodes, (50, 50, 50))

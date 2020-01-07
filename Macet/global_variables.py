@@ -53,4 +53,4 @@ def update():
     del keyboardPressedStates[:]
     for event in GMque.currentEvents:
         if event.type == pygame.KEYDOWN:
-            keyboardPressedStates.append(event)
+            keyboardPressedStates.append(event.key)
