@@ -69,7 +69,7 @@ class MainCameraSurface:
             MainCameraSurface.cameraCoords = [ a - b for a, b in zip(MainCameraSurface.cameraCoords, GMvar.mouseDelta) ]  # Substract cameracoords by delta mouse movements
 
         # Draw grid by considering camera movements. Size is constant and the grid is drawn directly on the main buffer.
-        MainCameraSurface.gridOffset = [ (MainCameraSurface.cameraCoords[i] % MainCameraSurface.cellSize[i]) for i in range(len(MainCameraSurface.cellSize)) ]    # Grid offset based on the camera coordinates
+        MainCameraSurface.gridOffset = [ (MainCameraSurface.cameraCoords[i] % MainCameraSurface.cellSize[i]) for i in range(2) ]    # Grid offset based on the camera coordinates
         for x in range(2):
             for i in range(MainCameraSurface.gridSize[x]):
                 pointPosition = i * MainCameraSurface.cellSize[x] - MainCameraSurface.gridOffset[x] # Every node point to draw the line.
@@ -126,39 +126,39 @@ class Canvas:
             # Update mouse coords when snapped to grid
             Canvas.mouseCoords = [ (GMvar.latestMouse[i] - ( ( GMvar.latestMouse[i] + MainCameraSurface.gridOffset[i] ) % MainCameraSurface.cellSize[i] ) )  for i in range(2) ]
             Canvas.highlightGrid(1, 1) # Grid highlight size
-            GMvar.mainScreenBuffer.blit(Canvas.addRoad, (9, bottomGui.guiHeightChange - 20) ) # Instructions
+            GMfun.insertDrawTopMostQueue(Canvas.addRoad, (5, 25) ) # Instructions
 
-            for event in EVque.currentEvents:
-                if event.type == pygame.KEYDOWN:
-                    if event.key == pygame.K_ESCAPE:
-                        bottomGui.buttonBotRight.clicked = False
-                        del Canvas.tempRoadNodes[:]
+            if pygame.K_ESCAPE in GMvar.keyboardPressedStates:
+                bottomGui.buttonBotRight.clicked = False
+                del Canvas.tempRoadNodes[:]
 
-            length = 0
-            canDrawRoad = True
+            length = 0  # Road length for now
+            canDrawRoad = True # If can draw road, not intersecting with others
             # Draw road estimation
             if len(Canvas.tempRoadNodes) > 0:
                 startLine = [ a - b for a, b in zip(Canvas.tempRoadNodes[-1].coords, MainCameraSurface.cameraCoords) ]
                 endLine = Canvas.mouseCoords
-                length = math.sqrt( sum([ (b - a) ** 2 for a, b in zip(startLine, endLine) ]) ) * 1.875 # Road length in meters
 
+                length = math.sqrt( sum([ (b - a) ** 2 for a, b in zip(startLine, endLine) ]) ) * 1.875 # Road length in meters
+                
                 for node in Canvas.roadNodes + Canvas.tempRoadNodes:
                     for connected in node.connectedNodes.keys():
                         state, pos = GMmat.checkLineIntersection(Canvas.tempRoadNodes[-1].coords, [ a + b for a, b in zip(endLine, MainCameraSurface.cameraCoords)], node.coords, connected.coords)
                         if state:
                             canDrawRoad = False
-
+                    if canDrawRoad == False: break
+                
                 color = (50, 150, 50) if canDrawRoad else (150, 50, 50)
                 pygame.draw.line(MainCameraSurface.mainSurface, color, startLine, endLine, 16) # + 8 IS JANKY
-                GMvar.mainScreenBuffer.blit( GMvar.defFont12.render("Length = {}m".format(str(round(length, 3))), True, (0, 0, 0) ), (GMvar.latestMouse[0] + 20, GMvar.latestMouse[1]) ) # Draw road estimation description
-                GMvar.mainScreenBuffer.blit( GMvar.defFont12.render("Total length = {}m".format(str(round(Canvas.temporaryLength, 3))), True, (0, 0, 0) ), (GMvar.latestMouse[0] + 20, GMvar.latestMouse[1] + 10) ) # Draw road estimation description
+                GMfun.insertDrawTopMostQueue( GMvar.defFont12.render("Length: {}m".format(str(round(length, 3))), True, (0, 0, 0) ), (GMvar.latestMouse[0] + 20, GMvar.latestMouse[1]) ) # Draw road estimation description
+                GMfun.insertDrawTopMostQueue( GMvar.defFont12.render("Total length: {}m".format(str(round(Canvas.temporaryLength, 3))), True, (0, 0, 0) ), (GMvar.latestMouse[0] + 20, GMvar.latestMouse[1] + 10) ) # Draw road estimation description
 
             # Draw temporary roads when left clicked
             if GMvar.mouseStateSingle[0] and GMvar.latestMouse[1] < bottomGui.guiHeightChange and canDrawRoad:
                 # Add length to total length
                 Canvas.temporaryLength += length
                 # If mouse is clicked on the canvas,
-                newMouseCoords = [ MainCameraSurface.getRealMouseCoords()[i] - ( (MainCameraSurface.getRealMouseCoords()[i] % MainCameraSurface.cellSize[i]) ) for i in range(2) ] # New mouse coords adjusted with the camera #  + MainCameraSurface.cellSize[i]/2 IS JANKY
+                newMouseCoords = [ MainCameraSurface.getRealMouseCoords()[i] - ( (MainCameraSurface.getRealMouseCoords()[i] % MainCameraSurface.cellSize[i]) ) for i in range(2) ] # New mouse coords adjusted with the camera
                 newNode = StreetNodes(newMouseCoords, [], Canvas.tempRoadNodes[-1] if len(Canvas.tempRoadNodes) > 0 else [], 0 ) # Create new object StreetNodes with current snapped mouse coordinates, empty front nodes, with back nodes from the last added.
                 if len(Canvas.tempRoadNodes) > 0:
                     Canvas.tempRoadNodes[-1].connectedNodes[newNode] = pygame.math.Vector2( [ newNode.coords[i] - Canvas.tempRoadNodes[-1].coords[i] for i in range(2) ] ) # Add newNode to front node of the previous StreetNode
@@ -174,7 +174,6 @@ class Canvas:
 
         Canvas.drawRoads(Canvas.tempRoadNodes, (50, 150, 50))
         Canvas.drawRoads(Canvas.roadNodes, (50, 50, 50))
-
 
 class bottomGui:
 
@@ -206,16 +205,14 @@ class bottomGui:
     Buttons = [reCenter, buttonTopLeft, buttonTopRight, buttonBotLeft, buttonBotRight]
     
     def update(): # pylint: disable=fixme, no-method-argument
-
+        
         # CLICK BUTTON CHECK EVENTS HERE
         if bottomGui.reCenter.checkState():
             MainCameraSurface.returnCamera = True
 
         # If mouse is clicked on the button then open/close gui
-        if GMvar.mouseStateSingle[0]:
-            if GMvar.latestMouse[0] > (bottomGui.sliderX) and GMvar.latestMouse[0] < (bottomGui.sliderX + bottomGui.sliderRect[2]):
-                if GMvar.latestMouse[1] > (bottomGui.guiHeightChange + bottomGui.sliderYOffset) and GMvar.latestMouse[1] < (bottomGui.guiHeightChange + bottomGui.sliderRect[3] + bottomGui.sliderYOffset):
-                    bottomGui.guiOpen = not bottomGui.guiOpen
+        if GMfun.mouseClickedArea(0, bottomGui.sliderX, (bottomGui.sliderX + bottomGui.sliderRect[2]), (bottomGui.guiHeightChange + bottomGui.sliderYOffset), (bottomGui.guiHeightChange + bottomGui.sliderRect[3] + bottomGui.sliderYOffset)):
+            bottomGui.guiOpen = not bottomGui.guiOpen
 
         # If open and not in position, set the coordinates
         if bottomGui.guiOpen:
@@ -257,7 +254,7 @@ class bottomGui:
         # Update buttons
         toggled = False
         for button in bottomGui.Buttons:
-            button.update(0, bottomGui.guiHeightChange)
+            button.update(0, bottomGui.guiHeightChange) # Draw buttons
             try:
                 if toggled and button.clicked:
                     button.clicked = False

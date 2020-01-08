@@ -18,9 +18,11 @@ class Button:
 
     def update(self, xoffset=0, yoffset=0):
         if GMfun.mouseHoldArea(0, self.rect[0]+xoffset, self.rect[2]+xoffset+self.rect[0], self.rect[1]+yoffset, self.rect[3]+yoffset+self.rect[1]):
-            self.image = self.clickedState
+            if id(self.image) != id(self.clickedState):
+                self.image = self.clickedState
         else:
-            self.image = self.idleState
+            if id(self.image) != id(self.idleState):
+                self.image = self.idleState
 
         self.surface.blit(self.image, self.coords)
 
@@ -41,9 +43,11 @@ class ToggleButton(Button):
             self.clicked = not self.clicked
 
         if self.clicked:
-            self.image = self.clickedState
+            if id(self.image) != id(self.clickedState):
+                self.image = self.clickedState
         else:
-            self.image = self.idleState
+            if id(self.image) != id(self.idleState):
+                self.image = self.idleState
 
         self.surface.blit(self.image, self.coords)
 

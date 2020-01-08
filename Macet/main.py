@@ -43,12 +43,15 @@ while True:
     GMvar.mouseDelta = pygame.mouse.get_rel()
     GMvar.mouseState = pygame.mouse.get_pressed()
     GMvar.update()
-
+    
     # Update each object in current room
     GMvar.curRoom.updateRoom()
+    
+    # Draw things that is top most
+    GMfun.drawTopMost()
 
     # FPS Calculator
-    GMfun.displayFps(startTime)
+    FPS = GMfun.displayFps(startTime)
 
     # Copyright
     GMvar.mainScreenBuffer.blit(GMvar.credit, (GMvar.resolution[0] - 110, 2))
@@ -58,3 +61,5 @@ while True:
 
     # Delta Timing
     GMvar.deltaTime = GMfun.deltaTiming(startTime)
+
+    # print( (FPS * GMfun.fpsCostTime / GMvar.deltaTime) )

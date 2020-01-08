@@ -17,6 +17,8 @@ defFont12 = pygame.font.Font(pygame.font.get_default_font(), 12)
 
 credit = pygame.font.Font(pygame.font.get_default_font(), 10).render("© {} Nakamarusun.".format(str(datetime.date.today().year)), True, (0, 0, 0))
 
+drawTopMost = []
+
 deltaTime: float = 0
 
 latestMouse = [0, 0]
@@ -35,6 +37,9 @@ def update():
     global mouseStateSingle
     global latestMouseLeft
     global keyboardPressedStates
+    global drawTopMost
+
+    del drawTopMost [:]
 
     mouseStateSingle = [False, False, False]    # Same as mouseState but, only for one frame    
 
