@@ -150,18 +150,23 @@ class Canvas:
                 for i in range(2):
                     for j in range(len(combinedNode[i])):
                         for k in range(len(combinedNode[i][j].connectedNodes.keys())):
+                            # Check for intersections between 2 lines. one line is from the last temporary node to mouse coord. second line is every possible road.
                             state, pos = GMmat.checkLineIntersection(Canvas.tempRoadNodes[-1].coords, [ a + b for a, b in zip(endLine, MainCameraSurface.cameraCoords)],  combinedNode[i][j].coords, list( combinedNode[i][j].connectedNodes.keys() )[k].coords)
+                            # If intersecting then
                             if state:
+                                # Calculate length from intersection.
                                 lengthFromIntersection = math.sqrt(sum( [ (a - (b + c)) ** 2 for a, b, c in zip(pos, endLine, MainCameraSurface.cameraCoords) ] ))
                                 snap = lengthFromIntersection < Canvas.snapLength
                                 canDrawRoad = True if snap else False
                                 # The node data for the one intersecting
+                                # If snap then
                                 if snap:
+                                    pos = [ pos[i] - (pos[i] % MainCameraSurface.cellSize[i]) for i in range(2) ]
                                     firstNode = combinedNode[i][j]
                                     secondNode = list( combinedNode[i][j].connectedNodes.keys() )[k]
-                                    break
-                        if canDrawRoad == False or snap: break
-                    if canDrawRoad == False or snap: break
+                                    break # Break from for loop
+                        if canDrawRoad == False or snap: break # Continue breaking
+                    if canDrawRoad == False or snap: break # Still breaking
 
                 color = (50, 150, 50) if canDrawRoad else (150, 50, 50)
                 pygame.draw.line(MainCameraSurface.mainSurface, color, startLine, [ a - b for a, b in zip(pos, MainCameraSurface.cameraCoords ) ] if snap else endLine, 16) # If snaps to road, change the end line to the snapped position, else to mouse position
@@ -185,7 +190,7 @@ class Canvas:
                     # del firstNode.connectedNodes[secondNode]
                     # firstNode.connectedNodes[newNode] = pygame.math.Vector2( [ a - b for a, b in zip(firstNode.coords, pos) ] )
                     ###################### Creates new node, but overlaps with other node.
-                    newNode = StreetNodes( pos, [secondNode], [Canvas.tempRoadNodes[-1]] if len(Canvas.tempRoadNodes) > 0 else [], 0 )
+                    newNode = StreetNodes( pos, [secondNode], [Canvas.tempRoadNodes[-1]] if len(Canvas.tempRoadNodes) > 0 else [], 0 ) # Draw new node, with the connected node to the second node.
                 if len(Canvas.tempRoadNodes) > 0:
                     Canvas.tempRoadNodes[-1].connectedNodes[newNode] = pygame.math.Vector2( [ newNode.coords[i] - Canvas.tempRoadNodes[-1].coords[i] for i in range(2) ] ) # Add newNode to front node of the previous StreetNode
                 Canvas.tempRoadNodes.append( newNode ) # Add newNode to current roadNodes list
