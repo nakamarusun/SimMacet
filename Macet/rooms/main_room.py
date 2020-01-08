@@ -168,7 +168,7 @@ class Canvas:
                         if canDrawRoad == False or snap: break # Continue breaking
                     if canDrawRoad == False or snap: break # Still breaking
 
-                color = (50, 150, 50) if canDrawRoad else (150, 50, 50)
+                color = (52, 139, 201) if snap else ((50, 150, 50) if canDrawRoad else (150, 50, 50))
                 pygame.draw.line(MainCameraSurface.mainSurface, color, startLine, [ a - b for a, b in zip(pos, MainCameraSurface.cameraCoords ) ] if snap else endLine, 16) # If snaps to road, change the end line to the snapped position, else to mouse position
                 GMfun.insertDrawTopMostQueue( GMvar.defFont12.render("Length: {}m".format(str(round(length, 3))), True, (0, 0, 0) ), (GMvar.latestMouse[0] + 20, GMvar.latestMouse[1]) ) # Draw road estimation description
                 GMfun.insertDrawTopMostQueue( GMvar.defFont12.render("Total length: {}m".format(str(round(Canvas.temporaryLength, 3))), True, (0, 0, 0) ), (GMvar.latestMouse[0] + 20, GMvar.latestMouse[1] + 10) ) # Draw road estimation description
