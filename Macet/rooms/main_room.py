@@ -107,6 +107,8 @@ class Canvas:
 
     temporaryLength: float = 0
 
+    snapLength = 128
+
     # Mouse coordinates when snapped to grid.
     mouseCoords = [0, 0]
 
@@ -134,6 +136,8 @@ class Canvas:
 
             length = 0  # Road length for now
             canDrawRoad = True # If can draw road, not intersecting with others
+            lengthFromIntersection = Canvas.snapLength + 1
+            pos = [0, 0]
             # Draw road estimation
             if len(Canvas.tempRoadNodes) > 0:
                 startLine = [ a - b for a, b in zip(Canvas.tempRoadNodes[-1].coords, MainCameraSurface.cameraCoords) ]
@@ -141,15 +145,21 @@ class Canvas:
 
                 length = math.sqrt( sum([ (b - a) ** 2 for a, b in zip(startLine, endLine) ]) ) * 1.875 # Road length in meters
                 
+                # If intersects, disable road drawing
                 for node in Canvas.roadNodes + Canvas.tempRoadNodes:
                     for connected in node.connectedNodes.keys():
                         state, pos = GMmat.checkLineIntersection(Canvas.tempRoadNodes[-1].coords, [ a + b for a, b in zip(endLine, MainCameraSurface.cameraCoords)], node.coords, connected.coords)
                         if state:
-                            canDrawRoad = False
+                            lengthFromIntersection = math.sqrt(sum( [ (a - (b + c)) ** 2 for a, b, c in zip(pos, endLine, MainCameraSurface.cameraCoords) ] ))
+                            if lengthFromIntersection < Canvas.snapLength:
+                                canDrawRoad = True
+                                newPos = pos * 1
+                            else:
+                                canDrawRoad = False
                     if canDrawRoad == False: break
-                
+
                 color = (50, 150, 50) if canDrawRoad else (150, 50, 50)
-                pygame.draw.line(MainCameraSurface.mainSurface, color, startLine, endLine, 16) # + 8 IS JANKY
+                pygame.draw.line(MainCameraSurface.mainSurface, color, startLine, [ a - b for a, b in zip(newPos, MainCameraSurface.cameraCoords ) ] if lengthFromIntersection < Canvas.snapLength else endLine, 16) # If snaps to road, change the end line to the snapped position, else to mouse position
                 GMfun.insertDrawTopMostQueue( GMvar.defFont12.render("Length: {}m".format(str(round(length, 3))), True, (0, 0, 0) ), (GMvar.latestMouse[0] + 20, GMvar.latestMouse[1]) ) # Draw road estimation description
                 GMfun.insertDrawTopMostQueue( GMvar.defFont12.render("Total length: {}m".format(str(round(Canvas.temporaryLength, 3))), True, (0, 0, 0) ), (GMvar.latestMouse[0] + 20, GMvar.latestMouse[1] + 10) ) # Draw road estimation description
 
@@ -159,7 +169,7 @@ class Canvas:
                 Canvas.temporaryLength += length
                 # If mouse is clicked on the canvas,
                 newMouseCoords = [ MainCameraSurface.getRealMouseCoords()[i] - ( (MainCameraSurface.getRealMouseCoords()[i] % MainCameraSurface.cellSize[i]) ) for i in range(2) ] # New mouse coords adjusted with the camera
-                newNode = StreetNodes(newMouseCoords, [], Canvas.tempRoadNodes[-1] if len(Canvas.tempRoadNodes) > 0 else [], 0 ) # Create new object StreetNodes with current snapped mouse coordinates, empty front nodes, with back nodes from the last added.
+                newNode = StreetNodes( newPos if lengthFromIntersection < Canvas.snapLength else newMouseCoords, [], Canvas.tempRoadNodes[-1] if len(Canvas.tempRoadNodes) > 0 else [], 0 ) # Create new object StreetNodes with current snapped mouse coordinates, empty front nodes, with back nodes from the last added.
                 if len(Canvas.tempRoadNodes) > 0:
                     Canvas.tempRoadNodes[-1].connectedNodes[newNode] = pygame.math.Vector2( [ newNode.coords[i] - Canvas.tempRoadNodes[-1].coords[i] for i in range(2) ] ) # Add newNode to front node of the previous StreetNode
                 Canvas.tempRoadNodes.append( newNode ) # Add newNode to current roadNodes list
