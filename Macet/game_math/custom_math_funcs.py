@@ -20,3 +20,4 @@ def checkLineIntersection(Ax1y1: list, Ax2y2: list, Bx1y1: list, Bx2y2: list) ->
         return True, [intersect.x, intersect.y]
     except:
         return False, [0, 0]
+        print("aaa")
