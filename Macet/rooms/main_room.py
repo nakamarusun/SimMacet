@@ -15,6 +15,7 @@ import game_functions as GMfun
 import objects.button as Button
 import event_queue as EVque
 import mouse_design
+import game_math.custom_math_funcs as GMmat
 
 class MainCameraSurfaceBlitter:
     def update():
@@ -139,6 +140,16 @@ class Canvas:
                 startLine = [ a - b for a, b in zip(Canvas.tempRoadNodes[-1].coords, MainCameraSurface.cameraCoords) ]
                 endLine = Canvas.mouseCoords
                 length = math.sqrt( sum([ (b - a) ** 2 for a, b in zip(startLine, endLine) ]) ) * 1.875 # Road length in meters
+
+                canDrawRoad = True
+
+                for node in Canvas.roadNodes:
+                    for connected in node.connectedNodes.keys():
+                        state, pos = GMmat.checkLineIntersection(Canvas.tempRoadNodes[-1].coords, [ a + b for a, b in zip(endLine, MainCameraSurface.cameraCoords)], node.coords, connected.coords)
+                        if state:
+                            canDrawRoad = False
+
+                print(canDrawRoad)
                 pygame.draw.line(MainCameraSurface.mainSurface, (50, 150, 50), startLine, endLine, 16) # + 8 IS JANKY
                 GMvar.mainScreenBuffer.blit( GMvar.defFont12.render("Length = {}m".format(str(round(length, 3))), True, (0, 0, 0) ), (GMvar.latestMouse[0] + 20, GMvar.latestMouse[1]) ) # Draw road estimation description
                 GMvar.mainScreenBuffer.blit( GMvar.defFont12.render("Total length = {}m".format(str(round(Canvas.temporaryLength, 3))), True, (0, 0, 0) ), (GMvar.latestMouse[0] + 20, GMvar.latestMouse[1] + 10) ) # Draw road estimation description
@@ -152,7 +163,6 @@ class Canvas:
                 newNode = StreetNodes(newMouseCoords, [], Canvas.tempRoadNodes[-1] if len(Canvas.tempRoadNodes) > 0 else [], 0 ) # Create new object StreetNodes with current snapped mouse coordinates, empty front nodes, with back nodes from the last added.
                 if len(Canvas.tempRoadNodes) > 0:
                     Canvas.tempRoadNodes[-1].connectedNodes[newNode] = pygame.math.Vector2( [ newNode.coords[i] - Canvas.tempRoadNodes[-1].coords[i] for i in range(2) ] ) # Add newNode to front node of the previous StreetNode
-                
                 Canvas.tempRoadNodes.append( newNode ) # Add newNode to current roadNodes list
 
             # When Enter clicked, save current temp roads to road nodes
