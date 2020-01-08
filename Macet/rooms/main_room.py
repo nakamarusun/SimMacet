@@ -173,7 +173,7 @@ class Canvas:
                         if canDrawRoad == False or snap: break # Continue breaking
                     if canDrawRoad == False or snap: break # Still breaking
 
-                # This is the script to check if road is going back 180 degrees, overlapping the "before" road.
+                # This is the script to check if road is going back 180 degrees, overlapping the previous road.
                 # This works by comparing the normalized vector2 of the before road, and the current road by mouse.
                 if len(Canvas.tempRoadNodes) > 1:
                     vec1: pygame.math.Vector2 = list(Canvas.tempRoadNodes[-2].connectedNodes.values())[0]
