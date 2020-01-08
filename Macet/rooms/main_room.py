@@ -147,11 +147,11 @@ class Canvas:
                 
                 # If intersects, disable road drawing
                 combinedNode = [Canvas.roadNodes, Canvas.tempRoadNodes[:-1]]
+                realMouseCoords = [ a + b for a, b in zip(endLine, MainCameraSurface.cameraCoords)] # Real mouse coordinates. (mouse coords current - camera coords)
                 for i in range(2):
                     for j in range(len(combinedNode[i])):
                         for k in range(len(combinedNode[i][j].connectedNodes.keys())):
                             # Check for intersections between 2 lines. one line is from the last temporary node to mouse coord. second line is every possible road.
-                            realMouseCoords = [ a + b for a, b in zip(endLine, MainCameraSurface.cameraCoords)]
                             state, pos = GMmat.checkLineIntersection(Canvas.tempRoadNodes[-1].coords, realMouseCoords,  combinedNode[i][j].coords, list( combinedNode[i][j].connectedNodes.keys() )[k].coords, False)
                             # If current mouse coordinates connects to road then snap road.
                             if realMouseCoords == combinedNode[i][j].coords:
@@ -172,6 +172,18 @@ class Canvas:
                                     break # Break from for loop
                         if canDrawRoad == False or snap: break # Continue breaking
                     if canDrawRoad == False or snap: break # Still breaking
+
+                # This is the script to check if road is going back 180 degrees, overlapping the "before" road.
+                # This works by comparing the normalized vector2 of the before road, and the current road by mouse.
+                if len(Canvas.tempRoadNodes) > 1:
+                    vec1: pygame.math.Vector2 = list(Canvas.tempRoadNodes[-2].connectedNodes.values())[0]
+                    vec2 = pygame.math.Vector2( [ a - b for a, b in zip(Canvas.tempRoadNodes[-1].coords, realMouseCoords) ] )
+                    try:
+                        if vec1.normalize() == vec2.normalize():
+                            canDrawRoad = False
+                            snap = False
+                    except:
+                        pass
 
                 color = (52, 139, 201) if snap else ((50, 150, 50) if canDrawRoad else (150, 50, 50))
                 pygame.draw.line(MainCameraSurface.mainSurface, color, startLine, [ a - b for a, b in zip(pos, MainCameraSurface.cameraCoords ) ] if snap else endLine, 16) # If snaps to road, change the end line to the snapped position, else to mouse position
