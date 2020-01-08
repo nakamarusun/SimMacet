@@ -135,27 +135,26 @@ class Canvas:
                         del Canvas.tempRoadNodes[:]
 
             length = 0
+            canDrawRoad = True
             # Draw road estimation
             if len(Canvas.tempRoadNodes) > 0:
                 startLine = [ a - b for a, b in zip(Canvas.tempRoadNodes[-1].coords, MainCameraSurface.cameraCoords) ]
                 endLine = Canvas.mouseCoords
                 length = math.sqrt( sum([ (b - a) ** 2 for a, b in zip(startLine, endLine) ]) ) * 1.875 # Road length in meters
 
-                canDrawRoad = True
-
-                for node in Canvas.roadNodes:
+                for node in Canvas.roadNodes + Canvas.tempRoadNodes:
                     for connected in node.connectedNodes.keys():
                         state, pos = GMmat.checkLineIntersection(Canvas.tempRoadNodes[-1].coords, [ a + b for a, b in zip(endLine, MainCameraSurface.cameraCoords)], node.coords, connected.coords)
                         if state:
                             canDrawRoad = False
 
-                print(canDrawRoad)
-                pygame.draw.line(MainCameraSurface.mainSurface, (50, 150, 50), startLine, endLine, 16) # + 8 IS JANKY
+                color = (50, 150, 50) if canDrawRoad else (150, 50, 50)
+                pygame.draw.line(MainCameraSurface.mainSurface, color, startLine, endLine, 16) # + 8 IS JANKY
                 GMvar.mainScreenBuffer.blit( GMvar.defFont12.render("Length = {}m".format(str(round(length, 3))), True, (0, 0, 0) ), (GMvar.latestMouse[0] + 20, GMvar.latestMouse[1]) ) # Draw road estimation description
                 GMvar.mainScreenBuffer.blit( GMvar.defFont12.render("Total length = {}m".format(str(round(Canvas.temporaryLength, 3))), True, (0, 0, 0) ), (GMvar.latestMouse[0] + 20, GMvar.latestMouse[1] + 10) ) # Draw road estimation description
 
             # Draw temporary roads when left clicked
-            if GMvar.mouseStateSingle[0] and GMvar.latestMouse[1] < bottomGui.guiHeightChange:
+            if GMvar.mouseStateSingle[0] and GMvar.latestMouse[1] < bottomGui.guiHeightChange and canDrawRoad:
                 # Add length to total length
                 Canvas.temporaryLength += length
                 # If mouse is clicked on the canvas,

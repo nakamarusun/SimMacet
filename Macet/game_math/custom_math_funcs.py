@@ -13,7 +13,10 @@ def checkLineIntersection(Ax1y1: list, Ax2y2: list, Bx1y1: list, Bx2y2: list) ->
     line1 = LineString( [Ax1y1, Ax2y2] )
     line2 = LineString( [Bx1y1, Bx2y2] )
     intersect = line1.intersection(line2)
-    if intersect.is_empty:
+    if intersect.is_empty or not line1.crosses(line2):
         return False, [0, 0]
 
-    return True, [intersect.x, intersect.y]
+    try:
+        return True, [intersect.x, intersect.y]
+    except:
+        return False, [0, 0]
