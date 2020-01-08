@@ -146,16 +146,21 @@ class Canvas:
                 length = math.sqrt( sum([ (b - a) ** 2 for a, b in zip(startLine, endLine) ]) ) * 1.875 # Road length in meters
                 
                 # If intersects, disable road drawing
-                combinedNode = [Canvas.roadNodes, Canvas.tempRoadNodes]
+                combinedNode = [Canvas.roadNodes, Canvas.tempRoadNodes[:-1]]
                 for i in range(2):
                     for j in range(len(combinedNode[i])):
                         for k in range(len(combinedNode[i][j].connectedNodes.keys())):
                             # Check for intersections between 2 lines. one line is from the last temporary node to mouse coord. second line is every possible road.
-                            state, pos = GMmat.checkLineIntersection(Canvas.tempRoadNodes[-1].coords, [ a + b for a, b in zip(endLine, MainCameraSurface.cameraCoords)],  combinedNode[i][j].coords, list( combinedNode[i][j].connectedNodes.keys() )[k].coords)
+                            realMouseCoords = [ a + b for a, b in zip(endLine, MainCameraSurface.cameraCoords)]
+                            state, pos = GMmat.checkLineIntersection(Canvas.tempRoadNodes[-1].coords, realMouseCoords,  combinedNode[i][j].coords, list( combinedNode[i][j].connectedNodes.keys() )[k].coords, False)
+                            # If current mouse coordinates connects to road then snap road.
+                            if realMouseCoords == combinedNode[i][j].coords:
+                                state = True
+                                pos = combinedNode[i][j].coords
                             # If intersecting then
                             if state:
                                 # Calculate length from intersection.
-                                lengthFromIntersection = math.sqrt(sum( [ (a - (b + c)) ** 2 for a, b, c in zip(pos, endLine, MainCameraSurface.cameraCoords) ] ))
+                                lengthFromIntersection = math.sqrt(sum( [ (a - b) ** 2 for a, b in zip(pos, realMouseCoords) ] ))
                                 snap = lengthFromIntersection < Canvas.snapLength
                                 canDrawRoad = True if snap else False
                                 # The node data for the one intersecting
