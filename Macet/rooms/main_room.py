@@ -146,17 +146,17 @@ class Canvas:
                 length = math.sqrt( sum([ (b - a) ** 2 for a, b in zip(startLine, endLine) ]) ) * 1.875 # Road length in meters
                 
                 # If intersects, disable road drawing
-                combinedNode = [Canvas.roadNodes, Canvas.tempRoadNodes[:-1]]
+                combinedNode = [Canvas.roadNodes, Canvas.tempRoadNodes[:-2]]
                 realMouseCoords = [ a + b for a, b in zip(endLine, MainCameraSurface.cameraCoords)] # Real mouse coordinates. (mouse coords current - camera coords)
                 for i in range(2):
                     for j in range(len(combinedNode[i])):
                         for k in range(len(combinedNode[i][j].connectedNodes.keys())):
                             # Check for intersections between 2 lines. one line is from the last temporary node to mouse coord. second line is every possible road.
-                            state, pos = GMmat.checkLineIntersection(Canvas.tempRoadNodes[-1].coords, realMouseCoords,  combinedNode[i][j].coords, list( combinedNode[i][j].connectedNodes.keys() )[k].coords, False)
+                            state, pos = GMmat.checkLineIntersection(Canvas.tempRoadNodes[-1].coords, realMouseCoords,  combinedNode[i][j].coords, list( combinedNode[i][j].connectedNodes.keys() )[k].coords, True)
                             # If current mouse coordinates connects to road then snap road.
-                            if realMouseCoords == combinedNode[i][j].coords:
-                                state = True
-                                pos = combinedNode[i][j].coords
+                            # if realMouseCoords == combinedNode[i][j].coords:
+                            #     state = True
+                            #     pos = combinedNode[i][j].coords
                             # If intersecting then
                             if state:
                                 # Calculate length from intersection.
