@@ -3,6 +3,7 @@ import pygame.image
 import pygame.draw
 import pygame.transform
 import pygame.math
+from shapely.geometry import LineString, Point
 
 import math
 import sys
@@ -148,11 +149,16 @@ class Canvas:
                 # If intersects, disable road drawing
                 combinedNode = [Canvas.roadNodes, Canvas.tempRoadNodes[:-2]]
                 realMouseCoords = [ a + b for a, b in zip(endLine, MainCameraSurface.cameraCoords)] # Real mouse coordinates. (mouse coords current - camera coords)
+                # To avoid any unwanted intersections, offset node coords a bit.
+                try:
+                    newRoadVec = pygame.math.Vector2( [ a - b for a, b in zip(realMouseCoords, Canvas.tempRoadNodes[-1].coords) ] ).normalize()
+                except:
+                    newRoadVec = [0, 0]
                 for i in range(2):
                     for j in range(len(combinedNode[i])):
                         for k in range(len(combinedNode[i][j].connectedNodes.keys())):
                             # Check for intersections between 2 lines. one line is from the last temporary node to mouse coord. second line is every possible road.
-                            state, pos = GMmat.checkLineIntersection(Canvas.tempRoadNodes[-1].coords, realMouseCoords,  combinedNode[i][j].coords, list( combinedNode[i][j].connectedNodes.keys() )[k].coords, True)
+                            state, pos = GMmat.checkLineIntersection( [ a + b for a, b in zip(newRoadVec, Canvas.tempRoadNodes[-1].coords) ] , realMouseCoords,  combinedNode[i][j].coords, list( combinedNode[i][j].connectedNodes.keys() )[k].coords, True)
                             # If current mouse coordinates connects to road then snap road.
                             # if realMouseCoords == combinedNode[i][j].coords:
                             #     state = True
@@ -175,9 +181,10 @@ class Canvas:
 
                 # This is the script to check if road is going back 180 degrees, overlapping the previous road.
                 # This works by comparing the normalized vector2 of the before road, and the current road by mouse.
+                # Fixed problem where you can't place roads if there is two or more connectedNodes
                 if len(Canvas.tempRoadNodes) > 1:
-                    vec1: pygame.math.Vector2 = list(Canvas.tempRoadNodes[-2].connectedNodes.values())[0]
-                    vec2 = pygame.math.Vector2( [ a - b for a, b in zip(Canvas.tempRoadNodes[-1].coords, realMouseCoords) ] )
+                    vec1: pygame.math.Vector2 = list(Canvas.tempRoadNodes[-2].connectedNodes.values())[-1]
+                    vec2 = pygame.math.Vector2( [ b - a for a, b in zip(realMouseCoords, Canvas.tempRoadNodes[-1].coords) ] )
                     try:
                         if vec1.normalize() == vec2.normalize():
                             canDrawRoad = False
@@ -190,6 +197,22 @@ class Canvas:
                 GMfun.insertDrawTopMostQueue( GMvar.defFont12.render("Length: {}m".format(str(round(length, 3))), True, (0, 0, 0) ), (GMvar.latestMouse[0] + 20, GMvar.latestMouse[1]) ) # Draw road estimation description
                 GMfun.insertDrawTopMostQueue( GMvar.defFont12.render("Total length: {}m".format(str(round(Canvas.temporaryLength, 3))), True, (0, 0, 0) ), (GMvar.latestMouse[0] + 20, GMvar.latestMouse[1] + 10) ) # Draw road estimation description
 
+            beginConnectRoad = False
+            # If clicked on a road when temporary road is still empty.
+            # This creates a new intersection point on the position where the mouse hovers, allowing the user to make a new road node from existing roads.
+            if len(Canvas.tempRoadNodes) == 0:
+                for i in range(len(Canvas.roadNodes)):
+                    for connectedNodes in Canvas.roadNodes[i].connectedNodes.keys():
+                        point = Point(Canvas.mouseCoords)
+                        line = LineString( [ Canvas.roadNodes[i].coords, connectedNodes.coords ] )
+                        if point.intersection(line):
+                            pos = point
+                            firstNode = Canvas.roadNodes[i]
+                            canDrawRoad = True
+                            beginConnectRoad = True
+                            break
+                    if beginConnectRoad: break
+
             # Draw temporary roads when left clicked
             if GMvar.mouseStateSingle[0] and GMvar.latestMouse[1] < bottomGui.guiHeightChange + bottomGui.sliderHeight and canDrawRoad:
                 # Add length to total length
@@ -197,7 +220,9 @@ class Canvas:
                 # If mouse is clicked on the canvas,
                 if not snap:
                     newMouseCoords = [ MainCameraSurface.getRealMouseCoords()[i] - ( (MainCameraSurface.getRealMouseCoords()[i] % MainCameraSurface.cellSize[i]) ) for i in range(2) ] # New mouse coords adjusted with the camera
-                    newNode = StreetNodes(newMouseCoords, [], [Canvas.tempRoadNodes[-1]] if len(Canvas.tempRoadNodes) > 0 else [], 0 ) # Create new object StreetNodes with current snapped mouse coordinates, empty front nodes, with back nodes from the last added.
+                    newNode = StreetNodes(newMouseCoords, [], [firstNode] if beginConnectRoad else ( [Canvas.tempRoadNodes[-1]] if len(Canvas.tempRoadNodes) > 0 else [] ), 0 ) # Create new object StreetNodes with current snapped mouse coordinates, empty front nodes, with back nodes from the last added.
+                    if beginConnectRoad:
+                        firstNode.connectedNodes[newNode] = pygame.math.Vector2( [ a - b for a, b in zip(newNode.coords, firstNode.coords) ] )
                 else:
                     ###################### Creates entirely new node, deletes already preexisting node.
                     # newNode = StreetNodes( pos, [secondNode], [Canvas.tempRoadNodes[-1]] if len(Canvas.tempRoadNodes) > 0 else [], 0 )
@@ -219,6 +244,8 @@ class Canvas:
 
         else:
             Canvas.temporaryLength = 0
+            del Canvas.tempRoadNodes[:] # Reset temporary nodes
+
         Canvas.drawRoads(Canvas.tempRoadNodes, (50, 150, 50))
         Canvas.drawRoads(Canvas.roadNodes, (50, 50, 50))
 
