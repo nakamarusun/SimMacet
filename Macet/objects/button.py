@@ -23,6 +23,8 @@ class Button:
         else:
             if id(self.image) != id(self.idleState):
                 self.image = self.idleState
+        
+        self.surface.blit(self.image, self.coords)
 
     def checkState(self) -> bool:
         # This is magic
@@ -46,6 +48,8 @@ class ToggleButton(Button):
         else:
             if id(self.image) != id(self.idleState):
                 self.image = self.idleState
+
+        self.surface.blit(self.image, self.coords)
 
     def checkState(self) -> bool:
         return self.clicked

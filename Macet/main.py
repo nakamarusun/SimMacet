@@ -62,4 +62,4 @@ while True:
     # Delta Timing
     GMvar.deltaTime = GMfun.deltaTiming(startTime)
 
-    print( (100 * GMfun.fpsCostTime / GMvar.deltaTime) ) # How many percentage of the FPS is it taking
+    # print( (100 * GMfun.fpsCostTime / GMvar.deltaTime) ) # How many percentage of the FPS is it taking

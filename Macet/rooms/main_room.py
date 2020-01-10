@@ -311,26 +311,27 @@ class bottomGui:
     openSpeed = 50 # Initial speed to open the GUI
     increment = 500 # Speed acceleration
 
-    surfGui = pygame.Surface((GMvar.resolution[0], guiHeight + sliderHeight),pygame.SRCALPHA).convert_alpha() # an isolated Surface in which to draw the GUI
+    surfTransparent = pygame.Surface((111, 200), pygame.SRCALPHA)
+    surfGui = pygame.Surface((GMvar.resolution[0], guiHeight)) # an isolated Surface in which to draw the GUI
 
     # Buttons
-    reCenter = Button.Button(surfGui, (GMvar.resolution[0]/2 - 55, sliderHeight - 35), "images/sprites/GuiButtons/Recenter.png", "images/sprites/GuiButtons/RecenterTog.png", (0, 0, 111, 111))
-    buttonTopLeft = Button.Button(surfGui, (GMvar.resolution[0]/2 - 156, sliderHeight ), "images/sprites/GuiButtons/TopLeft.png", "images/sprites/GuiButtons/TopLeftTog.png", (0, 10, 91, 48))
-    buttonTopRight = Button.Button(surfGui, (GMvar.resolution[0]/2 - 156, sliderHeight ), "images/sprites/GuiButtons/TopRight.png", "images/sprites/GuiButtons/TopRightTog.png", (221, 10, 91, 48))
-    buttonBotLeft = Button.ToggleButton(surfGui, (GMvar.resolution[0]/2 - 156, sliderHeight ), "images/sprites/GuiButtons/BotLeft.png", "images/sprites/GuiButtons/BotLeftTog.png", (0, 64, 124, 48))
-    buttonBotRight = Button.ToggleButton(surfGui, (GMvar.resolution[0]/2 - 156, sliderHeight ), "images/sprites/GuiButtons/BotRight.png", "images/sprites/GuiButtons/BotRightTog.png", (188, 64, 124, 48))
+    reCenter = Button.Button(surfTransparent, (0, 52), "images/sprites/GuiButtons/Recenter.png", "images/sprites/GuiButtons/RecenterTog.png", (0, 0, 111, 111))
+    buttonTopLeft = Button.Button(surfGui, (GMvar.resolution[0]/2 - 156, 0 ), "images/sprites/GuiButtons/TopLeft.png", "images/sprites/GuiButtons/TopLeftTog.png", (0, 10, 91, 48))
+    buttonTopRight = Button.Button(surfGui, (GMvar.resolution[0]/2 - 156, 0 ), "images/sprites/GuiButtons/TopRight.png", "images/sprites/GuiButtons/TopRightTog.png", (221, 10, 91, 48))
+    buttonBotLeft = Button.ToggleButton(surfGui, (GMvar.resolution[0]/2 - 156, 0 ), "images/sprites/GuiButtons/BotLeft.png", "images/sprites/GuiButtons/BotLeftTog.png", (0, 64, 124, 48))
+    buttonBotRight = Button.ToggleButton(surfGui, (GMvar.resolution[0]/2 - 156,0 ), "images/sprites/GuiButtons/BotRight.png", "images/sprites/GuiButtons/BotRightTog.png", (188, 64, 124, 48))
 
-    addRoad = Button.ToggleButton(surfGui, (GMvar.resolution[0]/2 + 171, sliderHeight + 10 ), "images/sprites/GuiButtons/AddRoad.png", "images/sprites/GuiButtons/AddRoadTog.png", (0, 0, 46, 47))
-    inspectRoad = Button.ToggleButton(surfGui, (GMvar.resolution[0]/2 + 171, sliderHeight + 10 ), "images/sprites/GuiButtons/InspectRoad.png", "images/sprites/GuiButtons/InspectRoadTog.png", (0, 54, 46, 47))
+    addRoad = Button.ToggleButton(surfGui, (GMvar.resolution[0]/2 + 171, 10 ), "images/sprites/GuiButtons/AddRoad.png", "images/sprites/GuiButtons/AddRoadTog.png", (0, 0, 46, 47))
+    inspectRoad = Button.ToggleButton(surfGui, (GMvar.resolution[0]/2 + 171, 10 ), "images/sprites/GuiButtons/InspectRoad.png", "images/sprites/GuiButtons/InspectRoadTog.png", (0, 54, 46, 47))
 
     roadButtons = [addRoad, inspectRoad]
 
     Buttons = [reCenter, buttonTopLeft, buttonTopRight, buttonBotLeft, buttonBotRight]
     
     def update(): # pylint: disable=fixme, no-method-argument
-
+        GMfun.fpsCost()
         # list of buttons that will be drawn
-        buttonBuffer = bottomGui.Buttons * 1
+        buttonAdditions = []
 
         # CLICK BUTTON CHECK EVENTS HERE
         if bottomGui.reCenter.checkState():
@@ -367,20 +368,20 @@ class bottomGui:
         bottomGui.sliderDirection = round(bottomGui.sliderDirection)
 
         # Clear surface
+        bottomGui.surfTransparent.fill((0))
         bottomGui.surfGui.fill((0))
 
         slider, rect = GMfun.rotationAnchor(bottomGui.slider, bottomGui.sliderDirection, (0.5, 0.5)) # Get rotation
 
 
-        # Draw and blit to main screen buffer
-        bottomGui.surfGui.blit( slider, [ a + b for a, b in zip((rect.x, rect.y), (bottomGui.sliderX, bottomGui.sliderYOffset)) ] )     # Blit slider button to surface
-        pygame.draw.rect(bottomGui.surfGui, (44, 66, 81), (0, bottomGui.sliderHeight, GMvar.resolution[0], bottomGui.guiHeight + 0)) # Plus 1 to fix the weird 1 pixel
+        # Draw and blit to main screen buffer [ a + b for a, b in zip((rect.x, rect.y), (bottomGui.sliderX, bottomGui.sliderYOffset)) ]
+        bottomGui.surfTransparent.blit( slider, (rect[0] + 8, rect[1] + 10) )     # Blit slider button to surface
+        pygame.draw.rect(bottomGui.surfGui, (44, 66, 81), (0, 0, GMvar.resolution[0], bottomGui.guiHeight + 0)) # Plus 1 to fix the weird 1 pixel
 
         # TOGGLE BUTTON CHECK EVENTS HERE
         # Road button
         if bottomGui.buttonBotRight.checkState():
-            for roadBut in bottomGui.roadButtons:
-                buttonBuffer.append( roadBut )
+            buttonAdditions += bottomGui.roadButtons
             if mouse_design.currentMouse != mouse_design.mouseRoad:
                 mouse_design.setMouse(mouse_design.mouseRoad)
         else:
@@ -389,10 +390,11 @@ class bottomGui:
 
         # Draw buttons to surface
         # Update buttons
-        GMfun.fpsCost()
         toggled = False
-        for button in buttonBuffer:
-            button.update(0, bottomGui.guiHeightChange) # Draw buttons
-            bottomGui.surfGui.blit(button.image, button.coords)
+        bottomGui.Buttons[0].update(GMvar.resolution[0]/2 - 55, bottomGui.guiHeightChange )
+        for button in bottomGui.Buttons[1:] + buttonAdditions:
+            button.update(0, bottomGui.guiHeightChange + bottomGui.sliderHeight) # Draw buttons
+
         GMfun.endFpsCost()
-        GMvar.mainScreenBuffer.blit(bottomGui.surfGui, (0, bottomGui.guiHeightChange + 1)) # Finally, draw everything to main buffer
+        GMvar.mainScreenBuffer.blit(bottomGui.surfGui, (0, bottomGui.guiHeightChange + bottomGui.sliderHeight)) # Finally, draw everything to main buffer
+        GMvar.mainScreenBuffer.blit(bottomGui.surfTransparent, (GMvar.resolution[0]/2 - 55, bottomGui.guiHeightChange)) # Finally, draw everything to main buffer
