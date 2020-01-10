@@ -27,7 +27,7 @@ class MainCameraSurface:
 
     objectsQueue = []   # Objects to be loaded in the camera
 
-    mainSurface = pygame.Surface(GMvar.resolution, pygame.SRCALPHA)     # Main surface of the camera, need to have transparency enabled
+    mainSurface = pygame.Surface(GMvar.resolution, pygame.SRCALPHA).convert_alpha()     # Main surface of the camera, need to have transparency enabled
     cameraCoords = [0, 0]   # Current coordinates of the camera
 
     cellSize = (16, 16) # Grid cell size for the game
@@ -100,8 +100,12 @@ class Car(Object):
 class Canvas:
     
     addRoad = GMvar.defFont12.render("Press ESCAPE to discard and exit new road mode, LEFT CLICK to add road, and ENTER to confirm addition", True, (0, 0, 0))
+    editRoad = GMvar.defFont12.render("LEFT CLICK and drag, then release to select roads. DELETE / BACKSPACE to delete them.", True, (0, 0, 0))
 
+    newRoad = False
     editRoad = False
+
+    selectionRect = []
 
     roadNodes: StreetNodes = []
     tempRoadNodes: StreetNodes = []
@@ -125,9 +129,10 @@ class Canvas:
 
     def update():
 
-        if Canvas.editRoad:
-            # Update mouse coords when snapped to grid
-            Canvas.mouseCoords = [ (GMvar.latestMouse[i] - ( ( GMvar.latestMouse[i] + MainCameraSurface.gridOffset[i] ) % MainCameraSurface.cellSize[i] ) )  for i in range(2) ]
+        # Update mouse coords when snapped to grid
+        Canvas.mouseCoords = [ (GMvar.latestMouse[i] - ( ( GMvar.latestMouse[i] + MainCameraSurface.gridOffset[i] ) % MainCameraSurface.cellSize[i] ) )  for i in range(2) ]
+
+        if Canvas.newRoad:
             Canvas.highlightGrid(1, 1) # Grid highlight size
             GMfun.insertDrawTopMostQueue(Canvas.addRoad, (5, 25) ) # Instructions
 
@@ -245,6 +250,45 @@ class Canvas:
         else:
             Canvas.temporaryLength = 0
             del Canvas.tempRoadNodes[:] # Reset temporary nodes
+
+        if Canvas.editRoad:
+            Canvas.highlightGrid(1, 1) # Grid highlight size
+            GMfun.insertDrawTopMostQueue(Canvas.addRoad, (5, 25) ) # Instructions
+
+            if GMvar.mouseState[0]:
+                rectSize = [ a - b for a, b in zip(GMvar.latestMouse, GMvar.latestMouseLeft) ]
+                rectSurface = pygame.Surface(rectSize)
+                rectSurface.set_alpha(100)
+                rectSurface.fill( (84, 184, 214) )
+                rectCoords = [ a + b for a, b in zip(GMvar.latestMouseLeft, MainCameraSurface.cameraCoords)]
+                MainCameraSurface.mainSurface.blit( rectSurface, rectCoords )
+
+                Canvas.selectionRect = [ *rectCoords, *rectSize ]
+            
+            if not GMvar.mouseState[0] and len(Canvas.selectionRect) > 0:
+                rectangleGeometry = LineString( [ Canvas.selectionRect[:2], (Canvas.selectionRect[0] + Canvas.selectionRect[2], Canvas.selectionRect[1]), (Canvas.selectionRect[0] + Canvas.selectionRect[2], Canvas.selectionRect[1] + Canvas.selectionRect[3]), (Canvas.selectionRect[0], Canvas.selectionRect[1] + Canvas.selectionRect[3]), Canvas.selectionRect[:2] ] )
+                for nodes in Canvas.roadNodes:
+                    for connectedNodes in  nodes.connectedNodes.keys():
+                        line = LineString( [ nodes.coords, connectedNodes.coords ] )
+                        if line.intersects(rectangleGeometry):
+                            Canvas.tempRoadNodes.append(nodes)
+                            break
+                    if nodes.coords[0] > Canvas.selectionRect[0] and nodes.coords[0] < Canvas.selectionRect[0] + Canvas.selectionRect[2]:
+                        if nodes.coords[1] > Canvas.selectionRect[1] and nodes.coords[1] < Canvas.selectionRect[1] + Canvas.selectionRect[3]:
+                            Canvas.tempRoadNodes.append(nodes)
+            
+            # Recreate new canvas.roadnodes without anything in canvas temproadnodes. so, basically Canvas.roadNodes = Canvas.roadNodes - Canvas.tempRoadNodes
+            if pygame.K_DELETE  in GMvar.keyboardPressedStates or pygame.K_BACKSPACE in GMvar.keyboardPressedStates and len(Canvas.tempRoadNodes) > 0:
+                # If an element of roadnodes is in temproadnodes, delete the connectedRoads element of the roadnodes' backnode.
+                for i in range(len(Canvas.roadNodes)):
+                    if Canvas.roadNodes[i] in Canvas.tempRoadNodes:
+                        for j in range(len(Canvas.roadNodes.backNodes)):
+                            del Canvas.roadNodes.backNodes[j].connectedNodes[Canvas.roadNodes[i]]
+                # Delete from roadnodes
+                Canvas.roadNodes = [ nodes if nodes not in Canvas.tempRoadNodes for nodes in Canvas.roadNodes ]
+
+            else:
+                del Canvas.selectionRect[:]
 
         Canvas.drawRoads(Canvas.tempRoadNodes, (50, 150, 50))
         Canvas.drawRoads(Canvas.roadNodes, (50, 50, 50))
