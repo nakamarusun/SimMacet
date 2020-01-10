@@ -20,14 +20,14 @@ import game_math.custom_math_funcs as GMmat
 
 class MainCameraSurfaceBlitter:
     def update():
-        GMvar.mainScreenBuffer.blit(MainCameraSurface.mainSurface, (0, 0) ) # Blit to main buffer
+        pass
 
 class MainCameraSurface:
     # This is the surface in which every object that needs to be movable
 
     objectsQueue = []   # Objects to be loaded in the camera
 
-    mainSurface = pygame.Surface(GMvar.resolution, pygame.SRCALPHA).convert_alpha()     # Main surface of the camera, need to have transparency enabled
+    mainSurface = pygame.Surface(GMvar.resolution)    # Main surface of the camera, need to have transparency enabled
     cameraCoords = [0, 0]   # Current coordinates of the camera
 
     cellSize = (16, 16) # Grid cell size for the game
@@ -48,7 +48,7 @@ class MainCameraSurface:
 
     def drawToMainCameraSurface(coords: list, objectToDraw):
         newSurfCoords = [ a - b for a, b in zip(coords, MainCameraSurface.cameraCoords) ] # Calculate new object coordinates based on camera coords
-        MainCameraSurface.mainSurface.blit(objectToDraw, newSurfCoords) # Blit objects to camera surface
+        GMvar.mainScreenBuffer.blit(objectToDraw, newSurfCoords) # Blit objects to camera surface
 
     def homeCamera(second: int):
         MainCameraSurface.returnCameraMultiplier -= GMvar.deltaTime * 1/second
@@ -57,6 +57,8 @@ class MainCameraSurface:
             MainCameraSurface.returnCamera = False
 
     def update():
+        # Clear surface
+        GMvar.mainScreenBuffer.fill((255, 255, 255))
 
         # If return camera, the move the camera back to home using cos interpolation
         if MainCameraSurface.returnCamera:
@@ -78,14 +80,11 @@ class MainCameraSurface:
                 endLine = (pointPosition, GMvar.resolution[::-1][x]) if x == 0 else (GMvar.resolution[::-1][x], pointPosition)
                 pygame.draw.line( GMvar.mainScreenBuffer, (230, 230, 230), startLine, endLine) # Draw line
 
-        # Clear surface
-        MainCameraSurface.mainSurface.fill((0, 0, 0, 0))
-
         # For every object in the camera queue, do their respective update event, and put them in their new coordinates
         for objects in MainCameraSurface.objectsQueue:
             objects.update()
             newSurfCoords = [ a - b for a, b in zip(objects.coords, MainCameraSurface.cameraCoords) ] # Calculate new object coordinates based on camera coords
-            MainCameraSurface.mainSurface.blit(objects.image, newSurfCoords) # Blit objects to camera surface
+            GMvar.mainScreenBuffer.blit(objects.image, newSurfCoords) # Blit objects to camera surface
 
 class Car(Object):
 
@@ -120,12 +119,12 @@ class Canvas:
     def highlightGrid(cellWidth, cellHeight):
         # Highlight grid based on the data gathered from MainCameraSurface
         size = [ a * b for a, b in zip([cellWidth, cellHeight], MainCameraSurface.cellSize) ] # Size of the grid times the cellWidth and cellHeight
-        pygame.draw.rect(MainCameraSurface.mainSurface, (0, 150, 0, 120), (*Canvas.mouseCoords, *size) ) # Draw highlight
+        pygame.draw.rect(GMvar.mainScreenBuffer, (0, 150, 0, 120), (*Canvas.mouseCoords, *size) ) # Draw highlight
 
     def drawRoads(fromList: list, color: list):
         for node in fromList:
             for connectedNodes in node.connectedNodes.keys():
-                pygame.draw.line(MainCameraSurface.mainSurface, color, [ a - b for a, b in zip(node.coords, MainCameraSurface.cameraCoords) ], [ a - b for a, b in zip(connectedNodes.coords, MainCameraSurface.cameraCoords) ], 16)
+                pygame.draw.line(GMvar.mainScreenBuffer, color, [ a - b for a, b in zip(node.coords, MainCameraSurface.cameraCoords) ], [ a - b for a, b in zip(connectedNodes.coords, MainCameraSurface.cameraCoords) ], 16)
 
     def update():
 
@@ -198,7 +197,7 @@ class Canvas:
                         pass
 
                 color = (52, 139, 201) if snap else ((50, 150, 50) if canDrawRoad else (150, 50, 50))
-                pygame.draw.line(MainCameraSurface.mainSurface, color, startLine, [ a - b for a, b in zip(pos, MainCameraSurface.cameraCoords ) ] if snap else endLine, 16) # If snaps to road, change the end line to the snapped position, else to mouse position
+                pygame.draw.line(GMvar.mainScreenBuffer, color, startLine, [ a - b for a, b in zip(pos, MainCameraSurface.cameraCoords ) ] if snap else endLine, 16) # If snaps to road, change the end line to the snapped position, else to mouse position
                 GMfun.insertDrawTopMostQueue( GMvar.defFont12.render("Length: {}m".format(str(round(length, 3))), True, (0, 0, 0) ), (GMvar.latestMouse[0] + 20, GMvar.latestMouse[1]) ) # Draw road estimation description
                 GMfun.insertDrawTopMostQueue( GMvar.defFont12.render("Total length: {}m".format(str(round(Canvas.temporaryLength, 3))), True, (0, 0, 0) ), (GMvar.latestMouse[0] + 20, GMvar.latestMouse[1] + 10) ) # Draw road estimation description
 
@@ -261,7 +260,7 @@ class Canvas:
                 rectSurface.set_alpha(100)
                 rectSurface.fill( (84, 184, 214) )
                 rectCoords = [ a + b for a, b in zip(GMvar.latestMouseLeft, MainCameraSurface.cameraCoords)]
-                MainCameraSurface.mainSurface.blit( rectSurface, rectCoords )
+                GMvar.mainScreenBuffer.blit( rectSurface, rectCoords )
 
                 Canvas.selectionRect = [ *rectCoords, *rectSize ]
             
@@ -329,7 +328,6 @@ class bottomGui:
     Buttons = [reCenter, buttonTopLeft, buttonTopRight, buttonBotLeft, buttonBotRight]
     
     def update(): # pylint: disable=fixme, no-method-argument
-        GMfun.fpsCost()
         # list of buttons that will be drawn
         buttonAdditions = []
 
@@ -383,7 +381,7 @@ class bottomGui:
         if bottomGui.buttonBotRight.checkState():
             buttonAdditions += bottomGui.roadButtons
             if mouse_design.currentMouse != mouse_design.mouseRoad:
-                mouse_design.setMouse(mouse_design.mouseRoad)
+                mouse_design.setMouse(mouse_design.mouseRoad)           # So apparently, changing the mouse design is VERY LAGGY OK F OFF
         else:
             if mouse_design.currentMouse != "Default":
                 mouse_design.setDefaultMouse()
@@ -395,6 +393,5 @@ class bottomGui:
         for button in bottomGui.Buttons[1:] + buttonAdditions:
             button.update(0, bottomGui.guiHeightChange + bottomGui.sliderHeight) # Draw buttons
 
-        GMfun.endFpsCost()
         GMvar.mainScreenBuffer.blit(bottomGui.surfGui, (0, bottomGui.guiHeightChange + bottomGui.sliderHeight)) # Finally, draw everything to main buffer
         GMvar.mainScreenBuffer.blit(bottomGui.surfTransparent, (GMvar.resolution[0]/2 - 55, bottomGui.guiHeightChange)) # Finally, draw everything to main buffer
