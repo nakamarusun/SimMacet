@@ -285,7 +285,7 @@ class Canvas:
                         for j in range(len(Canvas.roadNodes.backNodes)):
                             del Canvas.roadNodes.backNodes[j].connectedNodes[Canvas.roadNodes[i]]
                 # Delete from roadnodes
-                Canvas.roadNodes = [ nodes if nodes not in Canvas.tempRoadNodes for nodes in Canvas.roadNodes ]
+                Canvas.roadNodes = [ nodes for nodes in Canvas.roadNodes if nodes not in Canvas.tempRoadNodes ]
 
             else:
                 del Canvas.selectionRect[:]
@@ -320,10 +320,18 @@ class bottomGui:
     buttonBotLeft = Button.ToggleButton(surfGui, (GMvar.resolution[0]/2 - 156, sliderHeight ), "images/sprites/GuiButtons/BotLeft.png", "images/sprites/GuiButtons/BotLeftTog.png", (0, 64, 124, 48))
     buttonBotRight = Button.ToggleButton(surfGui, (GMvar.resolution[0]/2 - 156, sliderHeight ), "images/sprites/GuiButtons/BotRight.png", "images/sprites/GuiButtons/BotRightTog.png", (188, 64, 124, 48))
 
+    addRoad = Button.ToggleButton(surfGui, (GMvar.resolution[0]/2 + 171, sliderHeight + 10 ), "images/sprites/GuiButtons/AddRoad.png", "images/sprites/GuiButtons/AddRoadTog.png", (0, 0, 46, 47))
+    inspectRoad = Button.ToggleButton(surfGui, (GMvar.resolution[0]/2 + 171, sliderHeight + 10 ), "images/sprites/GuiButtons/InspectRoad.png", "images/sprites/GuiButtons/InspectRoadTog.png", (0, 54, 46, 47))
+
+    roadButtons = [addRoad, inspectRoad]
+
     Buttons = [reCenter, buttonTopLeft, buttonTopRight, buttonBotLeft, buttonBotRight]
     
     def update(): # pylint: disable=fixme, no-method-argument
-        
+
+        # list of buttons that will be drawn
+        buttonBuffer = bottomGui.Buttons * 1
+
         # CLICK BUTTON CHECK EVENTS HERE
         if bottomGui.reCenter.checkState():
             MainCameraSurface.returnCamera = True
@@ -359,7 +367,7 @@ class bottomGui:
         bottomGui.sliderDirection = round(bottomGui.sliderDirection)
 
         # Clear surface
-        bottomGui.surfGui.fill((0, 0, 0, 0))
+        bottomGui.surfGui.fill((0))
 
         slider, rect = GMfun.rotationAnchor(bottomGui.slider, bottomGui.sliderDirection, (0.5, 0.5)) # Get rotation
 
@@ -368,28 +376,23 @@ class bottomGui:
         bottomGui.surfGui.blit( slider, [ a + b for a, b in zip((rect.x, rect.y), (bottomGui.sliderX, bottomGui.sliderYOffset)) ] )     # Blit slider button to surface
         pygame.draw.rect(bottomGui.surfGui, (44, 66, 81), (0, bottomGui.sliderHeight, GMvar.resolution[0], bottomGui.guiHeight + 0)) # Plus 1 to fix the weird 1 pixel
 
-        # Draw buttons to surface
-        # Update buttons
-        toggled = False
-        for button in bottomGui.Buttons:
-            button.update(0, bottomGui.guiHeightChange) # Draw buttons
-            try:
-                if toggled and button.clicked:
-                    button.clicked = False
-                if button.clicked == True:
-                    toggled = True
-            except:
-                pass
-
         # TOGGLE BUTTON CHECK EVENTS HERE
-        # New Road
+        # Road button
         if bottomGui.buttonBotRight.checkState():
-            Canvas.editRoad = True
+            for roadBut in bottomGui.roadButtons:
+                buttonBuffer.append( roadBut )
             if mouse_design.currentMouse != mouse_design.mouseRoad:
                 mouse_design.setMouse(mouse_design.mouseRoad)
         else:
-            Canvas.editRoad = False
             if mouse_design.currentMouse != "Default":
                 mouse_design.setDefaultMouse()
 
+        # Draw buttons to surface
+        # Update buttons
+        GMfun.fpsCost()
+        toggled = False
+        for button in buttonBuffer:
+            button.update(0, bottomGui.guiHeightChange) # Draw buttons
+            bottomGui.surfGui.blit(button.image, button.coords)
+        GMfun.endFpsCost()
         GMvar.mainScreenBuffer.blit(bottomGui.surfGui, (0, bottomGui.guiHeightChange + 1)) # Finally, draw everything to main buffer

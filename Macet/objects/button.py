@@ -24,8 +24,6 @@ class Button:
             if id(self.image) != id(self.idleState):
                 self.image = self.idleState
 
-        self.surface.blit(self.image, self.coords)
-
     def checkState(self) -> bool:
         # This is magic
         if self.image == self.clickedState and GMvar.mouseState[0] == False:
@@ -48,8 +46,6 @@ class ToggleButton(Button):
         else:
             if id(self.image) != id(self.idleState):
                 self.image = self.idleState
-
-        self.surface.blit(self.image, self.coords)
 
     def checkState(self) -> bool:
         return self.clicked

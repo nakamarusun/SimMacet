@@ -46,7 +46,7 @@ while True:
     
     # Update each object in current room
     GMvar.curRoom.updateRoom()
-    
+
     # Draw things that is top most
     GMfun.drawTopMost()
 
@@ -62,4 +62,4 @@ while True:
     # Delta Timing
     GMvar.deltaTime = GMfun.deltaTiming(startTime)
 
-    # print( (FPS * GMfun.fpsCostTime / GMvar.deltaTime) )
+    print( (100 * GMfun.fpsCostTime / GMvar.deltaTime) ) # How many percentage of the FPS is it taking
