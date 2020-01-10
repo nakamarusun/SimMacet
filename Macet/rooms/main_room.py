@@ -176,7 +176,7 @@ class Canvas:
                                 # The node data for the one intersecting
                                 # If snap then
                                 if snap:
-                                    pos = [ pos[i] - (pos[i] % MainCameraSurface.cellSize[i]) for i in range(2) ]
+                                    # pos = [ pos[i] - (pos[i] % MainCameraSurface.cellSize[i]) for i in range(2) ] # If want to snap to grid, do this.
                                     firstNode = combinedNode[i][j]
                                     secondNode = list( combinedNode[i][j].connectedNodes.keys() )[k]
                                     break # Break from for loop
