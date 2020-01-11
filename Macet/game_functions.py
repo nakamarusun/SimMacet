@@ -1,11 +1,15 @@
 """Custom Game Functions"""
 
+import pygame.surface
+
 import time
 import event_queue as GMque
 import pygame.transform
 import pygame
+import pygame.draw
 import global_variables as GMvar
 import math
+import numpy as np
 
 #######################################################################################
 # General game object functions
@@ -15,7 +19,7 @@ def rotationAnchor(image, angle: float, anchor: list):
     # Anchor is the rotation point. (0, 0) is top left, while (1, 1) is bottom right.
 
     center = [ a*b for a,b in zip(image.get_size(), anchor) ]
-    rotated_image = pygame.transform.rotate(image, angle)
+    rotated_image = pygame.transform.rotate(image, angle).convert_alpha()
     new_rect = rotated_image.get_rect(center = center)
 
     return rotated_image, new_rect
@@ -56,6 +60,20 @@ def insertDrawTopMostQueue(image, coords):
 def drawTopMost():
     for image, coords in GMvar.drawTopMost:
         GMvar.mainScreenBuffer.blit(image, coords)
+
+def drawBetterLine(surface, color, x1: float, y1: float, x2:float, y2:float, width = 1):
+    # DOESNT WORK
+    vector = pygame.math.Vector2(x2 - x1, y2 - y1)
+    length = round( vector.length() )
+    lineSurf = pygame.Surface((round(length), width), pygame.SRCALPHA)
+    lineSurf.fill( list(color) + [0] )
+    pygame.draw.rect(lineSurf, color, (0, 0, round(length), width))
+    angle = 360 - (np.arctan2(vector[1], vector[0]) * 180/math.pi)
+
+    lineSurf = pygame.transform.rotate(lineSurf, angle)
+
+    surface.blit(lineSurf, [ a + b if b < 0 else a for a, b in zip([x1, y1], vector) ] )
+
 
 ########################################################################################
 # Specialized functions

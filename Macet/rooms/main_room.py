@@ -121,10 +121,12 @@ class Canvas:
         size = [ a * b for a, b in zip([cellWidth, cellHeight], MainCameraSurface.cellSize) ] # Size of the grid times the cellWidth and cellHeight
         pygame.draw.rect(GMvar.mainScreenBuffer, (0, 150, 0, 120), (*Canvas.mouseCoords, *size) ) # Draw highlight
 
-    def drawRoads(fromList: list, color: list):
+    def drawRoads(fromList: list, color: tuple):
+        # for node in fromList:
+        #     for connectedNodes in node.connectedNodes.keys():
+        #         pygame.draw.line(GMvar.mainScreenBuffer, color, [ a - b for a, b in zip(node.coords, MainCameraSurface.cameraCoords) ], [ a - b for a, b in zip(connectedNodes.coords, MainCameraSurface.cameraCoords) ], 16)
         for node in fromList:
-            for connectedNodes in node.connectedNodes.keys():
-                pygame.draw.line(GMvar.mainScreenBuffer, color, [ a - b for a, b in zip(node.coords, MainCameraSurface.cameraCoords) ], [ a - b for a, b in zip(connectedNodes.coords, MainCameraSurface.cameraCoords) ], 16)
+            node.drawSelf(GMvar.mainScreenBuffer, [ -i for i in MainCameraSurface.cameraCoords ], color=color)
 
     def update():
 
@@ -152,7 +154,7 @@ class Canvas:
                 
                 # If intersects, disable road drawing
                 combinedNode = [Canvas.roadNodes, Canvas.tempRoadNodes[:-2]]
-                realMouseCoords = MainCameraSurface.getRealMouseCoords() # Real mouse coordinates. (mouse coords current + camera coords)
+                realMouseCoords = [ a + b for a, b in zip(endLine, MainCameraSurface.cameraCoords)] # Real mouse coordinates. (mouse coords current - camera coords)
                 # To avoid any unwanted intersections, offset node coords a bit.
                 try:
                     newRoadVec = pygame.math.Vector2( [ a - b for a, b in zip(realMouseCoords, Canvas.tempRoadNodes[-1].coords) ] ).normalize()
@@ -187,7 +189,7 @@ class Canvas:
                 # This works by comparing the normalized vector2 of the before road, and the current road by mouse.
                 # Fixed problem where you can't place roads if there is two or more connectedNodes
                 if len(Canvas.tempRoadNodes) > 1:
-                    vec1: pygame.math.Vector2 = list(Canvas.tempRoadNodes[-2].connectedNodes.values())[-1]
+                    vec1: pygame.math.Vector2 = list(Canvas.tempRoadNodes[-2].connectedNodes.values())[-1][0]
                     vec2 = pygame.math.Vector2( [ b - a for a, b in zip(realMouseCoords, Canvas.tempRoadNodes[-1].coords) ] )
                     try:
                         if vec1.normalize() == vec2.normalize():
@@ -197,7 +199,7 @@ class Canvas:
                         pass
 
                 color = (52, 139, 201) if snap else ((50, 150, 50) if canDrawRoad else (150, 50, 50))
-                pygame.draw.line(GMvar.mainScreenBuffer, color, startLine, [ a - b for a, b in zip(pos, MainCameraSurface.cameraCoords ) ] if snap else endLine, 16) # If snaps to road, change the end line to the snapped position, else to mouse position
+                GMfun.drawBetterLine(GMvar.mainScreenBuffer, color, *[ b + 16 if (b > a - c) else b for a, b, c in zip(pos, startLine, MainCameraSurface.cameraCoords) ] if snap else startLine, *[ a - b for a, b in zip(pos, MainCameraSurface.cameraCoords ) ] if snap else endLine, 16) # If snaps to road, change the end line to the snapped position, else to mouse position
                 GMfun.insertDrawTopMostQueue( GMvar.defFont12.render("Length: {}m".format(str(round(length, 3))), True, (0, 0, 0) ), (GMvar.latestMouse[0] + 20, GMvar.latestMouse[1]) ) # Draw road estimation description
                 GMfun.insertDrawTopMostQueue( GMvar.defFont12.render("Total length: {}m".format(str(round(Canvas.temporaryLength, 3))), True, (0, 0, 0) ), (GMvar.latestMouse[0] + 20, GMvar.latestMouse[1] + 10) ) # Draw road estimation description
 
@@ -226,7 +228,7 @@ class Canvas:
                     newMouseCoords = [ MainCameraSurface.getRealMouseCoords()[i] - ( (MainCameraSurface.getRealMouseCoords()[i] % MainCameraSurface.cellSize[i]) ) for i in range(2) ] # New mouse coords adjusted with the camera
                     newNode = StreetNodes(newMouseCoords, [], [firstNode] if beginConnectRoad else ( [Canvas.tempRoadNodes[-1]] if len(Canvas.tempRoadNodes) > 0 else [] ), 0 ) # Create new object StreetNodes with current snapped mouse coordinates, empty front nodes, with back nodes from the last added.
                     if beginConnectRoad:
-                        firstNode.connectedNodes[newNode] = pygame.math.Vector2( [ a - b for a, b in zip(newNode.coords, firstNode.coords) ] )
+                        firstNode.connectTo( newNode )
                 else:
                     ###################### Creates entirely new node, deletes already preexisting node.
                     # newNode = StreetNodes( pos, [secondNode], [Canvas.tempRoadNodes[-1]] if len(Canvas.tempRoadNodes) > 0 else [], 0 )
@@ -238,7 +240,7 @@ class Canvas:
                     ###################### Creates new node, but overlaps with other node.
                     newNode = StreetNodes( pos, [secondNode], [Canvas.tempRoadNodes[-1]] if len(Canvas.tempRoadNodes) > 0 else [], 0 ) # Draw new node, with the connected node to the second node.
                 if len(Canvas.tempRoadNodes) > 0:
-                    Canvas.tempRoadNodes[-1].connectedNodes[newNode] = pygame.math.Vector2( [ newNode.coords[i] - Canvas.tempRoadNodes[-1].coords[i] for i in range(2) ] ) # Add newNode to front node of the previous StreetNode
+                    Canvas.tempRoadNodes[-1].connectTo(newNode) # Add newNode to front node of the previous StreetNode
                 Canvas.tempRoadNodes.append( newNode ) # Add newNode to current roadNodes list
 
             # When Enter clicked, save current temp roads to road nodes
