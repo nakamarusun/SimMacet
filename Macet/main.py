@@ -9,11 +9,17 @@ import json
 # Load settings.json and apply custom configs to game
 import global_variables as GMvar
 
-with open("settings.json", "r", encoding="utf-8") as file:
-    jsonFile = json.loads( file.read() )
+try:
+    with open("settings.json", "r", encoding="utf-8") as file:
+        jsonFile = json.loads( file.read() )
 
-    GMvar.customMouse = jsonFile["customMouse"]
-    GMvar.resolution = jsonFile["resolution"]
+        GMvar.customMouse = jsonFile["customMouse"]
+        GMvar.resolution = jsonFile["resolution"]
+except FileNotFoundError:
+    with open("settings.json", "w+", encoding="utf-8") as file:
+        with open("DefaultSettings", "r", encoding="utf-8") as defFile:
+            file.write(defFile.read())
+
 GMvar.mainScreenBuffer = pygame.display.set_mode(GMvar.resolution)  # Set resolution from settings.json
 
 import game_functions as GMfun
