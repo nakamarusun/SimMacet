@@ -1,3 +1,4 @@
 {
-    "resolution": [1280, 720]
+    "resolution": [1280, 720],
+    "customMouse": true
 }

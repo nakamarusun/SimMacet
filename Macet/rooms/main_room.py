@@ -3,7 +3,7 @@ import pygame.image
 import pygame.draw
 import pygame.transform
 import pygame.math
-from shapely.geometry import LineString, Point
+from shapely.geometry import LineString, Point, box
 
 import math
 import sys
@@ -99,7 +99,7 @@ class Car(Object):
 class Canvas:
     
     addRoad = GMvar.defFont12.render("Press ESCAPE to discard and exit new road mode, LEFT CLICK to add road, and ENTER to confirm addition", True, (0, 0, 0))
-    editRoad = GMvar.defFont12.render("LEFT CLICK and drag, then release to select roads. DELETE / BACKSPACE to delete them.", True, (0, 0, 0))
+    editRoadText = GMvar.defFont12.render("LEFT CLICK and drag, then release to select roads. DELETE / BACKSPACE to delete them.", True, (0, 0, 0))
 
     newRoad = False
     editRoad = False
@@ -248,49 +248,59 @@ class Canvas:
 
         else:
             Canvas.temporaryLength = 0
-            del Canvas.tempRoadNodes[:] # Reset temporary nodes
+            # del Canvas.tempRoadNodes[:] # Reset temporary nodes
 
         if Canvas.editRoad:
             Canvas.highlightGrid(1, 1) # Grid highlight size
-            GMfun.insertDrawTopMostQueue(Canvas.addRoad, (5, 25) ) # Instructions
+            GMfun.insertDrawTopMostQueue(Canvas.editRoadText, (5, 25) ) # Instructions
 
             if GMvar.mouseState[0]:
+                del Canvas.tempRoadNodes[:]
                 rectSize = [ a - b for a, b in zip(GMvar.latestMouse, GMvar.latestMouseLeft) ]
-                rectSurface = pygame.Surface(rectSize)
+                rectSurface = pygame.Surface( [ abs(num) for num in rectSize ] )
                 rectSurface.set_alpha(100)
                 rectSurface.fill( (84, 184, 214) )
-                rectCoords = [ a + b for a, b in zip(GMvar.latestMouseLeft, MainCameraSurface.cameraCoords)]
+                rectCoords = GMvar.latestMouseLeft
+                rectCoords = [ a + b if b < 0 else a for a, b in zip(rectCoords, rectSize) ]
                 GMvar.mainScreenBuffer.blit( rectSurface, rectCoords )
 
-                Canvas.selectionRect = [ *rectCoords, *rectSize ]
+                rectCoords = [ a + b for a, b in zip(rectCoords, MainCameraSurface.cameraCoords)]
+
+                Canvas.selectionRect = [ *rectCoords, *[ a + b for a, b in zip([ abs(num) for num in rectSize ], rectCoords) ] ]
             
             if not GMvar.mouseState[0] and len(Canvas.selectionRect) > 0:
-                rectangleGeometry = LineString( [ Canvas.selectionRect[:2], (Canvas.selectionRect[0] + Canvas.selectionRect[2], Canvas.selectionRect[1]), (Canvas.selectionRect[0] + Canvas.selectionRect[2], Canvas.selectionRect[1] + Canvas.selectionRect[3]), (Canvas.selectionRect[0], Canvas.selectionRect[1] + Canvas.selectionRect[3]), Canvas.selectionRect[:2] ] )
+                # Make a rectangle shapely object from the selection made
+                rectangleGeometry = box( *Canvas.selectionRect )
+                # Check if nodes / line intersection is in selection
                 for nodes in Canvas.roadNodes:
                     for connectedNodes in  nodes.connectedNodes.keys():
                         line = LineString( [ nodes.coords, connectedNodes.coords ] )
+                        # If line is intersecting with selection rect, then append to list
                         if line.intersects(rectangleGeometry):
                             Canvas.tempRoadNodes.append(nodes)
                             break
-                    if nodes.coords[0] > Canvas.selectionRect[0] and nodes.coords[0] < Canvas.selectionRect[0] + Canvas.selectionRect[2]:
-                        if nodes.coords[1] > Canvas.selectionRect[1] and nodes.coords[1] < Canvas.selectionRect[1] + Canvas.selectionRect[3]:
+                    # If node is in selection rect, then append to list
+                    if nodes.coords[0] > Canvas.selectionRect[0] and nodes.coords[0] < Canvas.selectionRect[2]:
+                        if nodes.coords[1] > Canvas.selectionRect[1] and nodes.coords[1] < Canvas.selectionRect[3]:
                             Canvas.tempRoadNodes.append(nodes)
-            
+                del Canvas.selectionRect[:]
+
             # Recreate new canvas.roadnodes without anything in canvas temproadnodes. so, basically Canvas.roadNodes = Canvas.roadNodes - Canvas.tempRoadNodes
             if pygame.K_DELETE  in GMvar.keyboardPressedStates or pygame.K_BACKSPACE in GMvar.keyboardPressedStates and len(Canvas.tempRoadNodes) > 0:
                 # If an element of roadnodes is in temproadnodes, delete the connectedRoads element of the roadnodes' backnode.
                 for i in range(len(Canvas.roadNodes)):
                     if Canvas.roadNodes[i] in Canvas.tempRoadNodes:
-                        for j in range(len(Canvas.roadNodes.backNodes)):
-                            del Canvas.roadNodes.backNodes[j].connectedNodes[Canvas.roadNodes[i]]
+                        for j in range(len(Canvas.roadNodes[i].backNodes)):
+                            del Canvas.roadNodes[i].backNodes[j].connectedNodes[Canvas.roadNodes[i]] # NEED SOME FIXING HOMIE
                 # Delete from roadnodes
                 Canvas.roadNodes = [ nodes for nodes in Canvas.roadNodes if nodes not in Canvas.tempRoadNodes ]
+                del Canvas.tempRoadNodes[:]
 
-            else:
-                del Canvas.selectionRect[:]
+        else:
+            del Canvas.selectionRect[:]
 
-        Canvas.drawRoads(Canvas.tempRoadNodes, (50, 150, 50))
         Canvas.drawRoads(Canvas.roadNodes, (50, 50, 50))
+        Canvas.drawRoads(Canvas.tempRoadNodes, (50, 150, 50))
 
 class bottomGui:
 
@@ -380,11 +390,22 @@ class bottomGui:
         # Road button
         if bottomGui.buttonBotRight.checkState():
             buttonAdditions += bottomGui.roadButtons
-            if mouse_design.currentMouse != mouse_design.mouseRoad:
+            if mouse_design.currentMouse != mouse_design.mouseRoad and GMvar.customMouse:
                 mouse_design.setMouse(mouse_design.mouseRoad)           # So apparently, changing the mouse design is VERY LAGGY OK F OFF
         else:
-            if mouse_design.currentMouse != "Default":
+            if mouse_design.currentMouse != "Default" and GMvar.customMouse:
                 mouse_design.setDefaultMouse()
+
+        if bottomGui.addRoad.checkState():
+            bottomGui.inspectRoad.clicked = False
+            Canvas.newRoad = True
+        else:
+            Canvas.newRoad = False
+        if bottomGui.inspectRoad.checkState():
+            bottomGui.addRoad.clicked = False
+            Canvas.editRoad = True
+        else:
+            Canvas.editRoad = False
 
         # Draw buttons to surface
         # Update buttons

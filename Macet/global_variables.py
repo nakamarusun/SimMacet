@@ -9,6 +9,7 @@ import datetime
 # Inits
 pygame.font.init()
 
+customMouse = False
 resolution = [800, 600] # Default resolution is 800 x 600
 mainScreenBuffer = None
 curRoom = None

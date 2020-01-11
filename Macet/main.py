@@ -12,6 +12,7 @@ import global_variables as GMvar
 with open("settings.json", "r", encoding="utf-8") as file:
     jsonFile = json.loads( file.read() )
 
+    GMvar.customMouse = jsonFile["customMouse"]
     GMvar.resolution = jsonFile["resolution"]
 GMvar.mainScreenBuffer = pygame.display.set_mode(GMvar.resolution)  # Set resolution from settings.json
 
