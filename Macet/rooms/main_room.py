@@ -17,6 +17,7 @@ import objects.button as Button
 import event_queue as EVque
 import mouse_design
 import game_math.custom_math_funcs as GMmat
+from game_math.road_functions import selectRoad
 
 class MainCameraSurface:
     # This is the surface in which every object that needs to be movable
@@ -99,11 +100,14 @@ class Canvas:
 
     newRoad = False
     editRoad = False
+    newCarSpawner = True
 
     selectionRect = []
 
     roadNodes: StreetNodes = []
     tempRoadNodes: StreetNodes = []
+
+    carSpawners = []
 
     temporaryLength: float = 0
 
@@ -293,6 +297,13 @@ class Canvas:
         else:
             del Canvas.selectionRect[:]
 
+        if Canvas.newCarSpawner:
+            if GMvar.mouseStateSingle[2]:
+                try:
+                    print(selectRoad( MainCameraSurface.getRealMouseCoords(), Canvas.roadNodes, 16 ))
+                except:
+                    pass
+        
         Canvas.drawRoads(Canvas.roadNodes, (50, 50, 50))
         Canvas.drawRoads(Canvas.tempRoadNodes, (50, 150, 50) if Canvas.newRoad else (52, 192, 217))
 
