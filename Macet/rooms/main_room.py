@@ -283,7 +283,7 @@ class Canvas:
                         if nodes.coords[1] > Canvas.selectionRect[1] and nodes.coords[1] < Canvas.selectionRect[3]:
                             Canvas.tempRoadNodes.append(nodes)
             
-            # Delete selection rect if mouse is unclicked
+            # Delete selection rect if mouse is not clicked
             if not GMvar.mouseState[0]:
                 del Canvas.selectionRect[:]
 
@@ -302,10 +302,9 @@ class Canvas:
 
         if Canvas.newCarSpawner:
             if GMvar.mouseStateSingle[2]:
-                try:
-                    print(selectRoad( MainCameraSurface.getRealMouseCoords(), Canvas.roadNodes, 16 ))
-                except:
-                    pass
+                selected = selectRoad( MainCameraSurface.getRealMouseCoords(), Canvas.roadNodes, 16 )
+                if selected != None:
+                    node, connectedNode, selectedCoord = selected
         
         Canvas.drawRoads(Canvas.roadNodes, (50, 50, 50))
         Canvas.drawRoads(Canvas.tempRoadNodes, (50, 150, 50) if Canvas.newRoad else (52, 192, 217))

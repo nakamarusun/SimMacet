@@ -6,7 +6,7 @@ import global_variables as GMvar
 
 class Object:
 
-    def __init__(self, coords=[0, 0], image=None, drawn=False, surface=GMvar.mainScreenBuffer):
+    def __init__(self, coords=[0, 0], image=None, drawn=False, surface=None):
         """ coords: [x, y] = object initial coordinates.
         image: pygame.Image = object's image, if exists.
         drawn: bool = whether object's image is drawn onto the surface or not. If image == none, then False
@@ -30,7 +30,7 @@ class Object:
         
         self.direction = 0  # Object direction
 
-        self.surface = surface  # Surface to be drawn on, default is GMvar.mainScreenBuffer
+        self.surface = surface # Surface to be drawn on, default is GMvar.mainScreenBuffer
 
     def update(self):
         
