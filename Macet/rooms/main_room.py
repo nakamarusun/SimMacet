@@ -288,10 +288,10 @@ class Canvas:
             # Recreate new canvas.roadnodes without anything in canvas temproadnodes. so, basically Canvas.roadNodes = Canvas.roadNodes - Canvas.tempRoadNodes
             if pygame.K_DELETE  in GMvar.keyboardPressedStates or pygame.K_BACKSPACE in GMvar.keyboardPressedStates and len(Canvas.tempRoadNodes) > 0:
                 # If an element of roadnodes is in temproadnodes, delete the connectedRoads element of the roadnodes' backnode.
-                for i in range(len(Canvas.roadNodes)):
-                    if Canvas.roadNodes[i] in Canvas.tempRoadNodes:
-                        for j in range(len(Canvas.roadNodes[i].backNodes)):
-                            del Canvas.roadNodes[i].backNodes[j].connectedNodes[Canvas.roadNodes[i]] # NEED SOME FIXING HOMIE
+                # for i in range(len(Canvas.roadNodes)):
+                #     if Canvas.roadNodes[i] in Canvas.tempRoadNodes:
+                #         for j in range(len(Canvas.roadNodes[i].backNodes)):
+                #             del Canvas.roadNodes[i].backNodes[j].connectedNodes[Canvas.roadNodes[i]] # NEED SOME FIXING HOMIE
                 # Delete from roadnodes
                 Canvas.roadNodes = [ nodes for nodes in Canvas.roadNodes if nodes not in Canvas.tempRoadNodes ]
                 del Canvas.tempRoadNodes[:]
