@@ -1,6 +1,0 @@
-{
-    "python.pythonPath": "SimMacetVE\\Scripts\\python.exe",
-    "python.autoComplete.extraPaths": [
-        "Macet"],
-    "python.autoComplete.addBrackets": true
-}
