@@ -152,7 +152,7 @@ class Canvas:
                 
                 # If intersects, disable road drawing
                 combinedNode = [Canvas.roadNodes, Canvas.tempRoadNodes[:-2]]
-                realMouseCoords = [ a + b for a, b in zip(endLine, MainCameraSurface.cameraCoords)] # Real mouse coordinates. (mouse coords current - camera coords)
+                realMouseCoords = MainCameraSurface.getRealMouseCoords() # Real mouse coordinates. (mouse coords current + camera coords)
                 # To avoid any unwanted intersections, offset node coords a bit.
                 try:
                     newRoadVec = pygame.math.Vector2( [ a - b for a, b in zip(realMouseCoords, Canvas.tempRoadNodes[-1].coords) ] ).normalize()
@@ -282,6 +282,9 @@ class Canvas:
                     if nodes.coords[0] > Canvas.selectionRect[0] and nodes.coords[0] < Canvas.selectionRect[2]:
                         if nodes.coords[1] > Canvas.selectionRect[1] and nodes.coords[1] < Canvas.selectionRect[3]:
                             Canvas.tempRoadNodes.append(nodes)
+            
+            # Delete selection rect if mouse is unclicked
+            if not GMvar.mouseState[0]:
                 del Canvas.selectionRect[:]
 
             # Recreate new canvas.roadnodes without anything in canvas temproadnodes. so, basically Canvas.roadNodes = Canvas.roadNodes - Canvas.tempRoadNodes

@@ -11,4 +11,4 @@ def selectRoad(coords: list, roadList: list, radius: int) -> list:
                 print(boundary)
                 boundary = boundary.boundary
                 print(boundary)
-                return [ roads, connectedRoads, [ (boundary[0].coords.xy[i][0] + boundary[1].coords.xy[i][0]) / 2 for i in range(2) ] ]
+                return roads, connectedRoads, [ (boundary[0].coords.xy[i][0] + boundary[1].coords.xy[i][0]) / 2 for i in range(2) ]
