@@ -18,10 +18,6 @@ import event_queue as EVque
 import mouse_design
 import game_math.custom_math_funcs as GMmat
 
-class MainCameraSurfaceBlitter:
-    def update():
-        pass
-
 class MainCameraSurface:
     # This is the surface in which every object that needs to be movable
 
@@ -245,7 +241,6 @@ class Canvas:
             if pygame.K_RETURN in GMvar.keyboardPressedStates:
                 Canvas.roadNodes += Canvas.tempRoadNodes
                 del Canvas.tempRoadNodes[:]
-
         else:
             Canvas.temporaryLength = 0
             # del Canvas.tempRoadNodes[:] # Reset temporary nodes
@@ -295,12 +290,11 @@ class Canvas:
                 # Delete from roadnodes
                 Canvas.roadNodes = [ nodes for nodes in Canvas.roadNodes if nodes not in Canvas.tempRoadNodes ]
                 del Canvas.tempRoadNodes[:]
-
         else:
             del Canvas.selectionRect[:]
 
         Canvas.drawRoads(Canvas.roadNodes, (50, 50, 50))
-        Canvas.drawRoads(Canvas.tempRoadNodes, (50, 150, 50))
+        Canvas.drawRoads(Canvas.tempRoadNodes, (50, 150, 50) if Canvas.newRoad else (52, 192, 217))
 
 class bottomGui:
 

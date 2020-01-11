@@ -26,5 +26,4 @@ MainRoomObjects.MainCameraSurface.objectsQueue.append( MainRoomObjects.Car([-100
 MainRoom.addObjectToQueue( MainRoomObjects.MainCameraSurface )
 MainRoom.addObjectToQueue( MainRoomObjects.Canvas )
 
-MainRoom.addObjectToQueue( MainRoomObjects.MainCameraSurfaceBlitter )
 MainRoom.addObjectToQueue( MainRoomObjects.bottomGui )
