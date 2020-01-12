@@ -18,6 +18,8 @@ import event_queue as EVque
 import mouse_design
 import game_math.custom_math_funcs as GMmat
 from game_math.road_functions import selectRoad
+from objects.car_object import Car
+from game_math.displacement_functions import kmhToPixels
 
 class MainCameraSurface:
     # This is the surface in which every object that needs to be movable
@@ -83,7 +85,7 @@ class MainCameraSurface:
             newSurfCoords = [ a - b for a, b in zip(objects.coords, MainCameraSurface.cameraCoords) ] # Calculate new object coordinates based on camera coords
             GMvar.mainScreenBuffer.blit(objects.image, newSurfCoords) # Blit objects to camera surface
 
-class Car(Object):
+class CarEx(Object):
 
     def __init__(self, coords=[0,0], image=None, drawn=True, surface=GMvar.mainScreenBuffer):
         super().__init__(coords=coords, image=image, drawn=drawn, surface=surface)
@@ -101,6 +103,7 @@ class Canvas:
     newRoad = False
     editRoad = False
     addCar = False
+    addCarSpawner = False
 
     selectionRect = []
 
@@ -108,6 +111,7 @@ class Canvas:
     tempRoadNodes: StreetNodes = []
 
     carSpawners = []
+    cars: Car = []
 
     temporaryLength: float = 0
 
@@ -302,14 +306,29 @@ class Canvas:
         else:
             del Canvas.selectionRect[:]
 
-        if Canvas.newCarSpawner:
+        if Canvas.addCarSpawner:
             if GMvar.mouseStateSingle[2]:
                 selected = selectRoad( MainCameraSurface.getRealMouseCoords(), Canvas.roadNodes, 16 )
                 if selected != None:
                     node, connectedNode, selectedCoord = selected
         
+        if Canvas.addCar:
+            if GMvar.mouseStateSingle[0]:
+                selected = selectRoad( MainCameraSurface.getRealMouseCoords(), Canvas.roadNodes, 16 )
+                if selected != None:
+                    node, connectedNode, selectedCoord = selected
+                    Canvas.cars.append( Car(node, connectedNode, kmhToPixels(80), selectedCoord, GMvar.mainScreenBuffer) )
+
+
         Canvas.drawRoads(Canvas.roadNodes, (50, 50, 50))
         Canvas.drawRoads(Canvas.tempRoadNodes, (50, 150, 50) if Canvas.newRoad else (52, 192, 217))
+
+        for i in range(len(Canvas.cars)):
+            # If car has reached its end-destination then
+            if Canvas.cars[i].update():
+                # Delete car from list. Then, index is subtracted by 1, so not outOfRangeError
+                Canvas.cars.pop(i)
+                i = i - 1
 
 class bottomGui:
 
