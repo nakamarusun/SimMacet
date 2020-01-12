@@ -9,6 +9,9 @@ import datetime
 # Inits
 pygame.font.init()
 
+# Controls all the car's speed and road timer interval.
+gameSpeed = 1
+
 customMouse = False
 resolution = [800, 600] # Default resolution is 800 x 600
 mainScreenBuffer = None

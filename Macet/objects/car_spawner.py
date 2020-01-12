@@ -30,5 +30,6 @@ class CarSpawner:
         if self.timer.checkDone():
             # Do actions here:
             # Spawn cars here
+            
             # Reset timer
             self.timer = Timer( random.randint( *[ math.ceil(time * 1000) for time in self.interval ] ) )
