@@ -138,7 +138,7 @@ class Canvas:
             GMfun.insertDrawTopMostQueue(Canvas.addRoad, (5, 25) ) # Instructions
 
             if pygame.K_ESCAPE in GMvar.keyboardPressedStates:
-                bottomGui.buttonBotRight.clicked = False
+                bottomGui.addRoad.clicked = False
                 del Canvas.tempRoadNodes[:]
 
             length = 0  # Road length for now
@@ -341,7 +341,13 @@ class bottomGui:
 
     addRoad = Button.ToggleButton(surfGui, (GMvar.resolution[0]/2 + 171, 10 ), "images/sprites/GuiButtons/AddRoad.png", "images/sprites/GuiButtons/AddRoadTog.png", (0, 0, 46, 47))
     inspectRoad = Button.ToggleButton(surfGui, (GMvar.resolution[0]/2 + 171, 10 ), "images/sprites/GuiButtons/InspectRoad.png", "images/sprites/GuiButtons/InspectRoadTog.png", (0, 54, 46, 47))
+    
+    buttonBotLeft.addConflictButtons([buttonBotRight])
+    buttonBotRight.addConflictButtons([buttonBotLeft])
 
+    addRoad.addConflictButtons([inspectRoad])
+    inspectRoad.addConflictButtons([addRoad])
+    
     roadButtons = [addRoad, inspectRoad]
 
     Buttons = [reCenter, buttonTopLeft, buttonTopRight, buttonBotLeft, buttonBotRight]
@@ -405,16 +411,12 @@ class bottomGui:
             if mouse_design.currentMouse != "Default" and GMvar.customMouse:
                 mouse_design.setDefaultMouse()
 
-        if bottomGui.addRoad.checkState():
-            bottomGui.inspectRoad.clicked = False
-            Canvas.newRoad = True
-        else:
-            Canvas.newRoad = False
-        if bottomGui.inspectRoad.checkState():
+        if not bottomGui.buttonBotRight.checkState():
             bottomGui.addRoad.clicked = False
-            Canvas.editRoad = True
-        else:
-            Canvas.editRoad = False
+            bottomGui.inspectRoad.clicked = False
+
+        Canvas.newRoad = bottomGui.addRoad.checkState()
+        Canvas.editRoad = bottomGui.inspectRoad.checkState()
 
         # Draw buttons to surface
         # Update buttons
