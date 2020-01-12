@@ -323,12 +323,14 @@ class Canvas:
         Canvas.drawRoads(Canvas.roadNodes, (50, 50, 50))
         Canvas.drawRoads(Canvas.tempRoadNodes, (50, 150, 50) if Canvas.newRoad else (52, 192, 217))
 
+        deletedCars = 0
         for i in range(len(Canvas.cars)):
             # If car has reached its end-destination then
+            i -= deletedCars
             if Canvas.cars[i].update():
                 # Delete car from list. Then, index is subtracted by 1, so not outOfRangeError
                 Canvas.cars.pop(i)
-                i = i - 1
+                deletedCars += 1
 
 class bottomGui:
 
