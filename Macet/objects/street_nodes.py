@@ -56,6 +56,7 @@ class StreetNodes:
             if self.connectedNodes[node][4] != width or self.connectedNodes[node][5] != color:
                 self.changeColorWidth(node, color, width)
         for connectedNodes in list(self.connectedNodes.values()):
-            surface.blit(connectedNodes[3], [ a + b + c + 16 if b < 0 else a + c for a, b, c in zip(self.coords, connectedNodes[0], coords) ] ) # 16nya dikaliin berdasarkan direction sin whatever lah..
+            addition = ( -math.cos(connectedNodes[1] * math.pi/180) * 16 , math.sin(connectedNodes[1] * math.pi/180) * 16 )
+            surface.blit(connectedNodes[3], [ a + b + c + d if b < 0 else a + c for a, b, c, d in zip(self.coords, connectedNodes[0], coords, addition) ] ) # 16nya dikaliin berdasarkan direction sin whatever lah..
 
     # We would want to project the self node vector onto the chosen road node.
