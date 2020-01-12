@@ -100,7 +100,7 @@ class Canvas:
 
     newRoad = False
     editRoad = False
-    newCarSpawner = True
+    addCar = False
 
     selectionRect = []
 
@@ -341,14 +341,23 @@ class bottomGui:
 
     addRoad = Button.ToggleButton(surfGui, (GMvar.resolution[0]/2 + 171, 10 ), "images/sprites/GuiButtons/AddRoad.png", "images/sprites/GuiButtons/AddRoadTog.png", (0, 0, 46, 47))
     inspectRoad = Button.ToggleButton(surfGui, (GMvar.resolution[0]/2 + 171, 10 ), "images/sprites/GuiButtons/InspectRoad.png", "images/sprites/GuiButtons/InspectRoadTog.png", (0, 54, 46, 47))
+
+    addCar = Button.ToggleButton(surfGui, (GMvar.resolution[0]/2 - 217, 10 ), "images/sprites/GuiButtons/AddCar.png", "images/sprites/GuiButtons/AddCarTog.png", (0, 0, 46, 47))
+    addCarSpawner = Button.ToggleButton(surfGui, (GMvar.resolution[0]/2 - 217, 10 ), "images/sprites/GuiButtons/AddCarSpawner.png", "images/sprites/GuiButtons/AddCarSpawnerTog.png", (0, 54, 46, 47))
     
+    # Conflicts
     buttonBotLeft.addConflictButtons([buttonBotRight])
     buttonBotRight.addConflictButtons([buttonBotLeft])
 
     addRoad.addConflictButtons([inspectRoad])
     inspectRoad.addConflictButtons([addRoad])
+
+    addCar.addConflictButtons([addCarSpawner])
+    addCarSpawner.addConflictButtons([addCar])
     
+    # List
     roadButtons = [addRoad, inspectRoad]
+    carButtons = [addCar, addCarSpawner]
 
     Buttons = [reCenter, buttonTopLeft, buttonTopRight, buttonBotLeft, buttonBotRight]
     
@@ -410,13 +419,19 @@ class bottomGui:
         else:
             if mouse_design.currentMouse != "Default" and GMvar.customMouse:
                 mouse_design.setDefaultMouse()
-
-        if not bottomGui.buttonBotRight.checkState():
             bottomGui.addRoad.clicked = False
             bottomGui.inspectRoad.clicked = False
 
         Canvas.newRoad = bottomGui.addRoad.checkState()
         Canvas.editRoad = bottomGui.inspectRoad.checkState()
+
+        if bottomGui.buttonBotLeft.checkState():
+            buttonAdditions += bottomGui.carButtons
+        else:
+            bottomGui.addCar.clicked = False
+            bottomGui.addCarSpawner.clicked = False
+
+        Canvas.addCar = bottomGui.addCar.checkState()
 
         # Draw buttons to surface
         # Update buttons
