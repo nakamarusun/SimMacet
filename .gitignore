@@ -1,6 +1,9 @@
 # Created by https://www.gitignore.io/api/python,visualstudiocode
 # Edit at https://www.gitignore.io/?templates=python,visualstudiocode
 
+# Shapely library
+Shapely-1.6.4.post2-cp38-cp38-win_amd64.whl
+
 ## Photoshop ##
 *.psd
 
