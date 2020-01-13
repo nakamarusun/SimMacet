@@ -27,6 +27,15 @@ def rotationAnchor(image, angle: float, anchor: list):
 def cosInterpolation(value: float, mutiplier: float) -> float:
     return (1 - ( 0.5 + ( math.cos( mutiplier*math.pi )/2 ) ) ) * value
 
+def addList(lists: list):
+    # Operations currently only "-" and "+"
+    newList = [0] * len(lists)
+    for i in range(len(lists)):
+        for j in range(len(lists[0])):
+            newList[i] += lists[i][j]
+
+    return newList
+
 # Timer for timing in game
 class Timer:
     def __init__(self, endTime: float):

@@ -8,7 +8,7 @@ def selectRoad(coords: list, roadList: list, radius: int) -> list:
             line = LineString( [roads.coords, connectedRoads.coords] )
             boundary = line.intersection(bounds)
             if not boundary.is_empty:
-                print(boundary)
+                # print(boundary)
                 boundary = boundary.boundary
-                print(boundary)
+                # print(boundary)
                 return roads, connectedRoads, [ (boundary[0].coords.xy[i][0] + boundary[1].coords.xy[i][0]) / 2 for i in range(2) ]

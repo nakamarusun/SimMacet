@@ -302,6 +302,10 @@ class Canvas:
                 #             del Canvas.roadNodes[i].backNodes[j].connectedNodes[Canvas.roadNodes[i]] # NEED SOME FIXING HOMIE
                 # Delete from roadnodes
                 Canvas.roadNodes = [ nodes for nodes in Canvas.roadNodes if nodes not in Canvas.tempRoadNodes ]
+                # Delete any reference to deleted roads, to avoid car crossing the road even after deleted.
+                for deletedNodes in Canvas.tempRoadNodes:
+                    deletedNodes.connectedNodes = {}
+
                 del Canvas.tempRoadNodes[:]
         else:
             del Canvas.selectionRect[:]
@@ -317,17 +321,17 @@ class Canvas:
                 selected = selectRoad( MainCameraSurface.getRealMouseCoords(), Canvas.roadNodes, 16 )
                 if selected != None:
                     node, connectedNode, selectedCoord = selected
-                    Canvas.cars.append( Car(node, connectedNode, kmhToPixels(80), selectedCoord, GMvar.mainScreenBuffer) )
+                    Canvas.cars.append( Car(node, connectedNode, kmhToPixels(160), selectedCoord, GMvar.mainScreenBuffer) )
 
 
-        Canvas.drawRoads(Canvas.roadNodes, (50, 50, 50))
+        Canvas.drawRoads(Canvas.roadNodes, (30, 30, 30))
         Canvas.drawRoads(Canvas.tempRoadNodes, (50, 150, 50) if Canvas.newRoad else (52, 192, 217))
 
         deletedCars = 0
         for i in range(len(Canvas.cars)):
             # If car has reached its end-destination then
             i -= deletedCars
-            if Canvas.cars[i].update():
+            if Canvas.cars[i].update(MainCameraSurface.cameraCoords):
                 # Delete car from list. Then, index is subtracted by 1, so not outOfRangeError
                 Canvas.cars.pop(i)
                 deletedCars += 1
