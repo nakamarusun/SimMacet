@@ -35,9 +35,7 @@ def drawArrow(surface, coords: list, length: float, angle: float, direction: flo
         lineCoords = [ length * math.cos(arrowDirection[i]), length * math.sin(arrowDirection[i]) ]
         pygame.draw.line(surface, color, coords, [ a + b for a, b in zip(lineCoords, coords) ], width)
 
-
 def addList(lists: list):
-    # Operations currently only "-" and "+"
     newList = [0] * len(lists)
     for i in range(len(lists)):
         for j in range(len(lists[0])):

@@ -69,4 +69,5 @@ while True:
     # Delta Timing
     GMvar.deltaTime = GMfun.deltaTiming(startTime)
 
-    # print( (100 * GMfun.fpsCostTime / GMvar.deltaTime) ) # How many percentage of the FPS is it takinglist(self.nodeAnchor.connectedNodes.keys())[random.randint( 0, numOfConnectedRoads - 1 if numOfConnectedRoads > 1 else 0 )
+    # How many percentage of the FPS is it taking
+    # print( (100 * GMfun.fpsCostTime / GMvar.deltaTime) )

@@ -187,8 +187,8 @@ class Canvas:
                                 # If snap then
                                 if snap:
                                     # pos = [ pos[i] - (pos[i] % MainCameraSurface.cellSize[i]) for i in range(2) ] # If want to snap to grid, do this.
-                                    firstNode = combinedNode[i][j]
-                                    secondNode = list( combinedNode[i][j].connectedNodes.keys() )[k]
+                                    firstNode: StreetNodes = combinedNode[i][j]
+                                    secondNode: StreetNodes = list( combinedNode[i][j].connectedNodes.keys() )[k]
                                     break # Break from for loop
                         if canDrawRoad == False or snap: break # Continue breaking
                     if canDrawRoad == False or snap: break # Still breaking
@@ -224,7 +224,7 @@ class Canvas:
                         line = LineString( [ Canvas.roadNodes[i].coords, connectedNodes.coords ] )
                         if point.intersection(line):
                             pos = point
-                            firstNode = Canvas.roadNodes[i]
+                            firstNode: StreetNodes = Canvas.roadNodes[i]
                             canDrawRoad = True
                             beginConnectRoad = True
                             break
@@ -250,6 +250,7 @@ class Canvas:
                     # firstNode.connectedNodes[newNode] = pygame.math.Vector2( [ a - b for a, b in zip(firstNode.coords, pos) ] )
                     ###################### Creates new node, but overlaps with other node.
                     newNode = StreetNodes( pos, [secondNode], [Canvas.tempRoadNodes[-1]] if len(Canvas.tempRoadNodes) > 0 else [], 0 ) # Draw new node, with the connected node to the second node.
+                    firstNode.connectTo(newNode)
                 if len(Canvas.tempRoadNodes) > 0:
                     Canvas.tempRoadNodes[-1].connectTo(newNode) # Add newNode to front node of the previous StreetNode
                 Canvas.tempRoadNodes.append( newNode ) # Add newNode to current roadNodes list
@@ -503,4 +504,4 @@ class bottomGui:
             button.update(0, bottomGui.guiHeightChange + bottomGui.sliderHeight) # Draw buttons
 
         GMvar.mainScreenBuffer.blit(bottomGui.surfGui, (0, bottomGui.guiHeightChange + bottomGui.sliderHeight)) # Finally, draw everything to main buffer
-        GMvar.mainScreenBuffer.blit(bottomGui.surfTransparent, (GMvar.resolution[0]/2 - 55, bottomGui.guiHeightChange)) # Finally, draw everything to main buffer
+        GMvar.mainScreenBuffer.blit(bottomGui.surfTransparent, (GMvar.resolution[0]/2 - 55, bottomGui.guiHeightChange)) # Draw transparent surface to main buffer
