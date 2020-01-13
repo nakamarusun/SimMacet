@@ -47,14 +47,15 @@ def addList(lists: list):
 class Timer:
     def __init__(self, endTime: float):
         # This is in miliseconds
-        self.endTime = endTime
+        self.endTime = time.time() * 1000 + endTime
 
     def checkDone(self) -> bool:
-        if time.time() > self.endTime:
+        if time.time() * 1000 > self.endTime:
             return True
             del self
         else:
             return False
+
 # If mouse is clicked once in an area
 def mouseClickedArea(mouseButton: int, left: float, right: float, top: float, bottom: float):
     if GMvar.mouseStateSingle[mouseButton]:

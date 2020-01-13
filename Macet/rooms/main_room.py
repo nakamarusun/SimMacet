@@ -21,6 +21,7 @@ import mouse_design
 import game_math.custom_math_funcs as GMmat
 from game_math.road_functions import selectRoad
 from objects.car_object import Car
+from objects.car_spawner import CarSpawner
 from game_math.displacement_functions import kmhToPixels
 
 class MainCameraSurface:
@@ -223,7 +224,9 @@ class Canvas:
 
                     roadMouseDirection = ( np.arctan2(*newRoadVec[::-1]) * 180/math.pi )
                     roadMouseDirection = 360 + roadMouseDirection if roadMouseDirection < 0 else roadMouseDirection
-                    if not ((roadMouseDirection < Canvas.addRoadDirection + Canvas.directionRange/2 or (roadMouseDirection < Canvas.addRoadDirection + Canvas.directionRange/2 + 360 and roadMouseDirection > Canvas.addRoadDirection - Canvas.directionRange/2 + 360 )) and roadMouseDirection > Canvas.addRoadDirection - Canvas.directionRange/2):
+                    addDir = Canvas.addRoadDirection + Canvas.directionRange/2
+                    minDir = Canvas.addRoadDirection - Canvas.directionRange/2
+                    if not ( (roadMouseDirection < addDir or (roadMouseDirection - 360 < addDir and roadMouseDirection - 360 > minDir) ) and (roadMouseDirection > minDir or (roadMouseDirection + 360 > minDir and roadMouseDirection + 360 < addDir)) ):
                         canDrawRoad = False
 
                 color = (52, 139, 201) if snap else ((50, 150, 50) if canDrawRoad else (150, 50, 50))
@@ -345,10 +348,11 @@ class Canvas:
             del Canvas.selectionRect[:]
 
         if Canvas.addCarSpawner:
-            if GMvar.mouseStateSingle[2]:
+            if GMvar.mouseStateSingle[0]:
                 selected = selectRoad( MainCameraSurface.getRealMouseCoords(), Canvas.roadNodes, 16 )
                 if selected != None:
                     node, connectedNode, selectedCoord = selected
+                    Canvas.carSpawners.append( CarSpawner(node, selectedCoord, 80, 30) )
         
         if Canvas.addCar:
             if GMvar.mouseStateSingle[0]:
@@ -384,6 +388,11 @@ class Canvas:
         Canvas.drawRoads(Canvas.roadNodes, (30, 30, 30))
         Canvas.drawRoads(Canvas.tempRoadNodes, (50, 150, 50) if Canvas.newRoad else (52, 192, 217))
 
+        # Update and draw CarSpawners
+        for spawners in Canvas.carSpawners:
+            spawners.update(Canvas.cars, GMvar.mainScreenBuffer, MainCameraSurface.cameraCoords)
+
+        # Update and draw cars
         deletedCars = 0
         for i in range(len(Canvas.cars)):
             # If car has reached its end-destination then
@@ -514,6 +523,7 @@ class bottomGui:
             bottomGui.addCarSpawner.clicked = False
 
         Canvas.addCar = bottomGui.addCar.checkState()
+        Canvas.addCarSpawner = bottomGui.addCarSpawner.checkState()
 
         # Draw buttons to surface
         # Update buttons

@@ -63,4 +63,4 @@ class StreetNodes:
             addition = ( -math.cos(connectedNodes[1] * math.pi/180) * 16 , math.sin(connectedNodes[1] * math.pi/180) * 16 )
             newCoords = [ a + b + c + d if b < 0 else a + c for a, b, c, d in zip(self.coords, connectedNodes[0], coords, addition) ]
             surface.blit(connectedNodes[3], newCoords ) # 16nya dikaliin berdasarkan direction sin whatever lah..
-            GMfun.drawArrow(surface, [ a + b + 8 + ( c / 2 ) for a, b, c in zip(coords, self.coords, connectedNodes[0]) ], 10, 60, 360 - connectedNodes[1], (200, 200, 200), 3)
+            GMfun.drawArrow(surface, [ a + b + 8 + ( c / 2 ) for a, b, c in zip(coords, self.coords, connectedNodes[0]) ], 10, 60, 360 - connectedNodes[1], (75, 75, 75), 3)
