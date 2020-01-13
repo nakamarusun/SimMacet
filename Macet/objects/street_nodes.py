@@ -56,7 +56,8 @@ class StreetNodes:
             if self.connectedNodes[node][4] != width or self.connectedNodes[node][5] != color:
                 self.changeColorWidth(node, color, width)
         for connectedNodes in list(self.connectedNodes.values()):
+            # connectedNodes is the values inside the actual connectedNodes
             addition = ( -math.cos(connectedNodes[1] * math.pi/180) * 16 , math.sin(connectedNodes[1] * math.pi/180) * 16 )
-            surface.blit(connectedNodes[3], [ a + b + c + d if b < 0 else a + c for a, b, c, d in zip(self.coords, connectedNodes[0], coords, addition) ] ) # 16nya dikaliin berdasarkan direction sin whatever lah..
-
-    # We would want to project the self node vector onto the chosen road node.
+            newCoords = [ a + b + c + d if b < 0 else a + c for a, b, c, d in zip(self.coords, connectedNodes[0], coords, addition) ]
+            surface.blit(connectedNodes[3], newCoords ) # 16nya dikaliin berdasarkan direction sin whatever lah..
+            GMfun.drawArrow(surface, [ a + b + 8 + ( c / 2 ) for a, b, c in zip(coords, self.coords, connectedNodes[0]) ], 10, 60, 360 - connectedNodes[1], (200, 200, 200), 3)

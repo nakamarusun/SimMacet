@@ -361,7 +361,6 @@ class Canvas:
                     Canvas.cars.append( Car(node, roadSplitChoices[ random.randint(0, len(roadSplitChoices) - 1) ], kmhToPixels(200), selectedCoord, GMvar.mainScreenBuffer) )
                     del roadSplitChoices # Delete references
 
-
         Canvas.drawRoads(Canvas.roadNodes, (30, 30, 30))
         Canvas.drawRoads(Canvas.tempRoadNodes, (50, 150, 50) if Canvas.newRoad else (52, 192, 217))
 

@@ -27,6 +27,15 @@ def rotationAnchor(image, angle: float, anchor: list):
 def cosInterpolation(value: float, mutiplier: float) -> float:
     return (1 - ( 0.5 + ( math.cos( mutiplier*math.pi )/2 ) ) ) * value
 
+def drawArrow(surface, coords: list, length: float, angle: float, direction: float, color: list=(0,0,0), width=1):
+    # Angle is the angle of the arrows. the direction is the angle from the x+ axis.
+
+    arrowDirection = [ (direction + 180 - angle/2) * math.pi/180, (direction + 180 + angle/2) * math.pi/180 ]
+    for i in range(2):
+        lineCoords = [ length * math.cos(arrowDirection[i]), length * math.sin(arrowDirection[i]) ]
+        pygame.draw.line(surface, color, coords, [ a + b for a, b in zip(lineCoords, coords) ], width)
+
+
 def addList(lists: list):
     # Operations currently only "-" and "+"
     newList = [0] * len(lists)
