@@ -165,6 +165,8 @@ class Canvas:
                     newRoadVec = pygame.math.Vector2( [ a - b for a, b in zip(realMouseCoords, Canvas.tempRoadNodes[-1].coords) ] ).normalize()
                 except:
                     newRoadVec = [0, 0]
+
+                intersectionCount = 0
                 for i in range(2):
                     for j in range(len(combinedNode[i])):
                         for k in range(len(combinedNode[i][j].connectedNodes.keys())):
@@ -176,6 +178,7 @@ class Canvas:
                             #     pos = combinedNode[i][j].coords
                             # If intersecting then
                             if state:
+                                intersectionCount += 1
                                 # Calculate length from intersection.
                                 lengthFromIntersection = math.sqrt(sum( [ (a - b) ** 2 for a, b in zip(pos, realMouseCoords) ] ))
                                 snap = lengthFromIntersection < Canvas.snapLength
@@ -189,6 +192,9 @@ class Canvas:
                                     break # Break from for loop
                         if canDrawRoad == False or snap: break # Continue breaking
                     if canDrawRoad == False or snap: break # Still breaking
+
+                if intersectionCount > 1:
+                    canDrawRoad = False
 
                 # This is the script to check if road is going back 180 degrees, overlapping the previous road.
                 # This works by comparing the normalized vector2 of the before road, and the current road by mouse.
@@ -326,7 +332,10 @@ class Canvas:
         
         if Canvas.addCar:
             if GMvar.mouseStateSingle[0]:
-                selected = selectRoad( MainCameraSurface.getRealMouseCoords(), Canvas.roadNodes, 16 )
+                try:
+                    selected = selectRoad( MainCameraSurface.getRealMouseCoords(), Canvas.roadNodes, 16 )
+                except:
+                    selected = None
 
                 if selected != None:
                     node, connectedNode, selectedCoord = selected
