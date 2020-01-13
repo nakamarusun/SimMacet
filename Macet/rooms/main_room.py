@@ -6,6 +6,7 @@ import pygame.math
 from shapely.geometry import LineString, Point, box
 
 import math
+import random
 import sys
 sys.path.append('..')
 
@@ -303,7 +304,7 @@ class Canvas:
                 # Delete from roadnodes
                 Canvas.roadNodes = [ nodes for nodes in Canvas.roadNodes if nodes not in Canvas.tempRoadNodes ]
                 # Delete any reference to deleted roads, to avoid car crossing the road even after deleted.
-                # Dont forget to delte cars too.
+                # Dont forget to delete cars too.
                 for deletedNodes in Canvas.tempRoadNodes:
                     deletedNodes.connectedNodes = {}
                     deletedCars = 0
@@ -328,6 +329,7 @@ class Canvas:
                 selected = selectRoad( MainCameraSurface.getRealMouseCoords(), Canvas.roadNodes, 16 )
                 if selected != None:
                     node, connectedNode, selectedCoord = selected
+                    connectedNode = list(node.connectedNodes.keys())[ random.randint(0, len(node.connectedNodes) - 1 ) ]
                     Canvas.cars.append( Car(node, connectedNode, kmhToPixels(160), selectedCoord, GMvar.mainScreenBuffer) )
 
 

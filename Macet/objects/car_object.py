@@ -41,7 +41,8 @@ class Car(Object):
                 del self
                 return True
 
-            self.nodeDestination = list(self.nodeAnchor.connectedNodes.keys())[random.randint( 0, numOfConnectedRoads - 1 if numOfConnectedRoads > 1 else 0 )]
+            nodeDestinationIndex = random.randint( 0 , numOfConnectedRoads - 1)
+            self.nodeDestination = list(self.nodeAnchor.connectedNodes.keys())[ nodeDestinationIndex ]
             change = True # Then change the original from nodeAnchor to destination vector.
 
         if change:
