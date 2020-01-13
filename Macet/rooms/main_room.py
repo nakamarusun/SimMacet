@@ -8,6 +8,7 @@ from shapely.geometry import LineString, Point, box
 import math
 import random
 import sys
+import numpy as np
 sys.path.append('..')
 
 import global_variables as GMvar
@@ -101,22 +102,32 @@ class Canvas:
     addRoad = GMvar.defFont12.render("Press ESCAPE to discard and exit new road mode, LEFT CLICK to add road, and ENTER to confirm addition", True, (0, 0, 0))
     editRoadText = GMvar.defFont12.render("LEFT CLICK and drag, then release to select roads. DELETE / BACKSPACE to delete them.", True, (0, 0, 0))
 
+    # Button states clicked
     newRoad = False
     editRoad = False
     addCar = False
     addCarSpawner = False
 
+    # Selection rectangle coordinate
     selectionRect = []
 
+    # Roads list
     roadNodes: StreetNodes = []
     tempRoadNodes: StreetNodes = []
 
+    # Cars spawners list
     carSpawners = []
     cars: Car = []
 
+    # Temporary length when adding road
     temporaryLength: float = 0
 
+    # Constant. Maximum snapping length before cannot draw
     snapLength = 128
+
+    # Direction to compare with the next road
+    addRoadDirection = 0
+    directionRange = 210 
 
     # Mouse coordinates when snapped to grid.
     mouseCoords = [0, 0]
@@ -167,6 +178,7 @@ class Canvas:
                     newRoadVec = [0, 0]
 
                 intersectionCount = 0
+                # Code for drawing temporary road to mouse.
                 for i in range(2):
                     for j in range(len(combinedNode[i])):
                         for k in range(len(combinedNode[i][j].connectedNodes.keys())):
@@ -208,6 +220,11 @@ class Canvas:
                             snap = False
                     except:
                         pass
+
+                    roadMouseDirection = ( np.arctan2(*newRoadVec[::-1]) * 180/math.pi )
+                    roadMouseDirection = 360 + roadMouseDirection if roadMouseDirection < 0 else roadMouseDirection
+                    if not ((roadMouseDirection < Canvas.addRoadDirection + Canvas.directionRange/2 or (roadMouseDirection < Canvas.addRoadDirection + Canvas.directionRange/2 + 360 and roadMouseDirection > Canvas.addRoadDirection - Canvas.directionRange/2 + 360 )) and roadMouseDirection > Canvas.addRoadDirection - Canvas.directionRange/2):
+                        canDrawRoad = False
 
                 color = (52, 139, 201) if snap else ((50, 150, 50) if canDrawRoad else (150, 50, 50))
                 GMfun.drawBetterLine(GMvar.mainScreenBuffer, color, *[ b + 16 if (b > a - c) else b for a, b, c in zip(pos, startLine, MainCameraSurface.cameraCoords) ] if snap else startLine, *[ a - b for a, b in zip(pos, MainCameraSurface.cameraCoords ) ] if snap else endLine, 16) # If snaps to road, change the end line to the snapped position, else to mouse position
@@ -252,6 +269,8 @@ class Canvas:
                     newNode = StreetNodes( pos, [secondNode], [Canvas.tempRoadNodes[-1]] if len(Canvas.tempRoadNodes) > 0 else [], 0 ) # Draw new node, with the connected node to the second node.
                     firstNode.connectTo(newNode)
                 if len(Canvas.tempRoadNodes) > 0:
+                    Canvas.addRoadDirection = ( np.arctan2( *[ b - a for a, b in zip(Canvas.tempRoadNodes[-1].coords[::-1], newNode.coords[::-1]) ] ) * 180/math.pi )
+                    Canvas.addRoadDirection = 360 + Canvas.addRoadDirection if Canvas.addRoadDirection < 0 else Canvas.addRoadDirection
                     Canvas.tempRoadNodes[-1].connectTo(newNode) # Add newNode to front node of the previous StreetNode
                 Canvas.tempRoadNodes.append( newNode ) # Add newNode to current roadNodes list
 
@@ -261,7 +280,7 @@ class Canvas:
                 del Canvas.tempRoadNodes[:]
         else:
             Canvas.temporaryLength = 0
-            # del Canvas.tempRoadNodes[:] # Reset temporary nodes
+            Canvas.addRoadDirection = 0
 
         if Canvas.editRoad:
             Canvas.highlightGrid(1, 1) # Grid highlight size

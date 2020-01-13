@@ -25,7 +25,7 @@ class Car(Object):
         self.nodeDestination: StreetNodes = nodeDest
         self.curSpeed = speed
         self.direction = 360 - (np.arctan2(*self.nodeAnchor.connectedNodes[self.nodeDestination][0][::-1]) * 180/math.pi)
-        self.image, self.rect = GMfun.rotationAnchor(self.originalImage, self.direction, [0, 0])
+        self.image, self.rect = GMfun.rotationAnchor(self.originalImage, self.direction, [0.28, 0.5])
 
     def update(self, coordsOffset):
         vector: pygame.math.Vector2 = self.nodeAnchor.connectedNodes[self.nodeDestination][0] # Define variables for vector from nodeAnchor to destination
@@ -48,7 +48,7 @@ class Car(Object):
         if change:
             vector: pygame.math.Vector2 = self.nodeAnchor.connectedNodes[self.nodeDestination][0]
             self.direction = 360 - (np.arctan2(*vector[::-1]) * 180/math.pi) # Fix this
-            self.image, self.rect = GMfun.rotationAnchor(self.originalImage, self.direction, [0.5, 0.5])
+            self.image, self.rect = GMfun.rotationAnchor(self.originalImage, self.direction, [0.28, 0.5])
         normalized = vector.normalize()
 
         self.speed = [ self.curSpeed * vec for vec in normalized ]

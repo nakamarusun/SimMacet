@@ -39,9 +39,11 @@ class StreetNodes:
         pass
 
     def changeWidth(self, node, width):
+        # Change the width of the road
         self.connectedNodes[node][3] = pygame.surface(self.connectedNodes[node][2], width)
 
     def changeColorWidth(self, node, color=(50, 50, 50), width=16):
+        # Change the variables of the color or width in connectedNode
         image = pygame.Surface( (int(round(self.connectedNodes[node][2])), width), pygame.SRCALPHA )
         image.fill((0))
         image.fill(color)
@@ -52,6 +54,7 @@ class StreetNodes:
         self.connectedNodes[node][5] = color
 
     def drawSelf(self, surface, coords=[0, 0], width=16, color=(50, 50, 50)):
+        # Detects if there is any change in variable. if so, then change the internal variable, so that it's not done every frame.
         for node in self.connectedNodes:
             if self.connectedNodes[node][4] != width or self.connectedNodes[node][5] != color:
                 self.changeColorWidth(node, color, width)
