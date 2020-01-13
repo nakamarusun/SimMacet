@@ -327,10 +327,30 @@ class Canvas:
         if Canvas.addCar:
             if GMvar.mouseStateSingle[0]:
                 selected = selectRoad( MainCameraSurface.getRealMouseCoords(), Canvas.roadNodes, 16 )
+
                 if selected != None:
                     node, connectedNode, selectedCoord = selected
-                    connectedNode = list(node.connectedNodes.keys())[ random.randint(0, len(node.connectedNodes) - 1 ) ]
-                    Canvas.cars.append( Car(node, connectedNode, kmhToPixels(160), selectedCoord, GMvar.mainScreenBuffer) )
+
+                    # Search for the absolute end of the road (curEndNode)
+                    longestLength = 0
+                    curEndNode: StreetNodes = None
+                    for connected in node.connectedNodes:
+                        curLength = node.connectedNodes[connected][0].length_squared()
+                        if curLength > longestLength:
+                            curEndNode = connected
+                            longestLength = curLength
+
+                    # Define start point and end point
+                    lineToCheck = LineString( [ [*selectedCoord], [*curEndNode.coords] ] )
+
+                    roadSplitChoices = []
+                    
+                    for connected in node.connectedNodes:
+                        if Point(connected.coords).intersects(lineToCheck):
+                            roadSplitChoices.append(connected)
+
+                    Canvas.cars.append( Car(node, roadSplitChoices[ random.randint(0, len(roadSplitChoices) - 1) ], kmhToPixels(200), selectedCoord, GMvar.mainScreenBuffer) )
+                    del roadSplitChoices # Delete references
 
 
         Canvas.drawRoads(Canvas.roadNodes, (30, 30, 30))
