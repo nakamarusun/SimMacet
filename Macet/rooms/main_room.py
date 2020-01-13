@@ -303,8 +303,15 @@ class Canvas:
                 # Delete from roadnodes
                 Canvas.roadNodes = [ nodes for nodes in Canvas.roadNodes if nodes not in Canvas.tempRoadNodes ]
                 # Delete any reference to deleted roads, to avoid car crossing the road even after deleted.
+                # Dont forget to delte cars too.
                 for deletedNodes in Canvas.tempRoadNodes:
                     deletedNodes.connectedNodes = {}
+                    deletedCars = 0
+                    for i in range(len(Canvas.cars)):
+                        i -= deletedCars
+                        if Canvas.cars[i].nodeAnchor == deletedNodes:
+                            Canvas.cars.pop(i)
+                            deletedCars += 1
 
                 del Canvas.tempRoadNodes[:]
         else:
