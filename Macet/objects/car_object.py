@@ -5,6 +5,9 @@ import pygame.surface
 import pygame.image
 import pygame.math
 import random
+import numpy as np
+
+import game_functions as GMfun
 
 from objects_manager import Object
 from objects.street_nodes import StreetNodes
@@ -16,10 +19,12 @@ class Car(Object):
     def __init__(self, node: StreetNodes, nodeDest: StreetNodes, speed: int, coords=[0,0], surface=None):
         # Speed is in pixels
         super().__init__(coords=coords, image=None, drawn=False, surface=surface)
-        self.image = Car.carSprites[ random.randint(0, len(Car.carSprites) - 1 ) ]
-        self.nodeAnchor = node
-        self.nodeDestination = nodeDest
+        self.originalImage = Car.carSprites[ random.randint(0, len(Car.carSprites) - 1 ) ]
+        self.nodeAnchor: StreetNodes = node
+        self.nodeDestination: StreetNodes = nodeDest
         self.curSpeed = speed
+        self.direction = np.arctan2(*self.nodeAnchor.connectedNodes[self.nodeDestination][0][::-1])
+        self.image, rect = GMfun.rotation(self.originalImage, self.direction, [0, 0])
 
     def update(self):
         vector: pygame.math.Vector2 = self.nodeAnchor.connectedNodes[self.nodeDestination][0] # Define variables for vector from nodeAnchor to destination
@@ -40,6 +45,7 @@ class Car(Object):
 
         if change:
             vector: pygame.math.Vector2 = self.nodeAnchor.connectedNodes[self.nodeDestination][0]
+            self.image, rect = GMfun.rotation(self.originalImage, self.direction, [0, 0])
         normalized = vector.normalize()
 
         self.speed = [ self.curSpeed * vec for vec in normalized ]
