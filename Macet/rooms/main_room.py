@@ -372,26 +372,43 @@ class Canvas:
                 if selected != None:
                     node, connectedNode, selectedCoord = selected
 
-                    # Search for the absolute end of the road (curEndNode)
-                    longestLength = 0
-                    curEndNode: StreetNodes = None
-                    for connected in node.connectedNodes:
-                        curLength = node.connectedNodes[connected][0].length_squared()
-                        if curLength > longestLength:
-                            curEndNode = connected
-                            longestLength = curLength
-
-                    # Define start point and end point
-                    lineToCheck = LineString( [ [*selectedCoord], [*curEndNode.coords] ] )
-
-                    roadSplitChoices = []
+                    anotherCarIsNear = False
+                    carChecklist = []
+                    gridPos = tuple([ int(selectedCoord[i] // Car.collisionGridSize[i]) for i in range(2) ])
+                    for i in range(-1, 2):
+                        for j in range(-1, 2):
+                            try:
+                                carChecklist += Car.carCollisionGrid[ tuple( [ gridPos[0] + i, gridPos[1] + j ] ) ]
+                            except KeyError:
+                                pass
                     
-                    for connected in node.connectedNodes:
-                        if Point(connected.coords).intersects(lineToCheck):
-                            roadSplitChoices.append(connected)
+                    for cars in carChecklist:
+                        pointToCarVector = pygame.math.Vector2( [ a - b for a, b in zip(selectedCoord, cars.coords) ] )
+                        if pointToCarVector.length_squared() < 40 ** 2:
+                            anotherCarIsNear = True
+                    del carChecklist
 
-                    Canvas.cars.append( Car(node, roadSplitChoices[ random.randint(0, len(roadSplitChoices) - 1) ], kmhToPixels(200), selectedCoord, GMvar.mainScreenBuffer) )
-                    del roadSplitChoices # Delete references
+                    if not anotherCarIsNear:
+                    # Search for the absolute end of the road (curEndNode)
+                        longestLength = 0
+                        curEndNode: StreetNodes = None
+                        for connected in node.connectedNodes:
+                            curLength = node.connectedNodes[connected][0].length_squared()
+                            if curLength > longestLength:
+                                curEndNode = connected
+                                longestLength = curLength
+
+                        # Define start point and end point
+                        lineToCheck = LineString( [ [*selectedCoord], [*curEndNode.coords] ] )
+
+                        roadSplitChoices = []
+                        
+                        for connected in node.connectedNodes:
+                            if Point(connected.coords).intersects(lineToCheck):
+                                roadSplitChoices.append(connected)
+
+                        Canvas.cars.append( Car(node, roadSplitChoices[ random.randint(0, len(roadSplitChoices) - 1) ], kmhToPixels(200), selectedCoord, GMvar.mainScreenBuffer) )
+                        del roadSplitChoices # Delete references
 
         Canvas.drawRoads(Canvas.roadNodes, (30, 30, 30))
         Canvas.drawRoads(Canvas.tempRoadNodes, (50, 150, 50) if Canvas.newRoad else (52, 192, 217))

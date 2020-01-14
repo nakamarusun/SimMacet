@@ -2,6 +2,7 @@ import sys
 sys.path.append('..')
 
 import pygame.draw
+import pygame.math
 
 import random
 import math
@@ -13,6 +14,7 @@ from objects.car_object import Car
 from game_math.displacement_functions import kmhToPixels
 from objects.street_nodes import StreetNodes
 from game_functions import Timer
+import global_variables as GMvar
 
 class CarSpawner:
 
@@ -53,7 +55,24 @@ class CarSpawner:
         if self.timer.checkDone():
             # Do actions here:
             # Spawn cars here
-            if not self.pause:
+
+            anotherCarIsNear = False
+            carChecklist = []
+            gridPos = tuple([ int(self.coords[i] // Car.collisionGridSize[i]) for i in range(2) ])
+            for i in range(-1, 2):
+                for j in range(-1, 2):
+                    try:
+                        carChecklist += Car.carCollisionGrid[ tuple( [ gridPos[0] + i, gridPos[1] + j ] ) ]
+                    except KeyError:
+                        pass
+            
+            for cars in carChecklist:
+                pointToCarVector = pygame.math.Vector2( [ a - b for a, b in zip(self.coords, cars.coords) ] )
+                if pointToCarVector.length_squared() < 40 ** 2:
+                    anotherCarIsNear = True
+            del carChecklist
+
+            if not self.pause and not anotherCarIsNear:
                 carList.append( Car(self.nodeAnchor, self.nextNodeList[ random.randint(0, len(self.nextNodeList) - 1 ) ], self.speed * 1, self.coords * 1, mainScreenBuffer) )
             # Reset timer
             self.timer = Timer( random.randint( *[ math.ceil(time * 1000) for time in self.interval ] ) )
