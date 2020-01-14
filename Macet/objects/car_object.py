@@ -27,8 +27,10 @@ class Car(Object):
 
     # Collision cone definition
     fov = 60     # Direction
-    triangleHeight = 87  # Pixels
+    triangleHeight = 87  # Pixels, This is also the start-brake distance
+    stopDistance = 32 # Must be more than 27, as that is the length of the car.
     triangleBase = math.tan( fov / 2 * math.pi/180 ) * triangleHeight * 2
+
 
     def __init__(self, node: StreetNodes, nodeDest: StreetNodes, speed: int, coords=[0,0], surface=None):
         # Speed is in pixels
@@ -104,7 +106,8 @@ class Car(Object):
                     collisionCheckList += Car.carCollisionGrid[ tuple( [ self.gridPos[0] + i, self.gridPos[1] + j ] ) ]
                 except KeyError:
                     pass
-
+        
+        distanceFromNearestCar = 10000000000
         for cars in collisionCheckList:
             # Ignore if the car object is self, or if the nodeAnchor of self is not the same as other nodeAnchor 
             if cars == self or self.nodeAnchor != cars.nodeAnchor:
@@ -119,11 +122,15 @@ class Car(Object):
             carCoords = cars.coords
             # If the coords is within the cone
             if isPointInTriangle(carCoords, self.coords, viewConeBase1, viewConeBase2):
+                distanceVector = pygame.math.Vector2( *[ b - a for a, b in  zip(self.coords, carCoords) ] )
+                if distanceVector.length_squared() < distanceFromNearestCar:
+                    distanceFromNearestCar = distanceVector.length()
                 self.carInFront = True
 
         accelAddition = GMvar.deltaTime * self.acceleration if self.scalarSpeed < self.maxSpeed else 0
         self.scalarSpeed += accelAddition
-        self.scalarSpeed = self.scalarSpeed if not self.carInFront else 0
+        if distanceFromNearestCar < Car.triangleHeight:
+            self.scalarSpeed -= accelAddition * GMfun.clamp(distanceFromNearestCar + Car.stopDistance, 0, Car.triangleHeight) / Car.triangleHeight if self.scalarSpeed > 0 else 0
         self.speed = [ self.scalarSpeed * vec for vec in normalized ]
         super().update()
 

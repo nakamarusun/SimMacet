@@ -27,6 +27,13 @@ def rotationAnchor(image, angle: float, anchor: list):
 def cosInterpolation(value: float, mutiplier: float) -> float:
     return (1 - ( 0.5 + ( math.cos( mutiplier*math.pi )/2 ) ) ) * value
 
+def clamp(value: float, minValue: float, maxValue: float) -> float:
+    if value > maxValue:
+        return maxValue
+    if value < minValue:
+        return minValue
+    return value
+
 def drawArrow(surface, coords: list, length: float, angle: float, direction: float, color: list=(0,0,0), width=1):
     # Angle is the angle of the arrows. the direction is the angle from the x+ axis.
 
