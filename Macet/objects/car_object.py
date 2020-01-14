@@ -10,6 +10,8 @@ import math
 
 import game_functions as GMfun
 
+import global_variables as GMvar
+
 from objects_manager import Object
 from objects.street_nodes import StreetNodes
 
@@ -25,9 +27,13 @@ class Car(Object):
         # Speed is in pixels
         super().__init__(coords=coords, image=None, drawn=False, surface=surface)
         self.originalImage = Car.carSprites[ random.randint(0, len(Car.carSprites) - 1 ) ]
+
         self.nodeAnchor: StreetNodes = node
         self.nodeDestination: StreetNodes = nodeDest
-        self.curSpeed = speed
+        self.maxSpeed = speed
+        self.acceleration = 16
+        self.scalarSpeed = 0
+
         self.direction = 360 - (np.arctan2(*self.nodeAnchor.connectedNodes[self.nodeDestination][0][::-1]) * 180/math.pi)
         self.image, self.rect = GMfun.rotationAnchor(self.originalImage, self.direction, [0.28, 0.5])
 
@@ -66,7 +72,7 @@ class Car(Object):
             self.direction = 360 - (np.arctan2(*vector[::-1]) * 180/math.pi) # Fix this
             self.image, self.rect = GMfun.rotationAnchor(self.originalImage, self.direction, [0.28, 0.5])
 
-        #################################################### Collision checking ####################################################
+        #################################################### GridPos repositioning ####################################################
         currentGridPos = tuple( [ int(self.coords[i] // Car.collisionGridSize[i]) for i in range(2) ] )
         if currentGridPos != self.gridPos:
             # Pop current car from the previous collisionGrid
@@ -78,8 +84,12 @@ class Car(Object):
                 Car.carCollisionGrid[self.gridPos].append(self)
             except KeyError:
                 Car.carCollisionGrid[self.gridPos] = [self]
+        
+        #################################################### Collision checking ####################################################
+
         normalized = vector.normalize()
-        self.speed = [ self.curSpeed * vec for vec in normalized ]
+        self.scalarSpeed += GMvar.deltaTime * self.acceleration if self.scalarSpeed < self.maxSpeed else 0
+        self.speed = [ self.scalarSpeed * vec for vec in normalized ]
         super().update()
 
         self.surface.blit(self.image, [ a - b + c for a, b, c in zip(self.coords, coordsOffset, self.rect) ] )
