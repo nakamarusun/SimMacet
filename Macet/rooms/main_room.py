@@ -136,7 +136,7 @@ class Canvas:
     def highlightGrid(cellWidth, cellHeight):
         # Highlight grid based on the data gathered from MainCameraSurface
         size = [ a * b for a, b in zip([cellWidth, cellHeight], MainCameraSurface.cellSize) ] # Size of the grid times the cellWidth and cellHeight
-        pygame.draw.rect(GMvar.mainScreenBuffer, (0, 150, 0, 120), (*Canvas.mouseCoords, *size) ) # Draw highlight
+        pygame.draw.rect(GMvar.mainScreenBuffer, (93, 201, 81), (*Canvas.mouseCoords, *size) ) # Draw highlight
 
     def drawRoads(fromList: list, color: tuple):
         # for node in fromList:
@@ -289,6 +289,7 @@ class Canvas:
             Canvas.highlightGrid(1, 1) # Grid highlight size
             GMfun.insertDrawTopMostQueue(Canvas.editRoadText, (5, 25) ) # Instructions
 
+            # When mouse is held, draw selection rectangle
             if GMvar.mouseState[0]:
                 del Canvas.tempRoadNodes[:]
                 rectSize = [ a - b for a, b in zip(GMvar.latestMouse, GMvar.latestMouseLeft) ]
@@ -303,6 +304,7 @@ class Canvas:
 
                 Canvas.selectionRect = [ *rectCoords, *[ a + b for a, b in zip([ abs(num) for num in rectSize ], rectCoords) ] ]
             
+            # When mouse is released, all the roads intersecting and the nodes inside of the selection is copied into a list
             if not GMvar.mouseState[0] and len(Canvas.selectionRect) > 0:
                 # Make a rectangle shapely object from the selection made
                 rectangleGeometry = box( *Canvas.selectionRect )
@@ -342,6 +344,12 @@ class Canvas:
                         if Canvas.cars[i].nodeAnchor == deletedNodes:
                             Canvas.cars.pop(i)
                             deletedCars += 1
+                    deletedSpawners = 0
+                    for i in range(len(Canvas.carSpawners)):
+                        i -= deletedSpawners
+                        if Canvas.carSpawners[i].nodeAnchor == deletedNodes:
+                            Canvas.carSpawners.pop(i)
+                            deletedSpawners += 1
 
                 del Canvas.tempRoadNodes[:]
         else:

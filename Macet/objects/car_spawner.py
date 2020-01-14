@@ -58,4 +58,3 @@ class CarSpawner:
             # Reset timer
             self.timer = Timer( random.randint( *[ math.ceil(time * 1000) for time in self.interval ] ) )
         pygame.draw.rect(surface, (20, 170, 20), (*[ a - b + 6 for a, b in zip(self.coords, offset) ], 4, 4))
-        print(self.coords)
