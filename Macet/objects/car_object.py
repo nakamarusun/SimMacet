@@ -42,6 +42,7 @@ class Car(Object):
         self.maxSpeed = speed
         self.acceleration = 16
         self.scalarSpeed = 0
+        self.beforeBrakeSpeed = 0
 
         self.carInFront = False
 
@@ -127,10 +128,12 @@ class Car(Object):
                     distanceFromNearestCar = distanceVector.length()
                 self.carInFront = True
 
-        accelAddition = GMvar.deltaTime * self.acceleration if self.scalarSpeed < self.maxSpeed else 0
-        self.scalarSpeed += accelAddition
+        accelAddition = GMvar.deltaTime * self.acceleration
         if distanceFromNearestCar < Car.triangleHeight:
-            self.scalarSpeed -= accelAddition * GMfun.clamp(distanceFromNearestCar + Car.stopDistance, 0, Car.triangleHeight) / Car.triangleHeight if self.scalarSpeed > 0 else 0
+            self.scalarSpeed -= self.beforeBrakeSpeed * ( 1 - ( GMfun.clamp(distanceFromNearestCar + Car.stopDistance, 0, Car.triangleHeight) / Car.triangleHeight)) if self.scalarSpeed * 1 >= 0 else 0
+        else:
+            self.beforeBrakeSpeed = self.scalarSpeed * 1
+            self.scalarSpeed += accelAddition if self.scalarSpeed * 1 <= self.maxSpeed else 0
         self.speed = [ self.scalarSpeed * vec for vec in normalized ]
         super().update()
 

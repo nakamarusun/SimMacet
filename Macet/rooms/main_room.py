@@ -167,7 +167,7 @@ class Canvas:
                 startLine = [ a - b for a, b in zip(Canvas.tempRoadNodes[-1].coords, MainCameraSurface.cameraCoords) ]
                 endLine = Canvas.mouseCoords
 
-                length = math.sqrt( sum([ (b - a) ** 2 for a, b in zip(startLine, endLine) ]) ) * 1.875 # Road length in meters
+                length = math.sqrt( sum([ (b - a) ** 2 for a, b in zip(startLine, endLine) ]) ) * 0.1875 # Road length in meters
                 
                 # If intersects, disable road drawing
                 combinedNode = [Canvas.roadNodes, Canvas.tempRoadNodes[:-2]]
