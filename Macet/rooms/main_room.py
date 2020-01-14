@@ -469,7 +469,7 @@ class bottomGui:
             MainCameraSurface.returnCamera = True
 
         # If mouse is clicked on the button then open/close gui
-        if GMfun.mouseClickedArea(0, bottomGui.sliderX, (bottomGui.sliderX + bottomGui.sliderRect[2]), (bottomGui.guiHeightChange + bottomGui.sliderYOffset), (bottomGui.guiHeightChange + bottomGui.sliderRect[3] + bottomGui.sliderYOffset)):
+        if GMfun.mouseClickedArea(0, bottomGui.sliderX, (bottomGui.sliderX + bottomGui.sliderRect[2]), (bottomGui.guiHeightChange + bottomGui.sliderYOffset - 4), (bottomGui.guiHeightChange + bottomGui.sliderRect[3] + bottomGui.sliderYOffset)):
             bottomGui.guiOpen = not bottomGui.guiOpen
 
         # If open and not in position, set the coordinates
