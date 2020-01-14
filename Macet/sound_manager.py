@@ -1,4 +1,6 @@
-from game_math.custom_math_funcs import triangleArea
-from game_functions import clamp
+from shapely.geometry import LineString, Point
 
-print(clamp(5,0,1), clamp(-3, 0, 1), clamp(3, 0, 5))
+line = LineString( [(0, -10), (0, 10)] )
+newPoint = Point(1, 1)
+
+print(list(zip(*line.interpolate(line.project(newPoint)).coords.xy))[0])

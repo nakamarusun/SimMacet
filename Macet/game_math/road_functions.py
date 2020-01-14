@@ -1,4 +1,4 @@
-from shapely.geometry import LineString, box
+from shapely.geometry import LineString, Point, box
 
 def selectRoad(coords: list, roadList: list, radius: int) -> list:
     # If there are any roads in the vicinity of the radius of the coords, return the road, the connected, and the closest coords in the road from coords.
@@ -11,4 +11,9 @@ def selectRoad(coords: list, roadList: list, radius: int) -> list:
                 # print(boundary)
                 boundary = boundary.boundary
                 # print(boundary)
-                return roads, connectedRoads, [ (boundary[0].coords.xy[i][0] + boundary[1].coords.xy[i][0]) / 2 for i in range(2) ]
+                pointCoords = [ (boundary[0].coords.xy[i][0] + boundary[1].coords.xy[i][0]) / 2 for i in range(2) ]
+                pointInRoad = Point( *pointCoords )
+                roadLine = LineString( [roads.coords, connectedRoads.coords] )
+                pointInRoadProjection = roadLine.interpolate(roadLine.project(pointInRoad))
+                if pointInRoad.distance(pointInRoadProjection) < 1:
+                    return roads, connectedRoads, pointCoords
