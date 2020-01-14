@@ -54,6 +54,8 @@ def addList(lists: list):
 class Timer:
     def __init__(self, endTime: float):
         # This is in miliseconds
+        self.originalStart = time.time() * 1000
+        self.originalEndTime = endTime
         self.endTime = time.time() * 1000 + endTime
 
     def checkDone(self) -> bool:

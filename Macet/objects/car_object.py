@@ -26,7 +26,7 @@ class Car(Object):
     carCollisionGrid: dict = {}
 
     # Collision cone definition
-    fov = 60     # Direction
+    fov = 45     # Direction
     triangleHeight = 87  # Pixels, This is also the start-brake distance
     stopDistance = 32 # Must be more than 27, as that is the length of the car.
     triangleBase = math.tan( fov / 2 * math.pi/180 ) * triangleHeight * 2
@@ -111,7 +111,7 @@ class Car(Object):
         distanceFromNearestCar = 10000000000
         for cars in collisionCheckList:
             # Ignore if the car object is self, or if the nodeAnchor of self is not the same as other nodeAnchor 
-            if cars == self or self.nodeAnchor != cars.nodeAnchor:
+            if cars == self:
                 continue
             viewConeBase = [ (Car.triangleHeight * normalized[i]) + self.coords[i] + 8 for i in range(2) ]
 
@@ -128,13 +128,13 @@ class Car(Object):
                     distanceFromNearestCar = distanceVector.length()
                 self.carInFront = True
 
-        accelAddition = GMvar.deltaTime * self.acceleration
+        accelAddition = GMvar.deltaTime * self.acceleration * GMvar.gameSpeed
         if distanceFromNearestCar < Car.triangleHeight:
             self.scalarSpeed -= self.beforeBrakeSpeed * ( 1 - ( GMfun.clamp(distanceFromNearestCar + Car.stopDistance, 0, Car.triangleHeight) / Car.triangleHeight)) if self.scalarSpeed * 1 >= 0 else 0
         else:
             self.beforeBrakeSpeed = self.scalarSpeed * 1
             self.scalarSpeed += accelAddition if self.scalarSpeed * 1 <= self.maxSpeed else 0
-        self.speed = [ self.scalarSpeed * vec for vec in normalized ]
+        self.speed = [ self.scalarSpeed * vec * GMvar.gameSpeed for vec in normalized ]
         super().update()
 
         self.surface.blit(self.image, [ a - b + c for a, b, c in zip(self.coords, coordsOffset, self.rect) ] )
