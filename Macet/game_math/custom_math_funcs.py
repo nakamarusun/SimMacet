@@ -21,3 +21,17 @@ def checkLineIntersection(Ax1y1: list, Ax2y2: list, Bx1y1: list, Bx2y2: list, ca
         return True, [intersect.x, intersect.y]
     except:
         return False, [0, 0]
+
+def triangleArea(point1: list, point2: list, point3: list) -> float:
+    return ( point1[0] * (point2[1] - point3[1]) + point2[0] * (point3[1] - point1[1]) + point3[0] * (point1[1] - point2[1]) ) / 2
+
+def isPointInTriangle(point: list, trianglePoint1: list, trianglePoint2: list, trianglePoint3: list, area=0) -> bool:
+    area = area
+    if area == 0:
+        area = triangleArea(trianglePoint1, trianglePoint2, trianglePoint3)
+
+    triangle1 = triangleArea(point, trianglePoint1, trianglePoint2)
+    triangle2 = triangleArea(point, trianglePoint2, trianglePoint3)
+    triangle3 = triangleArea(point, trianglePoint3, trianglePoint1)
+
+    return (triangle1 + triangle2 + triangle3 == area)

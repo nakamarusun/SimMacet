@@ -15,6 +15,8 @@ import global_variables as GMvar
 from objects_manager import Object
 from objects.street_nodes import StreetNodes
 
+from game_math.custom_math_funcs import isPointInTriangle
+
 class Car(Object):
     
     carSprites = [ pygame.image.load("images/sprites/Cars/8.png") ]
@@ -22,6 +24,11 @@ class Car(Object):
     collisionGridSize = (160, 160)
     # carCollisionGrid: { [gridNumberx, gridNumbery]: [Cars list] }
     carCollisionGrid: dict = {}
+
+    # Collision cone definition
+    fov = 60     # Direction
+    triangleHeight = 87  # Pixels
+    triangleBase = round(math.tan( fov * math.pi/180 ) * triangleHeight * 2)
 
     def __init__(self, node: StreetNodes, nodeDest: StreetNodes, speed: int, coords=[0,0], surface=None):
         # Speed is in pixels
@@ -33,6 +40,8 @@ class Car(Object):
         self.maxSpeed = speed
         self.acceleration = 16
         self.scalarSpeed = 0
+
+        self.carInFront = False
 
         self.direction = 360 - (np.arctan2(*self.nodeAnchor.connectedNodes[self.nodeDestination][0][::-1]) * 180/math.pi)
         self.image, self.rect = GMfun.rotationAnchor(self.originalImage, self.direction, [0.28, 0.5])
@@ -84,12 +93,26 @@ class Car(Object):
                 Car.carCollisionGrid[self.gridPos].append(self)
             except KeyError:
                 Car.carCollisionGrid[self.gridPos] = [self]
-        
-        #################################################### Collision checking ####################################################
 
-        normalized = vector.normalize()
-        self.scalarSpeed += GMvar.deltaTime * self.acceleration if self.scalarSpeed < self.maxSpeed else 0
-        self.speed = [ self.scalarSpeed * vec for vec in normalized ]
+        normalized = vector.normalize()        
+        #################################################### Collision checking ####################################################
+        self.carInFront = False # Collision stuff. True if a car is detected in front.
+        for cars in Car.carCollisionGrid[self.gridPos]:
+            viewConeArea = Car.triangleHeight * Car.triangleBase / 2
+            viewConeBase = [ (Car.triangleHeight * normalized[i]) + self.coords[i] + 8 for i in range(2) ]
+
+            offsetVector1 = [ -normalized[1], normalized[0] ]
+            viewConeBase1 = [ a + (b * c) for a, b, c in zip(viewConeBase, Car.triangleBase, offsetVector1) ]
+            offsetVector2 = [ -vec for vec in offsetVector1 ]
+            viewConeBase2 = [ a + (b * c) for a, b, c in zip(viewConeBase, Car.triangleBase, offsetVector2) ]
+
+            carCoords = cars.coords
+            if isPointInTriangle(carCoords, self.coords, viewConeBase1, viewConeBase2, viewConeArea):
+                self.carInFront = True
+
+        accelAddition = GMvar.deltaTime * self.acceleration if self.scalarSpeed < self.maxSpeed else 0
+        self.scalarSpeed += accelAddition
+        self.speed = [ self.scalarSpeed * vec for vec in normalized ] if self.carInFront else [0, 0]
         super().update()
 
         self.surface.blit(self.image, [ a - b + c for a, b, c in zip(self.coords, coordsOffset, self.rect) ] )
