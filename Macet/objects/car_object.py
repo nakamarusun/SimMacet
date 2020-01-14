@@ -16,6 +16,10 @@ from objects.street_nodes import StreetNodes
 class Car(Object):
     
     carSprites = [ pygame.image.load("images/sprites/Cars/8.png") ]
+    
+    collisionGridSize = (160, 160)
+    # carCollisionGrid: { [gridNumberx, gridNumbery]: [Cars list] }
+    carCollisionGrid: dict = {}
 
     def __init__(self, node: StreetNodes, nodeDest: StreetNodes, speed: int, coords=[0,0], surface=None):
         # Speed is in pixels
@@ -27,17 +31,29 @@ class Car(Object):
         self.direction = 360 - (np.arctan2(*self.nodeAnchor.connectedNodes[self.nodeDestination][0][::-1]) * 180/math.pi)
         self.image, self.rect = GMfun.rotationAnchor(self.originalImage, self.direction, [0.28, 0.5])
 
+        # Add the car to collision grid.
+        self.gridPos = tuple( [ int(self.coords[i] // Car.collisionGridSize[i]) for i in range(2) ] )
+        try:
+            Car.carCollisionGrid[self.gridPos].append(self)
+        except KeyError:
+            Car.carCollisionGrid[self.gridPos] = [self]
+
     def update(self, coordsOffset):
         vector: pygame.math.Vector2 = self.nodeAnchor.connectedNodes[self.nodeDestination][0] # Define variables for vector from nodeAnchor to destination
         carVector: pygame.math.Vector2 = pygame.math.Vector2( [ b - a for a, b in zip(self.coords, self.nodeDestination.coords) ] ) # variable vector from nodeAnchor to car
 
+        # Change the direction of the car if reached the end of the road
         change = False
         if carVector.length_squared() < 2: # if length to car from nodeAnchor is more than length to destination,
             # set the destinationNode as node anchor, and pick one random nodeDestination from the list of the new nodeAnchor
             self.nodeAnchor = self.nodeDestination
             numOfConnectedRoads = len(self.nodeAnchor.connectedNodes)
-            # Issue delete object
+            # Change the coords
+            self.coords = self.nodeAnchor.coords * 1
+
+            # Issue object deletion
             if numOfConnectedRoads == 0:
+                Car.carCollisionGrid[self.gridPos].pop(  Car.carCollisionGrid[self.gridPos].index( self )  )
                 del self
                 return True
 
@@ -49,8 +65,20 @@ class Car(Object):
             vector: pygame.math.Vector2 = self.nodeAnchor.connectedNodes[self.nodeDestination][0]
             self.direction = 360 - (np.arctan2(*vector[::-1]) * 180/math.pi) # Fix this
             self.image, self.rect = GMfun.rotationAnchor(self.originalImage, self.direction, [0.28, 0.5])
-        normalized = vector.normalize()
 
+        #################################################### Collision checking ####################################################
+        currentGridPos = tuple( [ int(self.coords[i] // Car.collisionGridSize[i]) for i in range(2) ] )
+        if currentGridPos != self.gridPos:
+            # Pop current car from the previous collisionGrid
+            Car.carCollisionGrid[self.gridPos].pop(  Car.carCollisionGrid[self.gridPos].index( self )  )
+
+            # Add current car to new grid, and assign new gridPos to self
+            self.gridPos = currentGridPos
+            try:
+                Car.carCollisionGrid[self.gridPos].append(self)
+            except KeyError:
+                Car.carCollisionGrid[self.gridPos] = [self]
+        normalized = vector.normalize()
         self.speed = [ self.curSpeed * vec for vec in normalized ]
         super().update()
 
