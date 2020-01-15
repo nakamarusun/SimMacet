@@ -60,14 +60,17 @@ class Car(Object):
         vector: pygame.math.Vector2 = self.nodeAnchor.connectedNodes[self.nodeDestination][0] # Define variables for vector from nodeAnchor to destination
         carVector: pygame.math.Vector2 = pygame.math.Vector2( [ b - a for a, b in zip(self.coords, self.nodeDestination.coords) ] ) # variable vector from nodeAnchor to car
 
+        try:
+            normalized = vector.normalize()        
+        except ValueError:
+            normalized = [0, 0]
+
         # Change the direction of the car if reached the end of the road
         change = False
-        if carVector.length_squared() < 2: # if length to car from nodeAnchor is more than length to destination,
+        if normalized != carVector.normalize(): # if length to car from nodeAnchor is more than length to destination,
             # set the destinationNode as node anchor, and pick one random nodeDestination from the list of the new nodeAnchor
             self.nodeAnchor = self.nodeDestination
             numOfConnectedRoads = len(self.nodeAnchor.connectedNodes)
-            # Change the coords
-            self.coords = self.nodeAnchor.coords * 1
 
             # Issue object deletion
             if numOfConnectedRoads == 0:
@@ -77,6 +80,7 @@ class Car(Object):
 
             nodeDestinationIndex = random.randint( 0 , numOfConnectedRoads - 1)
             self.nodeDestination = list(self.nodeAnchor.connectedNodes.keys())[ nodeDestinationIndex ]
+            # Change the coords
             change = True # Then change the original from nodeAnchor to destination vector.
 
         if change:
@@ -97,7 +101,6 @@ class Car(Object):
             except KeyError:
                 Car.carCollisionGrid[self.gridPos] = [self]
 
-        normalized = vector.normalize()        
         #################################################### Collision checking ####################################################
         self.carInFront = False # Collision stuff. True if a car is detected in front.
         collisionCheckList = []
@@ -127,6 +130,7 @@ class Car(Object):
                 if distanceVector.length_squared() < distanceFromNearestCar:
                     distanceFromNearestCar = distanceVector.length()
                 self.carInFront = True
+        ################################################## END COLLISION CHECKING ##################################################
 
         accelAddition = GMvar.deltaTime * self.acceleration * GMvar.gameSpeed
         if distanceFromNearestCar < Car.triangleHeight:
@@ -136,6 +140,9 @@ class Car(Object):
             self.scalarSpeed += accelAddition if self.scalarSpeed * 1 <= self.maxSpeed else 0
         self.speed = [ self.scalarSpeed * vec * GMvar.gameSpeed for vec in normalized ]
         super().update()
+
+        if change:
+            self.coords = self.nodeAnchor.coords * 1
 
         self.surface.blit(self.image, [ a - b + c for a, b, c in zip(self.coords, coordsOffset, self.rect) ] )
         return False

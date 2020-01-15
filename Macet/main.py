@@ -70,4 +70,4 @@ while True:
     GMvar.deltaTime = GMfun.deltaTiming(startTime)
 
     # How many percentage of the FPS is it taking
-    # print( (100 * GMfun.fpsCostTime / GMvar.deltaTime) )
+    # print( (100 * GMfun.fpsCostTime / GMvar.deltaTime) ) + ( timeMultiplierList.index(1.0) * timeSliderLengthGap )

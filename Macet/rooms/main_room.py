@@ -445,7 +445,10 @@ class bottomGui:
     # Time slider stuff
     timeSliderSprite = pygame.image.load("images/sprites/GuiButtons/TimeSlider.png").convert_alpha()
     timeSliderCoords = [24, guiHeight - 18]
-    timeSliderSpriteCoords = [24 - timeSliderSprite.get_rect()[2] / 2, guiHeight - 18 - timeSliderSprite.get_rect()[3] + 4 ]
+    timeMultiplierList = ( 0.1, 0.5, 1.0, 2.0, 4.0, 8.0, 16.0, 32.0, 64.0 )
+    timeSliderLengthGap = 120 / len(timeMultiplierList)
+    timeSliderSpriteCoords = [24 - timeSliderSprite.get_rect()[2] / 2 + ( timeMultiplierList.index(1.0) * timeSliderLengthGap ), guiHeight - 18 - timeSliderSprite.get_rect()[3] + 4 ]
+    timeSliderLength = 120
 
     openSpeed = 50 # Initial speed to open the GUI
     increment = 500 # Speed acceleration
@@ -533,11 +536,15 @@ class bottomGui:
         # Time Slider draws and code
         if GMfun.mouseHoldArea(0, bottomGui.timeSliderSpriteCoords[0], bottomGui.timeSliderSpriteCoords[0] + 32, bottomGui.timeSliderSpriteCoords[1] + bottomGui.guiHeightChange + bottomGui.sliderHeight, bottomGui.timeSliderSpriteCoords[1] + bottomGui.guiHeightChange + bottomGui.sliderHeight + 22):
             timeSliderStartingX = 24 - bottomGui.timeSliderSprite.get_rect()[2] / 2
-            bottomGui.timeSliderSpriteCoords[0] += GMvar.mouseDelta[0]
-            bottomGui.timeSliderSpriteCoords[0] = GMfun.clamp(bottomGui.timeSliderSpriteCoords[0], timeSliderStartingX, timeSliderStartingX + 120)
+            xPositionMouse = GMfun.clamp(GMvar.latestMouse[0], timeSliderStartingX + 10, timeSliderStartingX + bottomGui.timeSliderLength ) - bottomGui.timeSliderLengthGap / 2
+            gapPosition = int((xPositionMouse - timeSliderStartingX) // bottomGui.timeSliderLengthGap)
+            GMvar.gameSpeed = bottomGui.timeMultiplierList[gapPosition]
+            bottomGui.timeSliderSpriteCoords[0] = timeSliderStartingX + (gapPosition * bottomGui.timeSliderLengthGap)
 
         pygame.draw.line(bottomGui.surfGui, (255, 255, 255), bottomGui.timeSliderCoords, (bottomGui.timeSliderCoords[0] + 120, bottomGui.timeSliderCoords[1]), 2)
         bottomGui.surfGui.blit(bottomGui.timeSliderSprite, bottomGui.timeSliderSpriteCoords)
+        multiplierNumber = GMvar.defFont12.render("{}x".format(float(GMvar.gameSpeed)), True, (0, 0, 0))
+        bottomGui.surfGui.blit(multiplierNumber, [ bottomGui.timeSliderSpriteCoords[0] + 3, bottomGui.timeSliderSpriteCoords[1] + 6] )
 
         # TOGGLE BUTTON CHECK EVENTS HERE
         # Road button
