@@ -445,11 +445,11 @@ class bottomGui:
 
     # Time slider stuff
     timeSliderSprite = pygame.image.load("images/sprites/GuiButtons/TimeSlider.png").convert_alpha()
-    timeSliderCoords = [24, guiHeight - 18]
-    timeMultiplierList = ( 0.1, 0.5, 1.0, 2.0, 4.0, 8.0, 16.0, 32.0, 64.0 )
-    timeSliderLengthGap = 120 / len(timeMultiplierList)
-    timeSliderSpriteCoords = [24 - timeSliderSprite.get_rect()[2] / 2 + ( timeMultiplierList.index(1.0) * timeSliderLengthGap ), guiHeight - 18 - timeSliderSprite.get_rect()[3] + 4 ]
     timeSliderLength = 120
+    timeSliderCoords = [GMvar.resolution[0] - 24 - timeSliderLength, guiHeight - 18]
+    timeMultiplierList = ( 0.1, 0.5, 1.0, 2.0, 4.0, 8.0, 16.0, 32.0, 64.0 )
+    timeSliderLengthGap = timeSliderLength / len(timeMultiplierList)
+    timeSliderSpriteCoords = [GMvar.resolution[0] - 24 - timeSliderLength - timeSliderSprite.get_rect()[2] / 2 + ( timeMultiplierList.index(1.0) * timeSliderLengthGap ), guiHeight - 18 - timeSliderSprite.get_rect()[3] + 4 ]
 
     openSpeed = 50 # Initial speed to open the GUI
     increment = 500 # Speed acceleration
@@ -469,6 +469,9 @@ class bottomGui:
 
     addCar = Button.ToggleButton(surfGui, (GMvar.resolution[0]/2 - 217, 10 ), "images/sprites/GuiButtons/AddCar.png", "images/sprites/GuiButtons/AddCarTog.png", (0, 0, 46, 47))
     addCarSpawner = Button.ToggleButton(surfGui, (GMvar.resolution[0]/2 - 217, 10 ), "images/sprites/GuiButtons/AddCarSpawner.png", "images/sprites/GuiButtons/AddCarSpawnerTog.png", (0, 54, 46, 47))
+
+    addStopLight = Button.ToggleButton(surfGui, (GMvar.resolution[0]/2 - 270, 10 ), "images/sprites/GuiButtons/AddTraffic.png", "images/sprites/GuiButtons/AddTrafficTog.png", (0, 0, 46, 47))
+    resetStopLight = Button.ToggleButton(surfGui, (GMvar.resolution[0]/2 - 270, 10 ), "images/sprites/GuiButtons/ResetTraffic.png", "images/sprites/GuiButtons/ResetTrafficTog.png", (0, 54, 46, 47))
     
     # Conflicts
     buttonBotLeft.addConflictButtons([buttonBotRight])
@@ -477,12 +480,15 @@ class bottomGui:
     addRoad.addConflictButtons([inspectRoad])
     inspectRoad.addConflictButtons([addRoad])
 
-    addCar.addConflictButtons([addCarSpawner])
-    addCarSpawner.addConflictButtons([addCar])
+    addCar.addConflictButtons([addCarSpawner, addStopLight, resetStopLight])
+    addCarSpawner.addConflictButtons([addCar, addStopLight, resetStopLight])
+
+    addStopLight.addConflictButtons([addCar, addCarSpawner, resetStopLight])
+    resetStopLight.addConflictButtons([addCar, addStopLight, addCarSpawner])
     
     # List
     roadButtons = [addRoad, inspectRoad]
-    carButtons = [addCar, addCarSpawner]
+    carButtons = [addCar, addCarSpawner, addStopLight, resetStopLight]
 
     Buttons = [reCenter, buttonTopLeft, buttonTopRight, buttonBotLeft, buttonBotRight]
     
@@ -536,13 +542,15 @@ class bottomGui:
         pygame.draw.rect(bottomGui.surfGui, (44, 66, 81), (0, 0, GMvar.resolution[0], bottomGui.guiHeight + 0)) # Plus 1 to fix the weird 1 pixel
         # Time Slider draws and code
         if GMfun.mouseHoldArea(0, bottomGui.timeSliderSpriteCoords[0], bottomGui.timeSliderSpriteCoords[0] + 32, bottomGui.timeSliderSpriteCoords[1] + bottomGui.guiHeightChange + bottomGui.sliderHeight, bottomGui.timeSliderSpriteCoords[1] + bottomGui.guiHeightChange + bottomGui.sliderHeight + 22):
-            timeSliderStartingX = 24 - bottomGui.timeSliderSprite.get_rect()[2] / 2
+
+            timeSliderStartingX = GMvar.resolution[0] - 24 - bottomGui.timeSliderLength - bottomGui.timeSliderSprite.get_rect()[2] / 2
             xPositionMouse = GMfun.clamp(GMvar.latestMouse[0], timeSliderStartingX + 10, timeSliderStartingX + bottomGui.timeSliderLength ) - bottomGui.timeSliderLengthGap / 2
             gapPosition = int((xPositionMouse - timeSliderStartingX) // bottomGui.timeSliderLengthGap)
+
             GMvar.gameSpeed = bottomGui.timeMultiplierList[gapPosition]
             bottomGui.timeSliderSpriteCoords[0] = timeSliderStartingX + (gapPosition * bottomGui.timeSliderLengthGap)
 
-        pygame.draw.line(bottomGui.surfGui, (255, 255, 255), bottomGui.timeSliderCoords, (bottomGui.timeSliderCoords[0] + 120, bottomGui.timeSliderCoords[1]), 2)
+        pygame.draw.line(bottomGui.surfGui, (255, 255, 255), bottomGui.timeSliderCoords, (bottomGui.timeSliderCoords[0] + bottomGui.timeSliderLength, bottomGui.timeSliderCoords[1]), 2)
         bottomGui.surfGui.blit(bottomGui.timeSliderSprite, bottomGui.timeSliderSpriteCoords)
         multiplierNumber = GMvar.defFont11.render("{}x".format(float(GMvar.gameSpeed)), True, (0, 0, 0))
         bottomGui.surfGui.blit(multiplierNumber, [ bottomGui.timeSliderSpriteCoords[0] + 3, bottomGui.timeSliderSpriteCoords[1] + 6] )
@@ -568,6 +576,8 @@ class bottomGui:
         else:
             bottomGui.addCar.clicked = False
             bottomGui.addCarSpawner.clicked = False
+            bottomGui.addStopLight.clicked = False
+            bottomGui.resetStopLight.clicked = False
 
         Canvas.addCar = bottomGui.addCar.checkState()
         Canvas.addCarSpawner = bottomGui.addCarSpawner.checkState()
