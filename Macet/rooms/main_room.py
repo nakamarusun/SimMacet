@@ -349,14 +349,28 @@ class Canvas:
                     for i in range(len(Canvas.cars)):
                         i -= deletedCars
                         if Canvas.cars[i].nodeAnchor == deletedNodes:
+                            # Delete from collision grid
+                            gridPos = tuple( [ Canvas.cars[i].coords[j] // Car.collisionGridSize[j] for j in range(2) ] )
+                            del Car.carCollisionGrid[gridPos][ Car.carCollisionGrid[gridPos].index(Canvas.cars[i]) ]
+                            # Finally, delete form Canvas' list
                             Canvas.cars.pop(i)
-                            deletedCars += 1
+                            deletedCars += 1 # add 1 to i
                     deletedSpawners = 0
                     for i in range(len(Canvas.carSpawners)):
                         i -= deletedSpawners
                         if Canvas.carSpawners[i].nodeAnchor == deletedNodes:
                             Canvas.carSpawners.pop(i)
                             deletedSpawners += 1
+                    deletedStopLights = 0
+                    for i in range(len(Canvas.stopLights)):
+                        i -= deletedStopLights
+                        if Canvas.stopLights[i].nodeAnchor == deletedNodes:
+
+                            gridPos = tuple( [ Canvas.stopLights[i].coords[j] // Car.collisionGridSize[j] for j in range(2) ] )
+                            del Car.carCollisionGrid[gridPos][ Car.carCollisionGrid[gridPos].index(Canvas.stopLights[i]) ]
+
+                            Canvas.stopLight.pop(i)
+                            deletedStopLights += 1
 
                 del Canvas.tempRoadNodes[:]
         else:
@@ -433,7 +447,6 @@ class Canvas:
 
                     Canvas.stopLights.append( stopLight )
                     
-
         Canvas.drawRoads(Canvas.roadNodes, (30, 30, 30))
         Canvas.drawRoads(Canvas.tempRoadNodes, (50, 150, 50) if Canvas.newRoad else (52, 192, 217))
 
