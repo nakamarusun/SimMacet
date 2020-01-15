@@ -26,7 +26,7 @@ class Car(Object):
     carCollisionGrid: dict = {}
 
     # Collision cone definition
-    fov = 45     # Direction
+    fov = 75     # Direction
     triangleHeight = 87  # Pixels, This is also the start-brake distance
     stopDistance = 32 # Must be more than 27, as that is the length of the car.
     triangleBase = math.tan( fov / 2 * math.pi/180 ) * triangleHeight * 2
