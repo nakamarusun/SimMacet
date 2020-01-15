@@ -23,6 +23,7 @@ from game_math.road_functions import selectRoad
 from objects.car_object import Car
 from objects.car_spawner import CarSpawner
 from game_math.displacement_functions import kmhToPixels
+from objects.stop_light import StopLight
 
 class MainCameraSurface:
     # This is the surface in which every object that needs to be movable
@@ -108,6 +109,8 @@ class Canvas:
     editRoad = False
     addCar = False
     addCarSpawner = False
+    addStopLight = False
+    resetStopLight = False
 
     # Selection rectangle coordinate
     selectionRect = []
@@ -119,6 +122,9 @@ class Canvas:
     # Cars spawners list
     carSpawners = []
     cars: Car = []
+
+    # Stop light list
+    stopLights: StopLight = []
 
     # Temporary length when adding road
     temporaryLength: float = 0
@@ -411,6 +417,23 @@ class Canvas:
                         Canvas.cars.append( Car(node, roadSplitChoices[ random.randint(0, len(roadSplitChoices) - 1) ], kmhToPixels(200), selectedCoord, GMvar.mainScreenBuffer) )
                         del roadSplitChoices # Delete references
 
+        if Canvas.addStopLight:
+
+            if GMvar.mouseStateSingle[0]:
+                selected = selectRoad( MainCameraSurface.getRealMouseCoords(), Canvas.roadNodes, 16 )
+                if selected != None:
+                    node, connectedNode, selectedCoord = selected
+
+                    gridPos = tuple([ int(selectedCoord[i] // Car.collisionGridSize[i]) for i in range(2) ])
+                    stopLight = StopLight(node, GMvar.mainScreenBuffer, selectedCoord, 5, 10)
+                    try:
+                        Car.carCollisionGrid[gridPos].append( stopLight )
+                    except KeyError:
+                        Car.carCollisionGrid[gridPos] = [stopLight]
+
+                    Canvas.stopLights.append( stopLight )
+                    
+
         Canvas.drawRoads(Canvas.roadNodes, (30, 30, 30))
         Canvas.drawRoads(Canvas.tempRoadNodes, (50, 150, 50) if Canvas.newRoad else (52, 192, 217))
 
@@ -427,6 +450,10 @@ class Canvas:
                 # Delete car from list. Then, index is subtracted by 1, so not outOfRangeError
                 Canvas.cars.pop(i)
                 deletedCars += 1
+
+        # Update stoplights
+        for stopLights in Canvas.stopLights:
+            stopLights.update(MainCameraSurface.cameraCoords)
 
 class bottomGui:
 
@@ -581,6 +608,8 @@ class bottomGui:
 
         Canvas.addCar = bottomGui.addCar.checkState()
         Canvas.addCarSpawner = bottomGui.addCarSpawner.checkState()
+        Canvas.addStopLight = bottomGui.addStopLight.checkState()
+        Canvas.resetStopLight = bottomGui.resetStopLight.checkState()
 
         # Draw buttons to surface
         # Update buttons

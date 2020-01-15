@@ -27,7 +27,7 @@ class Car(Object):
 
     # Collision cone definition
     fov = 75     # Direction
-    triangleHeight = 87  # Pixels, This is also the start-brake distance
+    triangleHeight = 50  # Pixels, This is also the start-brake distance Original = 87
     stopDistance = 32 # Must be more than 27, as that is the length of the car.
     triangleBase = math.tan( fov / 2 * math.pi/180 ) * triangleHeight * 2
 
@@ -129,11 +129,13 @@ class Car(Object):
                 distanceVector = pygame.math.Vector2( *[ b - a for a, b in  zip(self.coords, carCoords) ] )
                 if distanceVector.length_squared() < distanceFromNearestCar:
                     distanceFromNearestCar = distanceVector.length()
-                self.carInFront = True
+                self.carInFront = not cars.go if type(cars).__name__ == "StopLight" and cars.nodeAnchor == self.nodeAnchor else True
+
+            
         ################################################## END COLLISION CHECKING ##################################################
 
         accelAddition = GMvar.deltaTime * self.acceleration * GMvar.gameSpeed
-        if distanceFromNearestCar < Car.triangleHeight:
+        if distanceFromNearestCar < Car.triangleHeight and self.carInFront:
             self.scalarSpeed -= self.beforeBrakeSpeed * ( 1 - ( GMfun.clamp(distanceFromNearestCar + Car.stopDistance, 0, Car.triangleHeight) / Car.triangleHeight)) if self.scalarSpeed * 1 >= 0 else 0
         else:
             self.beforeBrakeSpeed = self.scalarSpeed * 1

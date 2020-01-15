@@ -4,7 +4,7 @@ sys.path.append('..')
 import pygame.image
 import pygame.draw
 
-from street_nodes import StreetNodes
+from objects.street_nodes import StreetNodes
 from game_functions import Timer
 
 class StopLight:
@@ -32,27 +32,27 @@ class StopLight:
 
         if self.timer.checkDone():
 
-            if self.state:
+            if self.go:
                 self.timer = Timer(self.redDuration)
-                self.state = False
-            elif not self.state:
+                self.go = False
+            elif not self.go:
                 self.timer = Timer(self.greenDuration)
-                self.state = True
+                self.go = True
 
         # The range is weird is because it's the range between the lights
         for i in range(0, 35, 17):
             if not self.go and i/17 == 0:
-                color = StopLight.onColor[i/17]
+                color = StopLight.onColor[i//17]
             elif self.go and i/17 == 2:
-                color = StopLight.onColor[i/17]
+                color = StopLight.onColor[i//17]
             else:
-                color = StopLight.offColor[i/17]
+                color = StopLight.offColor[i//17]
 
             if self.timer.currentTime + 1000 > self.timer.endTime:
-                color = StopLight.offColor[i/17]
-                if i/17 == 1:
-                    color = StopLight.onColor[i/17]
+                color = StopLight.offColor[i//17]
+                if i//17 == 1:
+                    color = StopLight.onColor[i//17]
 
-            pygame.draw.circle(self.surface, color, (10, 12 + i), 13)
+            pygame.draw.circle(self.image, color, [ 10, 12 + i ], 13//2)
 
         self.surface.blit(self.image, [ a - b for a, b in zip(self.coords, coordsOffset) ] )
