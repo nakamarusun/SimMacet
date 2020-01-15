@@ -81,7 +81,7 @@ class MainCameraSurface:
                 pointPosition = i * MainCameraSurface.cellSize[x] - MainCameraSurface.gridOffset[x] # Every node point to draw the line.
                 startLine = (pointPosition, 0) if x == 0 else (0, pointPosition)
                 endLine = (pointPosition, GMvar.resolution[::-1][x]) if x == 0 else (GMvar.resolution[::-1][x], pointPosition)
-                color = (230, 230, 230) if i * MainCameraSurface.cellSize[x] % (Car.collisionGridSize[x]) != 0 else (200, 200, 200)
+                color = (230, 230, 230) # if i * MainCameraSurface.cellSize[x] % (Car.collisionGridSize[x]) != 0 else (200, 200, 200)
                 pygame.draw.line( GMvar.mainScreenBuffer, color, startLine, endLine) # Draw line
 
         # For every object in the camera queue, do their respective update event, and put them in their new coordinates
@@ -448,6 +448,11 @@ class Canvas:
 
                     Canvas.stopLights.append( stopLight )
                     
+        if Canvas.resetStopLight:
+            for stopLights in Canvas.stopLights:
+                stopLights.go = True
+                stopLights.timer = GMfun.Timer(stopLights.greenDuration * 1000)
+
         Canvas.drawRoads(Canvas.roadNodes, (30, 30, 30))
         Canvas.drawRoads(Canvas.tempRoadNodes, (50, 150, 50) if Canvas.newRoad else (52, 192, 217))
 
@@ -512,7 +517,7 @@ class bottomGui:
     addCarSpawner = Button.ToggleButton(surfGui, (GMvar.resolution[0]/2 - 217, 10 ), "images/sprites/GuiButtons/AddCarSpawner.png", "images/sprites/GuiButtons/AddCarSpawnerTog.png", (0, 54, 46, 47))
 
     addStopLight = Button.ToggleButton(surfGui, (GMvar.resolution[0]/2 - 270, 10 ), "images/sprites/GuiButtons/AddTraffic.png", "images/sprites/GuiButtons/AddTrafficTog.png", (0, 0, 46, 47))
-    resetStopLight = Button.ToggleButton(surfGui, (GMvar.resolution[0]/2 - 270, 10 ), "images/sprites/GuiButtons/ResetTraffic.png", "images/sprites/GuiButtons/ResetTrafficTog.png", (0, 54, 46, 47))
+    resetStopLight = Button.Button(surfGui, (GMvar.resolution[0]/2 - 270, 10 ), "images/sprites/GuiButtons/ResetTraffic.png", "images/sprites/GuiButtons/ResetTrafficTog.png", (0, 54, 46, 47))
     
     # Conflicts
     buttonBotLeft.addConflictButtons([buttonBotRight])
@@ -521,11 +526,10 @@ class bottomGui:
     addRoad.addConflictButtons([inspectRoad])
     inspectRoad.addConflictButtons([addRoad])
 
-    addCar.addConflictButtons([addCarSpawner, addStopLight, resetStopLight])
-    addCarSpawner.addConflictButtons([addCar, addStopLight, resetStopLight])
+    addCar.addConflictButtons([addCarSpawner, addStopLight])
+    addCarSpawner.addConflictButtons([addCar, addStopLight])
 
-    addStopLight.addConflictButtons([addCar, addCarSpawner, resetStopLight])
-    resetStopLight.addConflictButtons([addCar, addStopLight, addCarSpawner])
+    addStopLight.addConflictButtons([addCar, addCarSpawner])
     
     # List
     roadButtons = [addRoad, inspectRoad]
@@ -540,6 +544,8 @@ class bottomGui:
         # CLICK BUTTON CHECK EVENTS HERE
         if bottomGui.reCenter.checkState():
             MainCameraSurface.returnCamera = True
+
+        Canvas.resetStopLight = bottomGui.resetStopLight.checkState()
 
         # If mouse is clicked on the button then open/close gui
         if GMfun.mouseClickedArea(0, bottomGui.sliderX, (bottomGui.sliderX + bottomGui.sliderRect[2]), (bottomGui.guiHeightChange + bottomGui.sliderYOffset - 4), (bottomGui.guiHeightChange + bottomGui.sliderRect[3] + bottomGui.sliderYOffset)):
