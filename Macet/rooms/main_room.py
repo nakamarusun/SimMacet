@@ -544,7 +544,7 @@ class bottomGui:
 
         pygame.draw.line(bottomGui.surfGui, (255, 255, 255), bottomGui.timeSliderCoords, (bottomGui.timeSliderCoords[0] + 120, bottomGui.timeSliderCoords[1]), 2)
         bottomGui.surfGui.blit(bottomGui.timeSliderSprite, bottomGui.timeSliderSpriteCoords)
-        multiplierNumber = GMvar.defFont12.render("{}x".format(float(GMvar.gameSpeed)), True, (0, 0, 0))
+        multiplierNumber = GMvar.defFont11.render("{}x".format(float(GMvar.gameSpeed)), True, (0, 0, 0))
         bottomGui.surfGui.blit(multiplierNumber, [ bottomGui.timeSliderSpriteCoords[0] + 3, bottomGui.timeSliderSpriteCoords[1] + 6] )
 
         # TOGGLE BUTTON CHECK EVENTS HERE

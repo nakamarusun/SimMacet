@@ -18,6 +18,7 @@ mainScreenBuffer = None
 curRoom = None
 defFont = pygame.font.Font(pygame.font.get_default_font(), 14)
 defFont12 = pygame.font.Font(pygame.font.get_default_font(), 12)
+defFont11 = pygame.font.Font(pygame.font.get_default_font(), 10)
 
 credit = pygame.font.Font(pygame.font.get_default_font(), 10).render("© {} Nakamarusun.".format(str(datetime.date.today().year)), True, (0, 0, 0))
 
