@@ -429,7 +429,7 @@ class Canvas:
 
 class bottomGui:
 
-    # image for the slider
+    # Image for the slider
     slider = pygame.image.load("images/sprites/GuiButtons/Slider.png").convert_alpha()
     sliderDirection = 0 # Slider's image direction
     sliderRect = slider.get_rect() # Slider rect
@@ -441,6 +441,11 @@ class bottomGui:
     guiHeightChange = GMvar.resolution[1] - sliderHeight # Current gui's position on the screen.
     sliderX = GMvar.resolution[0]/2 - sliderRect[2]/2 # Middle point of the slider
     sliderYOffset = 15 # Offset of slider button from the top of the surface
+
+    # Time slider stuff
+    timeSliderSprite = pygame.image.load("images/sprites/GuiButtons/TimeSlider.png").convert_alpha()
+    timeSliderCoords = [24, guiHeight - 18]
+    timeSliderSpriteCoords = [24 - timeSliderSprite.get_rect()[2] / 2, guiHeight - 18 - timeSliderSprite.get_rect()[3] + 4 ]
 
     openSpeed = 50 # Initial speed to open the GUI
     increment = 500 # Speed acceleration
@@ -525,6 +530,14 @@ class bottomGui:
         # Draw and blit to main screen buffer [ a + b for a, b in zip((rect.x, rect.y), (bottomGui.sliderX, bottomGui.sliderYOffset)) ]
         bottomGui.surfTransparent.blit( slider, (rect[0] + 8, rect[1] + 10) )     # Blit slider button to surface
         pygame.draw.rect(bottomGui.surfGui, (44, 66, 81), (0, 0, GMvar.resolution[0], bottomGui.guiHeight + 0)) # Plus 1 to fix the weird 1 pixel
+        # Time Slider draws and code
+        if GMfun.mouseHoldArea(0, bottomGui.timeSliderSpriteCoords[0], bottomGui.timeSliderSpriteCoords[0] + 32, bottomGui.timeSliderSpriteCoords[1] + bottomGui.guiHeightChange + bottomGui.sliderHeight, bottomGui.timeSliderSpriteCoords[1] + bottomGui.guiHeightChange + bottomGui.sliderHeight + 22):
+            timeSliderStartingX = 24 - bottomGui.timeSliderSprite.get_rect()[2] / 2
+            bottomGui.timeSliderSpriteCoords[0] += GMvar.mouseDelta[0]
+            bottomGui.timeSliderSpriteCoords[0] = GMfun.clamp(bottomGui.timeSliderSpriteCoords[0], timeSliderStartingX, timeSliderStartingX + 120)
+
+        pygame.draw.line(bottomGui.surfGui, (255, 255, 255), bottomGui.timeSliderCoords, (bottomGui.timeSliderCoords[0] + 120, bottomGui.timeSliderCoords[1]), 2)
+        bottomGui.surfGui.blit(bottomGui.timeSliderSprite, bottomGui.timeSliderSpriteCoords)
 
         # TOGGLE BUTTON CHECK EVENTS HERE
         # Road button
