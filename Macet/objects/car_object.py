@@ -17,17 +17,19 @@ from objects.street_nodes import StreetNodes
 
 from game_math.custom_math_funcs import isPointInTriangle, triangleArea
 
+from game_math.displacement_functions import kmhToPixels
+
 class Car(Object):
     
-    carSprites = [ pygame.image.load("images/sprites/Cars/8.png") ]
+    carSprites = [ pygame.image.load("images/sprites/Cars/{}.png".format(i)) for i in range(1,7) ]
     
     collisionGridSize = (160, 160)
     # carCollisionGrid: { [gridNumberx, gridNumbery]: [Cars list] }
     carCollisionGrid: dict = {}
 
     # Collision cone definition
-    fov = 75     # Direction
-    triangleHeight = 50  # Pixels, This is also the start-brake distance Original = 87
+    fov = 60     # Direction
+    triangleHeight = 87  # Pixels, This is also the start-brake distance Original = 87Px = 16m. 300Px = 56m
     stopDistance = 32 # Must be more than 27, as that is the length of the car.
     triangleBase = math.tan( fov / 2 * math.pi/180 ) * triangleHeight * 2
 
@@ -40,9 +42,10 @@ class Car(Object):
         self.nodeAnchor: StreetNodes = node
         self.nodeDestination: StreetNodes = nodeDest
         self.maxSpeed = speed
-        self.acceleration = 16
+        self.acceleration = 10 # pixel (acceleration is 2m/s^2)
         self.scalarSpeed = 0
-        self.beforeBrakeSpeed = 0
+        self.brakeDeacceleration = 200 # pixel (maximum deacceleration is 0.8G / 8m/s^2)
+        self.oldScalarSpeed = 0
 
         self.carInFront = False
 
@@ -131,15 +134,15 @@ class Car(Object):
                     distanceFromNearestCar = distanceVector.length()
                 self.carInFront = not cars.go if type(cars).__name__ == "StopLight" and cars.nodeAnchor == self.nodeAnchor else True
 
-            
         ################################################## END COLLISION CHECKING ##################################################
 
         accelAddition = GMvar.deltaTime * self.acceleration * GMvar.gameSpeed
         if distanceFromNearestCar < Car.triangleHeight and self.carInFront:
-            self.scalarSpeed -= self.beforeBrakeSpeed * ( 1 - ( GMfun.clamp(distanceFromNearestCar + Car.stopDistance, 0, Car.triangleHeight) / Car.triangleHeight)) if self.scalarSpeed * 1 >= 0 else 0
+            # self.scalarSpeed = self.oldScalarSpeed * ( GMfun.clamp(distanceFromNearestCar - Car.stopDistance, 0, Car.triangleHeight - Car.stopDistance) / (Car.triangleHeight - Car.stopDistance) )
+            self.scalarSpeed -= self.brakeDeacceleration * GMvar.gameSpeed * GMvar.deltaTime * ( 1 - ( GMfun.clamp(distanceFromNearestCar + Car.stopDistance, 0, Car.triangleHeight) / Car.triangleHeight)) if self.scalarSpeed * 1 >= 0 else 0
         else:
-            self.beforeBrakeSpeed = self.scalarSpeed * 1
             self.scalarSpeed += accelAddition if self.scalarSpeed * 1 <= self.maxSpeed else 0
+            self.oldScalarSpeed = self.scalarSpeed
         self.speed = [ self.scalarSpeed * vec * GMvar.gameSpeed for vec in normalized ]
         super().update()
 

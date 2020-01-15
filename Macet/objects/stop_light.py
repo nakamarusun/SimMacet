@@ -7,6 +7,8 @@ import pygame.draw
 from objects.street_nodes import StreetNodes
 from game_functions import Timer
 
+import global_variables as GMvar
+
 class StopLight:
 
     # Colors of the StopLight. index 0 - 2 is red - green.
@@ -30,6 +32,8 @@ class StopLight:
 
     def update(self, coordsOffset):
 
+        # Adjust timer so it would fit gameSpeed
+        self.timer.endTime = self.timer.originalStart + (self.timer.originalEndTime * 1 / GMvar.gameSpeed)
         if self.timer.checkDone():
 
             if self.go:
@@ -48,11 +52,11 @@ class StopLight:
             else:
                 color = StopLight.offColor[i//17]
 
-            if self.timer.currentTime + 1000 > self.timer.endTime:
+            if self.timer.currentTime + (1000 * 1/GMvar.gameSpeed) > self.timer.endTime:
                 color = StopLight.offColor[i//17]
                 if i//17 == 1:
                     color = StopLight.onColor[i//17]
 
             pygame.draw.circle(self.image, color, [ 10, 12 + i ], 13//2)
-
-        self.surface.blit(self.image, [ a - b for a, b in zip(self.coords, coordsOffset) ] )
+        
+        self.surface.blit(self.image, [ a - b - 12 for a, b in zip(self.coords, coordsOffset) ] )

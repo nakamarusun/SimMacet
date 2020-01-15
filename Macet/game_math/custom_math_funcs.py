@@ -1,6 +1,8 @@
 import pygame.math
 from shapely.geometry import LineString
 
+from math import isclose
+
 def vec2Projection(source: pygame.math.Vector2, dest: pygame.math.Vector2) -> pygame.math.Vector2:
     # Definition: Source vector is PROJECTED ONTO Dest vector
     divided = source.dot(dest) / dest.magnitude_squared()
@@ -34,4 +36,4 @@ def isPointInTriangle(point: list, trianglePoint1: list, trianglePoint2: list, t
     triangle2 = triangleArea(point, trianglePoint2, trianglePoint3)
     triangle3 = triangleArea(point, trianglePoint3, trianglePoint1)
 
-    return (triangle1 + triangle2 + triangle3 == area)
+    return isclose(triangle1 + triangle2 + triangle3, area, rel_tol=0.05)

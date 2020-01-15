@@ -52,6 +52,8 @@ class CarSpawner:
         self.timer: Timer = Timer( random.randint( *[ math.ceil(time * 1000) for time in self.interval ] ) )
 
     def update(self, carList: list, surface, offset: list):
+
+        # Adjust timer so it would fit gameSpeed
         self.timer.endTime = self.timer.originalStart + (self.timer.originalEndTime * 1 / GMvar.gameSpeed)
         if self.timer.checkDone():
             # Do actions here:

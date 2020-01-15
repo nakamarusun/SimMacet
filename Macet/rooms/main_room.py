@@ -81,7 +81,8 @@ class MainCameraSurface:
                 pointPosition = i * MainCameraSurface.cellSize[x] - MainCameraSurface.gridOffset[x] # Every node point to draw the line.
                 startLine = (pointPosition, 0) if x == 0 else (0, pointPosition)
                 endLine = (pointPosition, GMvar.resolution[::-1][x]) if x == 0 else (GMvar.resolution[::-1][x], pointPosition)
-                pygame.draw.line( GMvar.mainScreenBuffer, (230, 230, 230), startLine, endLine) # Draw line
+                color = (230, 230, 230) if i * MainCameraSurface.cellSize[x] % (Car.collisionGridSize[x]) != 0 else (200, 200, 200)
+                pygame.draw.line( GMvar.mainScreenBuffer, color, startLine, endLine) # Draw line
 
         # For every object in the camera queue, do their respective update event, and put them in their new coordinates
         for objects in MainCameraSurface.objectsQueue:
@@ -369,7 +370,7 @@ class Canvas:
                             gridPos = tuple( [ Canvas.stopLights[i].coords[j] // Car.collisionGridSize[j] for j in range(2) ] )
                             del Car.carCollisionGrid[gridPos][ Car.carCollisionGrid[gridPos].index(Canvas.stopLights[i]) ]
 
-                            Canvas.stopLight.pop(i)
+                            Canvas.stopLights.pop(i)
                             deletedStopLights += 1
 
                 del Canvas.tempRoadNodes[:]
@@ -381,7 +382,7 @@ class Canvas:
                 selected = selectRoad( MainCameraSurface.getRealMouseCoords(), Canvas.roadNodes, 16 )
                 if selected != None:
                     node, connectedNode, selectedCoord = selected
-                    Canvas.carSpawners.append( CarSpawner(node, selectedCoord, 80, 30) )
+                    Canvas.carSpawners.append( CarSpawner(node, selectedCoord, kmhToPixels(40), 30) )
         
         if Canvas.addCar:
             if GMvar.mouseStateSingle[0]:
@@ -428,7 +429,7 @@ class Canvas:
                             if Point(connected.coords).intersects(lineToCheck):
                                 roadSplitChoices.append(connected)
 
-                        Canvas.cars.append( Car(node, roadSplitChoices[ random.randint(0, len(roadSplitChoices) - 1) ], kmhToPixels(200), selectedCoord, GMvar.mainScreenBuffer) )
+                        Canvas.cars.append( Car(node, roadSplitChoices[ random.randint(0, len(roadSplitChoices) - 1) ], kmhToPixels(40), selectedCoord, GMvar.mainScreenBuffer) )
                         del roadSplitChoices # Delete references
 
         if Canvas.addStopLight:
