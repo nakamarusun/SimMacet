@@ -57,9 +57,11 @@ class Timer:
         self.originalStart = time.time() * 1000
         self.originalEndTime = endTime
         self.endTime = time.time() * 1000 + endTime
+        self.currentTime = time.time() * 1000
 
     def checkDone(self) -> bool:
-        if time.time() * 1000 > self.endTime:
+        self.currentTime = time.time() * 1000
+        if self.currentTime > self.endTime:
             return True
             del self
         else:
