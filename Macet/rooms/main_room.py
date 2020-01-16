@@ -171,6 +171,7 @@ class Canvas:
             canDrawRoad = True # If can draw road, not intersecting with others
             lengthFromIntersection = Canvas.snapLength + 1 # The length from the intersection point to the road to the mouse. (This is just the default valie)
             snap = False # If the length fo intersection is lower than constant snap. it means the road is snapped to another road.
+            overDirection = False
             # Draw road estimation
             if len(Canvas.tempRoadNodes) > 0:
                 startLine = [ a - b for a, b in zip(Canvas.tempRoadNodes[-1].coords, MainCameraSurface.cameraCoords) ]
@@ -222,14 +223,15 @@ class Canvas:
                 # This works by comparing the normalized vector2 of the before road, and the current road by mouse.
                 # Fixed problem where you can't place roads if there is two or more connectedNodes
                 if len(Canvas.tempRoadNodes) > 1:
-                    vec1: pygame.math.Vector2 = list(Canvas.tempRoadNodes[-2].connectedNodes.values())[-1][0]
-                    vec2 = pygame.math.Vector2( [ b - a for a, b in zip(realMouseCoords, Canvas.tempRoadNodes[-1].coords) ] )
-                    try:
-                        if vec1.normalize() == vec2.normalize():
-                            canDrawRoad = False
-                            snap = False
-                    except:
-                        pass
+                    # vec1: pygame.math.Vector2 = list(Canvas.tempRoadNodes[-2].connectedNodes.values())[-1][0]
+                    # vec2 = pygame.math.Vector2( [ b - a for a, b in zip(realMouseCoords, Canvas.tempRoadNodes[-1].coords) ] )
+                    # try:
+                    #     if vec1.normalize() == vec2.normalize():
+                    #         canDrawRoad = False
+                    #         snap = False
+                    # except:
+                    #     pass
+                    # Redundant code
 
                     roadMouseDirection = ( np.arctan2(*newRoadVec[::-1]) * 180/math.pi )
                     roadMouseDirection = 360 + roadMouseDirection if roadMouseDirection < 0 else roadMouseDirection
@@ -237,6 +239,8 @@ class Canvas:
                     minDir = Canvas.addRoadDirection - Canvas.directionRange/2
                     if not ( (roadMouseDirection < addDir or (roadMouseDirection - 360 < addDir and roadMouseDirection - 360 > minDir) ) and (roadMouseDirection > minDir or (roadMouseDirection + 360 > minDir and roadMouseDirection + 360 < addDir)) ):
                         canDrawRoad = False
+                        overDirection = True
+                        snap = False
 
                 color = (52, 139, 201) if snap else ((50, 150, 50) if canDrawRoad else (150, 50, 50))
                 GMfun.drawBetterLine(GMvar.mainScreenBuffer, color, *[ b + 16 if (b > a - c) else b for a, b, c in zip(pos, startLine, MainCameraSurface.cameraCoords) ] if snap else startLine, *[ a - b for a, b in zip(pos, MainCameraSurface.cameraCoords ) ] if snap else endLine, 16) # If snaps to road, change the end line to the snapped position, else to mouse position
@@ -260,7 +264,7 @@ class Canvas:
                     if beginConnectRoad: break
 
             # Draw temporary roads when left clicked
-            if GMvar.mouseStateSingle[0] and GMvar.latestMouse[1] < bottomGui.guiHeightChange + bottomGui.sliderHeight and canDrawRoad:
+            if GMvar.mouseStateSingle[0] and GMvar.latestMouse[1] < bottomGui.guiHeightChange + bottomGui.sliderHeight and canDrawRoad and not overDirection:
                 # Add length to total length
                 Canvas.temporaryLength += length
                 # If mouse is clicked on the canvas,

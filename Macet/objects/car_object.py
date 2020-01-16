@@ -44,7 +44,7 @@ class Car(Object):
         self.maxSpeed = speed
         self.acceleration = 10 # pixel (acceleration is 2m/s^2)
         self.scalarSpeed = 0
-        self.brakeDeacceleration = 200 # pixel (maximum deacceleration is 0.8G / 8m/s^2)
+        self.brakeDeacceleration = 250 # pixel (maximum deacceleration is 0.8G / 8m/s^2)
         self.oldScalarSpeed = 0
 
         self.carInFront = False
