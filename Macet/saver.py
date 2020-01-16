@@ -6,11 +6,11 @@ import sys
 from objects.street_nodes import StreetNodes
 from objects.stop_light import StopLight
 from objects.car_spawner import CarSpawner
-from rooms.main_room import Canvas as Room
 
 from tkinter.filedialog import *
+from tkinter import *
 
-def saveFile() -> bool:
+def saveFile(Room) -> bool:
 
     jsonFile = {
         "StreetNodes": {},
@@ -22,7 +22,7 @@ def saveFile() -> bool:
         jsonFile["StreetNodes"][nodes.id] = [
             nodes.coords,
             [ backNode.id for backNode in nodes.backNodes],
-            [ connectedNodes.id for connectedNodes in list(connectedNodes.keys()) ]
+            [ connectedNodes.id for connectedNodes in list(nodes.connectedNodes.keys()) ]
         ]
     
     for lights in Room.stopLights:
@@ -41,8 +41,13 @@ def saveFile() -> bool:
             spawners.originalInterval
         ]
 
-    with askopenfile(mode='w', defaultextension='.json', initialdir=sys.path[0]) as file:
+    root = Tk()
+    root.withdraw()
+    root.update()
+
+    with asksaveasfile(mode='w', defaultextension='.json', initialdir=sys.path[0], filetypes=(("JSON save file", "*.json"), ("All Files", "*.*")) ) as file:
         file.write( json.dumps(jsonFile, indent=4) )
         file.close()
+        root.destroy()
 
     return True

@@ -8,68 +8,77 @@ from global_variables import mainScreenBuffer
 from objects.street_nodes import StreetNodes
 from objects.car_spawner import CarSpawner
 from objects.stop_light import StopLight
-from rooms.main_room import Canvas as Room
 
 from tkinter.filedialog import *
+from tkinter import *
 
-def openFile() -> bool:
+def openFile(Room) -> bool:
 
-    with askopenfile(mode="r", defaultextension=".json", initialdir=sys.path[0]) as file:
+    root = Tk()
+    root.withdraw()
+    root.update()
+    
+    with askopenfile(mode="r", defaultextension=".json", initialdir=sys.path[0], filetypes=(("JSON save file", "*.json"), ("All Files", "*.*")) ) as file:
         
-        jsonFile = json.loads(file.read())
+        jsonFile = json.loads( file.read() )
+        root.destroy()
+
+        del Room.roadNodes[:]
+        del Room.stopLights[:]
+        del Room.carSpawners[:]
 
         # Load from street nodes to room
-        with jsonFile["StreetNodes"] as streetNodes:
+        streetNodes = jsonFile["StreetNodes"]
 
-            newNodesList = []
-            for nodes in streetNodes:
-                newNodesList.append( StreetNodes(
-                    streetNodes[nodes][0],
-                    {},
-                    [],
-                    0,
-                    id=nodes
-                ) )
+        newNodesList = []
+        for nodes in streetNodes:
+            newNodesList.append( StreetNodes(
+                streetNodes[nodes][0],
+                {},
+                [],
+                0,
+                id=nodes
+            ) )
 
-            for nodes in newNodesList:
+        for nodes in newNodesList:
 
-                for backNodesId in streetNodes[nodes.id][1]:
-                    for checkNodes in newNodesList:
-                        if checkNodes.id == backNodesId:
-                            nodes.backNodes.append(checkNodes)
+            for backNodesId in streetNodes[nodes.id][1]:
+                for checkNodes in newNodesList:
+                    if checkNodes.id == backNodesId:
+                        nodes.backNodes.append(checkNodes)
 
-                for frontNodesId in streetNodes[nodes.id][2]:
-                    for checkNodes in newNodesList:
-                        if checkNodes.id == frontNodesId:
-                            nodes.connectTo(checkNodes)
+            for frontNodesId in streetNodes[nodes.id][2]:
+                for checkNodes in newNodesList:
+                    if checkNodes.id == frontNodesId:
+                        nodes.connectTo(checkNodes)
 
-            Room.roadNodes += newNodesList
-            del newNodesList
+        Room.roadNodes += newNodesList
+        del newNodesList
 
         # Now stop lights
-        with jsonFile["StopLights"] as stopLights:
+        stopLights = jsonFile["StopLights"]
 
-            for lights in stopLights:
-                for nodes in Room.roadNodes:
-                    if nodes.id == stopLights[lights][1]:
-                        node = nodes
-                        break
-                
-                Room.stopLights.append(
-                    StopLight(node, mainScreenBuffer, stopLights[lights][0], stopLights[lights][2], stopLights[lights][3])
-                )
+        for lights in stopLights:
+            for nodes in Room.roadNodes:
+                if nodes.id == stopLights[lights][1]:
+                    node = nodes
+                    break
+            
+            Room.stopLights.append(
+                StopLight(node, mainScreenBuffer, stopLights[lights][0], stopLights[lights][2], stopLights[lights][3])
+            )
 
         # And car spawners
-        with jsonFile["CarSpawners"] as carSpawners:
+        carSpawners = jsonFile["CarSpawners"]
 
-            for spawners in carSpawners:
-                for nodes in Room.roadNodes:
-                    if nodes.id == carSpawners[spawners][1]:
-                        node = nodes
-                        break
-                
-                Room.stopLights.append(
-                    CarSpawner(node, carSpawners[spawners][0], carSpawners[spawners][2], carSpawners[spawners][3])
-                )
+        for spawners in carSpawners:
+            for nodes in Room.roadNodes:
+                if nodes.id == carSpawners[spawners][1]:
+                    node = nodes
+                    break
+            
+            Room.carSpawners.append(
+                CarSpawner(node, carSpawners[spawners][0], carSpawners[spawners][2], carSpawners[spawners][3])
+            )
 
         return True

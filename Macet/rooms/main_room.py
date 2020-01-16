@@ -24,6 +24,8 @@ from objects.car_object import Car
 from objects.car_spawner import CarSpawner
 from game_math.displacement_functions import kmhToPixels
 from objects.stop_light import StopLight
+from saver import saveFile
+from opener import openFile
 
 class MainCameraSurface:
     # This is the surface in which every object that needs to be movable
@@ -543,6 +545,12 @@ class bottomGui:
         # CLICK BUTTON CHECK EVENTS HERE
         if bottomGui.reCenter.checkState():
             MainCameraSurface.returnCamera = True
+
+        if bottomGui.buttonTopLeft.checkState():
+            saveFile(Canvas)
+
+        if bottomGui.buttonTopRight.checkState():
+            openFile(Canvas)
 
         Canvas.resetStopLight = bottomGui.resetStopLight.checkState()
 

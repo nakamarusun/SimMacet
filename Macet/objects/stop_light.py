@@ -8,6 +8,7 @@ from objects.street_nodes import StreetNodes
 from game_functions import Timer
 
 import global_variables as GMvar
+import game_functions as GMfun
 
 class StopLight:
 

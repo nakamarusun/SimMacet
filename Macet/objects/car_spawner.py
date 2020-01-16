@@ -15,6 +15,7 @@ from game_math.displacement_functions import kmhToPixels
 from objects.street_nodes import StreetNodes
 from game_functions import Timer
 import global_variables as GMvar
+import game_functions as GMfun
 
 class CarSpawner:
 
@@ -30,7 +31,7 @@ class CarSpawner:
 
         # initialize timer. Timer is randomized if there is an interval deviation. ranges from:
         # [second/car - second/car * deviation, second/car + second/car * deviation]
-        self.orignalInterval = spawnerInterval
+        self.originalInterval = spawnerInterval
         self.interval: list = [ perSecondInterval + intervalDeviation * perSecondInterval * i for i in range(-1, 2, 2) ]
         self.pause: bool = False
 

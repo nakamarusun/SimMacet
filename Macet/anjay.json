@@ -1,0 +1,85 @@
+{
+    "StreetNodes": {
+        "rCUY4SLc": [
+            [
+                368,
+                384
+            ],
+            [],
+            [
+                "hhqX19Y3",
+                "lObr57dL"
+            ]
+        ],
+        "hhqX19Y3": [
+            [
+                704,
+                384
+            ],
+            [
+                "rCUY4SLc"
+            ],
+            [
+                "6qVtCJGt"
+            ]
+        ],
+        "6qVtCJGt": [
+            [
+                704,
+                192
+            ],
+            [
+                "hhqX19Y3"
+            ],
+            [
+                "nNUbUPxy"
+            ]
+        ],
+        "nNUbUPxy": [
+            [
+                416,
+                192
+            ],
+            [
+                "6qVtCJGt"
+            ],
+            [
+                "lObr57dL"
+            ]
+        ],
+        "lObr57dL": [
+            [
+                416.0,
+                384.0
+            ],
+            [
+                "nNUbUPxy"
+            ],
+            [
+                "hhqX19Y3"
+            ]
+        ]
+    },
+    "StopLights": {
+        "20zNKYrV": [
+            [
+                416.0,
+                272.0
+            ],
+            "nNUbUPxy",
+            5.0,
+            10.0
+        ]
+    },
+    "CarSpawners": {
+        "wLqWocOw": [
+            [
+                385.0,
+                384.0
+            ],
+            "rCUY4SLc",
+            59.25925555555555,
+            30
+        ]
+    }
+}
