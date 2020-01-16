@@ -20,9 +20,6 @@ class StreetNodes:
         self.connectedNodes = {}
         for nodes in connectedNodes:
             self.connectTo(nodes, width=width)
-        self.nodeType = nodeType
-
-        self.doneChange = True
 
     # Change the width of thhe image
     def connectTo(self, newNode, width=16, color=(50,50,50)):

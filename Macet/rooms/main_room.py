@@ -91,7 +91,7 @@ class MainCameraSurface:
             GMvar.mainScreenBuffer.blit(objects.image, newSurfCoords) # Blit objects to camera surface
 
 class CarEx(Object):
-
+    # OBSOLETE
     def __init__(self, coords=[0,0], image=None, drawn=True, surface=GMvar.mainScreenBuffer):
         super().__init__(coords=coords, image=image, drawn=drawn, surface=surface)
         MainCameraSurface.objectsQueue.append(self)
@@ -235,7 +235,6 @@ class Canvas:
                     minDir = Canvas.addRoadDirection - Canvas.directionRange/2
                     if not ( (roadMouseDirection < addDir or (roadMouseDirection - 360 < addDir and roadMouseDirection - 360 > minDir) ) and (roadMouseDirection > minDir or (roadMouseDirection + 360 > minDir and roadMouseDirection + 360 < addDir)) ):
                         canDrawRoad = False
-                        snap = False
 
                 color = (52, 139, 201) if snap else ((50, 150, 50) if canDrawRoad else (150, 50, 50))
                 GMfun.drawBetterLine(GMvar.mainScreenBuffer, color, *[ b + 16 if (b > a - c) else b for a, b, c in zip(pos, startLine, MainCameraSurface.cameraCoords) ] if snap else startLine, *[ a - b for a, b in zip(pos, MainCameraSurface.cameraCoords ) ] if snap else endLine, 16) # If snaps to road, change the end line to the snapped position, else to mouse position

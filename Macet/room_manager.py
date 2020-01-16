@@ -17,6 +17,12 @@ class Room:
         for objects in self.objectsList:
             objects.update()
 
+import rooms.main_menu as MainMenuObjects
+
+mainMenu = Room()
+
+mainMenu.addObjectToQueue( MainMenuObjects.Text )
+
 import rooms.main_room as MainRoomObjects
 
 MainRoom = Room()
