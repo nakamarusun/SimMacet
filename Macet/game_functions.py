@@ -10,9 +10,16 @@ import pygame.draw
 import global_variables as GMvar
 import math
 import numpy as np
+import string
+import random
 
 #######################################################################################
 # General game object functions
+
+# Random string generator
+def generateRandomString(length: int, canLowercase: bool, canUppercase: bool, canNumbers: bool) -> str:
+    letters = (string.ascii_uppercase if canUppercase else "") + (string.ascii_lowercase if canLowercase else "") + ("1234567890" if canNumbers else "")
+    return ''.join(random.choice(letters) for i in range(length))
 
 # Rotation anchor
 def rotationAnchor(image, angle: float, anchor: list):

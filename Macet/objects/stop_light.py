@@ -17,6 +17,7 @@ class StopLight:
 
     def __init__(self, nodeAnchor: StreetNodes, surface, coords: list, greenDuration: int, redDuration: int):
         # Duration must be in second.
+        self.id = GMfun.generateRandomString(8, True, True, True)
         self.image = pygame.image.load("images/sprites/StopLight.png").convert_alpha()
         self.coords: list = coords
         self.nodeAnchor: StreetNodes = nodeAnchor

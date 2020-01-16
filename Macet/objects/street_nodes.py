@@ -15,6 +15,7 @@ import math
 class StreetNodes:
 
     def __init__(self, coords: list, connectedNodes: list, backNodes: list, nodeType: int, width=16):
+        self.id = GMfun.generateRandomString(8, True, True, True)
         self.coords = coords
         self.backNodes = backNodes
         self.connectedNodes = {}

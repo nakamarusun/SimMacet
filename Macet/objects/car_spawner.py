@@ -20,14 +20,17 @@ class CarSpawner:
 
     def __init__(self, nodeAnchor: StreetNodes, coords: list, spawnerSpeed: float, spawnerInterval: float, intervalDeviation: float=0):
         # Spawned car's speed is in km/h, spawnerInterval is how often it spawns new car. (car/minute)
+        self.id = GMfun.generateRandomString(8, True, True, True)
         self.coords: list = coords
         self.nodeAnchor: StreetNodes = nodeAnchor
+        self.originalSpeed = spawnerSpeed
         self.speed: float = kmhToPixels(spawnerSpeed)
         # This is interval for spawning car. defined as second/car
         perSecondInterval = (60 / spawnerInterval)
 
         # initialize timer. Timer is randomized if there is an interval deviation. ranges from:
         # [second/car - second/car * deviation, second/car + second/car * deviation]
+        self.orignalInterval = spawnerInterval
         self.interval: list = [ perSecondInterval + intervalDeviation * perSecondInterval * i for i in range(-1, 2, 2) ]
         self.pause: bool = False
 
