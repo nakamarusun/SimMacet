@@ -1,0 +1,19 @@
+{
+    "StreetNodes": {
+        "id": [["x", "y"], ["Backnodes id"], ["frontNodes id"]]
+
+
+    },
+
+    "StopLights": {
+        "id": [["x", "y"], "NodeAnchor id", 5, 10]
+
+
+    },
+
+    "CarSpawners": {
+        "id": [["x", "y"], "NodeAnchor id", 80, 2]
+
+
+    }
+}

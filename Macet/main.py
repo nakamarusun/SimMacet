@@ -31,7 +31,7 @@ import objects_manager as GMobj
 pygame.init()
 pygame.display.set_caption("Macet !")
 
-GMvar.curRoom = GMroom.mainMenu
+GMvar.curRoom = GMroom.MainRoom
 
 # Main Loop
 while True:
