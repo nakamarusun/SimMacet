@@ -21,7 +21,7 @@ from game_math.displacement_functions import kmhToPixels
 
 class Car(Object):
     
-    carSprites = [ pygame.image.load("images/sprites/Cars/{}.png".format(i)) for i in range(1,7) ]
+    carSprites = [ pygame.image.load("images/sprites/Cars/{}.png".format(i)) for i in range(4,7) ]
     
     collisionGridSize = (160, 160)
     # carCollisionGrid: { [gridNumberx, gridNumbery]: [Cars list] }
@@ -44,7 +44,7 @@ class Car(Object):
         self.maxSpeed = speed
         self.acceleration = 10 # pixel (acceleration is 2m/s^2)
         self.scalarSpeed = 0
-        self.brakeDeacceleration = 250 # pixel (maximum deacceleration is 0.8G / 8m/s^2)
+        self.brakeDeacceleration = 400 # pixel (maximum deacceleration is 0.8G / 8m/s^2)
         self.oldScalarSpeed = 0
 
         self.carInFront = False
@@ -115,23 +115,25 @@ class Car(Object):
                     pass
         
         distanceFromNearestCar = 10000000000
+
+        viewConeBase = [ (Car.triangleHeight * normalized[i]) + self.coords[i] + 8 for i in range(2) ]
+
+        offsetVector1 = [ -normalized[1], normalized[0] ]
+        viewConeBase1 = [ a + (Car.triangleBase / 2 * c) for a, c in zip(viewConeBase, offsetVector1) ]
+        offsetVector2 = [ -vec for vec in offsetVector1 ]
+        viewConeBase2 = [ a + (Car.triangleBase / 2 * c) for a, c in zip(viewConeBase, offsetVector2) ]
         for cars in collisionCheckList:
             # Ignore if the car object is self, or if the nodeAnchor of self is not the same as other nodeAnchor 
             if cars == self:
                 continue
-            viewConeBase = [ (Car.triangleHeight * normalized[i]) + self.coords[i] + 8 for i in range(2) ]
-
-            offsetVector1 = [ -normalized[1], normalized[0] ]
-            viewConeBase1 = [ a + (Car.triangleBase / 2 * c) for a, c in zip(viewConeBase, offsetVector1) ]
-            offsetVector2 = [ -vec for vec in offsetVector1 ]
-            viewConeBase2 = [ a + (Car.triangleBase / 2 * c) for a, c in zip(viewConeBase, offsetVector2) ]
 
             carCoords = cars.coords
             # If the coords is within the cone
             if isPointInTriangle(carCoords, self.coords, viewConeBase1, viewConeBase2):
                 distanceVector = pygame.math.Vector2( *[ b - a for a, b in  zip(self.coords, carCoords) ] )
                 if distanceVector.length_squared() < distanceFromNearestCar:
-                    distanceFromNearestCar = distanceVector.length()
+                    distanceFromNearestCar = distanceVector.length_squared()
+                distanceFromNearestCar = math.sqrt(distanceFromNearestCar)
                 self.carInFront = not cars.go if type(cars).__name__ == "StopLight" and cars.nodeAnchor == self.nodeAnchor else True
 
         ################################################## END COLLISION CHECKING ##################################################
@@ -141,8 +143,13 @@ class Car(Object):
             # self.scalarSpeed = self.oldScalarSpeed * ( GMfun.clamp(distanceFromNearestCar - Car.stopDistance, 0, Car.triangleHeight - Car.stopDistance) / (Car.triangleHeight - Car.stopDistance) )
             self.scalarSpeed -= self.brakeDeacceleration * GMvar.gameSpeed * GMvar.deltaTime * ( 1 - ( GMfun.clamp(distanceFromNearestCar + Car.stopDistance, 0, Car.triangleHeight) / Car.triangleHeight)) if self.scalarSpeed * 1 >= 0 else 0
         else:
-            self.scalarSpeed += accelAddition if self.scalarSpeed * 1 <= self.maxSpeed else 0
+            if not carVector.length_squared() < 112^2:
+                self.scalarSpeed += accelAddition if self.scalarSpeed * 1 <= self.maxSpeed else 0
+            else:
+                self.scalarSpeed -= accelAddition * 2 if self.scalarSpeed > kmhToPixels(20) else 0
             self.oldScalarSpeed = self.scalarSpeed
+        
+        self.scalarSpeed = GMfun.clamp(self.scalarSpeed, 0, 100000)
         self.speed = [ self.scalarSpeed * vec * GMvar.gameSpeed for vec in normalized ]
         super().update()
 

@@ -60,9 +60,6 @@ while True:
     # FPS Calculator
     FPS = GMfun.displayFps(startTime)
 
-    # Copyright
-    GMvar.mainScreenBuffer.blit(GMvar.credit, (GMvar.resolution[0] - 110, 2))
-
     # Update display
     pygame.display.flip()
 

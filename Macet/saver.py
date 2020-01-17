@@ -45,9 +45,12 @@ def saveFile(Room) -> bool:
     root.withdraw()
     root.update()
 
-    with asksaveasfile(mode='w', defaultextension='.json', initialdir=sys.path[0], filetypes=(("JSON save file", "*.json"), ("All Files", "*.*")) ) as file:
-        file.write( json.dumps(jsonFile, indent=4) )
-        file.close()
-        root.destroy()
+    try:
+        with asksaveasfile(mode='w', defaultextension='.json', initialdir=sys.path[0], filetypes=(("JSON save file", "*.json"), ("All Files", "*.*")) ) as file:
+            file.write( json.dumps(jsonFile, indent=4) )
+            file.close()
+            root.destroy()
 
-    return True
+        return True
+    except AttributeError:
+        return False
